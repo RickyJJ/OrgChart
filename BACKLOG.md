@@ -1,0 +1,98 @@
+# 🚀 Project Backlog & Todo
+
+| 任务 ID | 类型 (Feature/Bug) | 描述 | 状态 (Pending/Ongoing/Done) | 对应规范章节 |
+|---------|--------------------|------|-----------------------------|--------------|
+| 001 | Feature | Initialize project structure | Done | 3.1 |
+| 002 | Feature | Explain PLANNING mode flow | Done | N/A |
+| 003 | Feature | Refine visual style to "Ink & Wash" cultural theme | Done | 1.2 |
+| 004 | Feature | Add "Unrolling Scroll" entrance animation | Pending | 1.2 |
+| 005 | Feature | Replace generic badges with "Seal" style stamps | Done | 1.2 |
+| 006 | Feature | Implementation of vertical text for traditional feel | Done | 1.2 |
+| 007 | Feature | Add more dynasties (Song, Qing) | Pending | 2.1 |
+| 008 | Feature | 扩充数据结构：增加典故、人物和诗词字段 | Done | 3.2 |
+| 009 | Feature | 详情页重新设计：支持多维度文化内容展示 | Done | 2.3 |
+| 010 | Feature | 梳理唐代/明代核心官职的代表人物与诗词数据 | Done | 2.4 |
+| 011 | Feature | 实现官职卡片的双层展开（一级内联摘要，二级侧边全量） | Done | 2.3 |
+| 012 | Feature | 设计并接入官职类型的小图标/印记系统 | Done | 2.3 |
+| 013 | Feature | 深度优化古风诗词展示组件（竹简/笺纸风格等） | Done | 2.4 |
+| 014 | Feature | 关键信息确认或生成时，实现“朱红印章盖下”的视觉交互反馈 | Pending | 1.2 |
+| 015 | Feature | 典故连珠：实现全局跨朝代模糊搜索，点击结果平滑平移(Pan)/缩放(Zoom)居中目标并自动呼出详情 | Pending | 2.5 |
+| 016 | Content | 典故连珠：补充“左拾遗”、“司马”等高频文化官职的具体内容及白话翻译 | Pending | 2.5 |
+| 017 | Feature | “入仕”模拟器：根据映射字典匹配古今职业，增强社交传播属性 | Pending | 2.6 |
+| 018 | Feature | 委任状海报生成：集成 html2canvas 生成带朱红印章盖印动效的分享海报 | Pending | 2.6 |
+| 019 | Arch | 技术栈重构：将纯前端项目迁移至 React + Vite 构建体系 | Done | 3.1 |
+| 020 | UI/UX | Replace image paper texture with procedural CSS/SVG texture | Done | 1.2 |
+| 021 | Design | UI大改版：全量迁移至“青云志”高保真设计图风格 (侧栏、悬浮窗、水墨卡片) | Done | 1.2 |
+| 022 | Design | 生成并应用水墨飞白底纹、人物画卷和竹简图标等图片素材 | Done | 1.2 |
+| 023 | Design | 皇权节点更换为自定义高清印章图片 (emperor_seal_high_res.png) | Done | 1.2 |
+| 024 | Arch | 重构静态资源目录结构，将UI素材和业务内容分离至/assets/ui和/assets/content，实现业务图片全量动态渲染 | Done | 3.1 |
+| 025 | Design | 严格落实图片渲染规范：全量替换为 object-fit/bg-size: contain，并补齐内外边距，严禁拉伸变形 | Done | 1.2 |
+| 026 | Feature | 实现树状结构节点的收起/展开功能，卡片内部底端增加动态箭头按钮，并在父节点收起时应用层叠样式的视觉效果 | Done | 2.1 |
+| 026 | Arch | 将项目样式迁移至 TailwindCSS | Done | 3.1 |
+| 027 | Feature | 使用 Cloud API 编写 Node.js 脚本，根据提示词自动批量生成并保存配图 | Ongoing | 2.4 |
+| 027 | Feature | Layout Optimization: Neo-Chinese Minimalist, Sidebar, Typography, Hierarchy Tree styling | Done | 1.2 |
+| 028 | Feature | 将官职卡片样式重置为竖向卷轴/竹简排版（Vertical Bamboo Slip Style) | Done | 1.2 |
+| 029 | Design | 为兵部添加专有插画（bingbu_rider.png）展示在详情面版中，并保持原有的卡片UI | Done | 1.2 |
+| 030 | UI/UX | 解决竹简卡片英文名过长撑破布局的问题，限制卡片最大高度并允许英文字符换行 | Done | 1.2 |
+| 031 | UI/UX | 详情面板文字区的水平滚动条默认隐藏，仅在鼠标悬浮时显示；并修复悬浮导致的文本排版抖动（Layout Shift）问题，保持上下布局一体性 | Done | 1.2 |
+| 032 | UI/UX | 给官职树状图的背景区域增加边框素材 | Done | 1.2 |
+| 033 | UI/UX | 调整并加深全局与树状图面板背景色，强化新中式复古氛围 | Done | 1.2 |
+| 034 | UI/UX | 把详情面板职位名称和品阶的字体改为和树状图上的字体一致 | Done | 1.2 |
+| 035 | UI/UX | 详情面板职位名称字重进一步加粗 (font-extrabold) | Done | 1.2 |
+| 036 | UI/UX | 修复竹简卡片悬浮时的挂绳与锚点动画，使其在卡片上浮时视觉对齐并保持固定 | Done | 1.0 |
+| 037 | Bug | 修复垂直书写模式 (writing-mode) 导致的 flex 容器物理高度塌陷及连线穿模重叠的问题 | Done | 1.2 |
+| 037 | Bug | 修复架构树顶级节点（皇帝）内部出现多余向下引线的样式穿透问题 | Done | 1.0 |
+| 038 | Feature | 树状图连线风格升级：从 CSS border 直角线改为 SVG 贝塞尔曲线 + feTurbulence 手绘滤镜 + 墨点装饰，契合新中式水墨主题 | Done | 1.2 |
+| 039 | Bug | 修复树状图根节点与子节点不对齐及右侧卡片重叠问题：布局从 flex+float 改为 inline-block+text-align:center，确保父节点始终居中于子树上方 | Done | 1.2 |
+| 040 | Feature | 应对横向宽树布局：重构架构树为全局无界画布 (Infinite Canvas)，引入平滑缩放 (Wheel Zoom) 与拖拽平移 (Pan) 交互，并重写 SVG 连线的缩放系坐标映射 | Done | 1.2 |
+| 041 | UI/UX | 为“入仕模拟”板块落地基于 /ui-ux-pro-max 规范的深色模式仪表盘 (Dark Mode Neo-Chinese Bento Grid)，并嵌入 Recharts 数据图表 | Done | 2.6 |
+| 039 | Feature | 树状图连线风格重置：改为方正直角线（Orthogonal Lines）+ 圆角转折，强化建筑感与秩序感，并移除手绘滤镜 | Done | 1.2 |
+| 041 | UI/UX | 为官阶卡片应用新增的 card-border 图片，采用 border-image 属性实现九宫格平铺，绝不拉伸变形 | Done | 1.2 |
+| 042 | Bug | 修复“兵部”节点配图丢失问题：校正 data.js 中 `panelImage` 属性名为 `bgImage`，以匹配 NodeCard 渲染逻辑 | Done | 1.2 |
+| 042 | Design | 纯矢量风格的亚字形折角长方形牌匾轮廓图片生成 | Done | 1.2 |
+| 043 | UI/UX | 将生成的亚字形纯矢量牌匾轮廓应用到官职卡片上作为边框，修改 border-image 属性适配 | Done | 1.2 |
+| 044 | UI/UX | 统一所有官职卡片的尺寸为固定高宽，取消随内容自适应高度 | Done | 1.2 |
+| 045 | UI/UX | 扩大官位卡片的固定宽高为 w-[76px] 和 h-[260px] 提供充足空间容纳过长的英文头衔 (如 Shangshu Sheng) | Done | 1.2 |
+| 046 | UI/UX | 移除卡片上显得突兀的英文文本以维持水墨文化沉浸感，保留中文，并将英文挪至右侧详情面板头部 | Done | 1.2 |
+| 047 | Bug | 修复唐朝和明朝“兵部”节点被插图完全替代的问题，将 `bgImage` 字段修正为 `panelImage`，使图片仅在详情面板内展示，恢复正确的官职卡片渲染 | Done | 1.2 |
+| 048 | UI/UX | 调整所有官职卡片的固定宽高为 w-[115px] h-[200px]，使其长宽比（~0.575）完美匹配生成的源牌匾图片的像素比例（286x498），做到亚字形边框零拉伸 | Done | 1.2 |
+| 049 | Bug | 修复官职卡中背景色/材质覆盖并越过矢量边框（border-image）导致重叠难看的问题，通过移除 slice fill 并应用 `background-clip: padding-box` 裁切背景 | Done | 1.2 |
+| 050 | UI/UX | 修复边框图片自带纯白背景遮挡卡片纸张纹理的问题：重构 CSS 将 `border-image` 移至绝对定位层并叠加 `mix-blend-mode: multiply` | Done | 1.2 |
+| 051 | UI/UX | 彻底消灭原卡片底色超出矢量折角并残留白色矩形背景块的问题：移除多余层和卡片自带背景底色/阴影，实现真正的“零底色纯矢量线稿”外观 | Done | 1.2 |
+| 052 | UI/UX | 全局字体古风化：引入 Ma Shan Zheng (马善政) 和 Zhi Mang Xing (志莽行书)，配置并应用至主标题及官职卡片标题 | Done | 1.2 |
+| 053 | UI/UX | 根据用户反馈，将主标题和竹简卡片标题的字体从毛笔书法体调整为**思源宋体 (Noto Serif SC)**，以获得更端庄、清晰的阅读体验 | Done | 1.0 |
+| 054 | UI/UX | 彻底清理官职卡片残留的 CSS `box-shadow` 和 Tailwind 阴影类 (`shadow-sm`, `shadow-md`, `drop-shadow`)，确保纯净矢量线稿视觉 | Done | 1.2 |
+| 055 | UI/UX | 修复鼠标悬浮 (Hover) 时卡片内文字发虚、模糊的问题：优化 `transition-all` 为 `transition-transform` 并应用 `will-change-transform` | Done | 1.2 |
+| 056 | UI/UX | 根据 UI/UX 规范重新排版朝代切换按钮，使其垂直排列在标题下方，并放大按钮尺寸以提升操作体感 | Done | 1.2 |
+| 057 | Bug | 修复官职卡片挂钩（Pin/Nail）与树状连线错位问题：统一 CSS 伪元素与 SVG 连线的参考系，通过 `margin-top: -24px` 补偿边框偏移，并移除冗余 SVG 圆点 | Done | 1.2 |
+| 058 | UI/UX | 增加树状图有效显示面积并优化边框视觉裁剪，确保内侧内容精确在画框边缘消失，同时保证初始渲染“皇帝”节点无遮挡 | Done | 1.2 |
+| 059 | UI/UX | 优化朝代切换按钮动效：取消原来的印章播放动画，重构为更快速连贯地双向 Transform Transition，实现基于原背景图（switch-bg-1）的选中放大与失去焦点缩小同步过渡效果 | Done | 1.2 |
+| 060 | UI/UX | 移除朝代切换按钮（未选中状态时）的鼠标悬浮 (Hover) 背景色块效果，保持视觉清爽 | Done | 1.2 |
+| 061 | UI/UX | 替换全局官职卡片边框背景：从 `vertical_plaque_outline` 修改为您提供的白底 `card-bg-1.jpg` | Done | 1.2 |
+| 062 | Bug | 修复 JPG 背景带来的多余白色四角问题：运用 `mix-blend-mode: multiply` 与移除卡片阴影的方式物理使四角透明化 | Done | 1.2 |
+| 063 | UI/UX | 取消 `clip-path` 裁剪并调整卡片尺寸，以恢复被误裁的顶部装饰（钉子/挂绳）并保持原有线框布局完美缩放 | Done | 1.2 |
+| 064 | UI/UX | 增加用于调试官职卡片宽度、高度和字体大小的临时悬浮面板 | Done | 1.2 |    
+| 065 | UI/UX | 将卡片尺寸硬编码为宽 60px、高 210px，字号 2.5rem，并移除调试面板 | Done | 1.2 |
+| 066 | UI/UX | 为超过 3 个字的冗长官位名称添加鼠标悬停留白的隐性走马灯特效（Marquee Effect），以展示完整文本 | Done | 1.2 |
+| 067 | UI/UX | 替换朝代切换按钮背景图：由 switcher-bg-1 替换为 switch-bg-1 | Done | 1.2 |
+| 068 | UI/UX | 调整朝代切换按钮选中背景（红笔光环）的大小为 100%，并移除临时调试面板 | Done | 1.2 |
+| 069 | UI/UX | 为朝代切换按钮选中时的红环背景增加逆时针 360 度飞入旋转动效（时长 700ms） | Done | 1.2 |
+| 070 | UI/UX | 优化环背景动画规则：未被选中的按钮失去焦点时不再反向旋转，而是直接淡出 | Done | 1.2 |
+| 071 | UI/UX | 升级红环选中动画：利用 CSS conic-gradient 遮罩创造逆时针“毛笔挥毫作画”的笔刷手绘显现效果 | Done | 1.2 |
+| 072 | UI/UX | 锁定水墨绘制参数定调（180° 正下方起笔，完整挥舞画圆）并移除临时动效调试面板 | Done | 1.2 |
+| 073 | Feature | 官职卡片重构：名称单列显示、跑马灯特效动画、采用card-bg进行九宫格平铺背景 | Done | 1.2 |
+| 074 | Bug | 修复官职卡片文字未居中问题：改为 Flex 居中，并将背景图恢复为 card-bg-1.jpg (保持九宫格平铺) | Done | 1.2 |
+| 075 | UI/UX | 加快官职卡片长文本跑马灯的往返滚动速度（由 3s 缩短至 1.8s） | Done | 1.2 |
+| 076 | UI/UX | 移除长文本跑马灯动画的 0.3s 初始延迟，鼠标移动上去立刻生效 | Done | 1.2 |
+| 077 | Bug | 修复官职卡片的背景图片未显示全素材内容的问题：将 `border-image` 替换为 `background-size: 100% 100%` 或等效属性 | Done | 1.2 |
+| 078 | UI/UX | 将官职卡片文字字体从 font-ancient 更换为 font-serif (Noto Serif SC)，与详情面板保持一致 | Done | 1.2 |
+| 079 | Bug/UI | 修复父节点收起时卡片横向位移问题，移除旧 stacked-cards 方案，重构为扇形展开（Fan-out）效果 | Done | 1.2 |
+| 080 | UI/UX | 新增 card-bg-insight.png 水墨山水底纹叠加层：与原 card-bg-1.jpg 边框背景共存 | Done | 1.2 |
+| 081 | Bug | 修复 NodeCard.jsx 中因 `cardDebugOverrides` 未定义导致的组件渲染崩溃 (ReferenceError) | Done | 1.2 |
+| 082 | UI/UX | 去除官职卡片标题底部的半透明渐变遮罩，并将跑马灯滚动优化为仅单次触发 | Done | 1.2 |
+| 083 | UI/UX | 调整跑马灯触发阈值：由 4 个字改为 5 个字（即 4 个字以内正常显示，不滚动） | Done | 1.2 |
+| 084 | Feature | 皇帝根节点背景图更新为 `emperor-bg.png` 并移除文字与边框 | Done | 1.2 |
+| 085 | Bug | 修复父节点点击收起/展开时树状连线垂直跳动（约4px）的问题，通过实现稳定性锚点及固定卡片容器高度解决 | Done | 1.2 |
+| 086 | Feature | 典故呼吸印记 (Lore Breathing Mark)：为含有典故的官职增加极微小朱砂红动态呼吸印章 (#af292e) | Pending | 1.2 |
+| 087 | UI/UX | 朝代切换 UI 同步：支持从顶部下拉菜单或横向时间轴快速切换（同步 SPEC 2.1） | Pending | 2.1 |
+

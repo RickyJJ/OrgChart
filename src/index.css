@@ -1,0 +1,315 @@
+@import "tailwindcss";
+@config "../tailwind.config.js";
+
+@layer base {
+    body {
+        @apply bg-paper text-text-main font-sans min-h-screen overflow-x-hidden leading-relaxed;
+    }
+}
+
+@layer components {
+
+    /* Framed Board Decorative Elements */
+    .framed-board-inner::before {
+        content: '';
+        @apply absolute top-2 left-2 right-2 bottom-2 border border-ink-dark pointer-events-none;
+    }
+
+    .framed-board-inner::after {
+        content: '❅';
+        @apply absolute top-0.5 left-2.5 text-sm text-ink-dark pointer-events-none;
+    }
+
+    /* Tree Architecture Lines */
+    .tree-container::-webkit-scrollbar {
+        display: none;
+    }
+
+    .tree ul {
+        @apply pt-8 relative transition-all duration-500;
+        text-align: center;
+        white-space: nowrap;
+        padding-left: 0;
+        padding-right: 0;
+        font-size: 0;
+        line-height: 0;
+    }
+
+    .tree li {
+        @apply text-center relative pt-8 list-none;
+        display: inline-block;
+        vertical-align: top;
+        white-space: normal;
+        padding-left: 1.25rem;
+        padding-right: 1.25rem;
+        font-size: 1rem;
+        line-height: 1.5;
+        /* Remove transition-all to prevent vertical layout "drifting" during child height changes */
+        transition: transform 0.5s ease, opacity 0.5s ease;
+    }
+
+    .tree li:only-child {
+        @apply pt-0;
+    }
+
+    /* SVG Tree Connections */
+    .tree-connections {
+        transition: opacity 0.4s ease;
+    }
+
+    /* Node Card Ink Splash Effect */
+    .node-card-ink::after {
+        content: '';
+        @apply absolute bottom-0 left-0 w-full h-[60%] bg-ink-splash bg-contain bg-bottom bg-no-repeat opacity-85 mix-blend-multiply -z-10;
+    }
+
+    /* Vertical Slip Card Style */
+    .slip-card {
+        writing-mode: vertical-rl;
+        text-orientation: upright;
+        letter-spacing: 0.15em;
+    }
+
+    .slip-card-bg {
+        background-image: url('/assets/ui/card-bg-1.jpg');
+        background-size: 100% 100%;
+        background-position: center;
+        background-repeat: no-repeat;
+        position: relative;
+        box-sizing: border-box;
+        mix-blend-mode: multiply;
+    }
+
+    /* Inner watercolor insight layer — alpha-masked to frame interior */
+    .card-insight-layer {
+        position: absolute;
+        inset: 0;
+        background-image: url('/assets/ui/card-bg-insight.png');
+        background-size: cover;
+        background-position: center;
+        background-repeat: no-repeat;
+        pointer-events: none;
+        z-index: 0;
+        /* Alpha mask from generated PNG: transparent outside frame, opaque inside */
+        -webkit-mask-image: url('/assets/ui/card-bg-1-mask.png');
+        mask-image: url('/assets/ui/card-bg-1-mask.png');
+        -webkit-mask-size: 100% 100%;
+        mask-size: 100% 100%;
+        -webkit-mask-repeat: no-repeat;
+        mask-repeat: no-repeat;
+    }
+
+    /* Border line overlay — sits ON TOP of insight to show the frame border */
+    .card-border-overlay {
+        position: absolute;
+        inset: 0;
+        background-image: url('/assets/ui/card-bg-1.jpg');
+        background-size: 100% 100%;
+        background-position: center;
+        background-repeat: no-repeat;
+        /* Tint the border to ink-gray (墨灰色) without affecting white background */
+        filter: invert(1) brightness(0.4) invert(1);
+        mix-blend-mode: multiply;
+        pointer-events: none;
+        z-index: 1;
+    }
+
+    /* The top hanger/string */
+    .slip-card-bg::before {
+        content: '';
+        position: absolute;
+        top: -15px;
+        /* Stay relative to the top edge of border-box */
+        left: 50%;
+        transform: translateX(-50%);
+        width: 1px;
+        height: 15px;
+        background-color: rgba(26, 45, 66, 0.4);
+        z-index: -1;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    /* The hanging knob (nail/pin) */
+    .slip-card-bg::after {
+        content: '';
+        position: absolute;
+        top: -18px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 8px;
+        height: 6px;
+        border-radius: 4px;
+        background-color: #333;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        z-index: 2;
+        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+    }
+
+    /* Counter-translate the hanger elements when the card hovers/activates up (-translate-y-1 = -4px) to keep them visually static */
+    .slip-card-bg:hover::before,
+    .slip-card-bg.active::before {
+        margin-top: 4px;
+        /* counteract -4px card shift */
+        height: 11px;
+    }
+
+    .slip-card-bg:hover::after,
+    .slip-card-bg.active::after {
+        margin-top: 4px;
+        /* counteract -4px card shift */
+    }
+
+    /*
+     * Title container: block-level with overflow clipping.
+     * Short titles: centered via padding on the span.
+     * Long titles: overflow hidden + marquee animation on hover.
+     */
+    .title-marquee-container {
+        height: 120px;
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        overflow: hidden;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 1;
+    }
+
+    /* Force single-column layout for overflowing text:
+       The span needs enough inline-size (height in vertical-rl) 
+       to avoid column wrapping. */
+    .title-marquee-container.has-overflow {
+        justify-content: flex-start;
+    }
+
+    .title-marquee-container.has-overflow .marquee-text {
+        white-space: nowrap;
+        transition: transform var(--marquee-duration, 1s) cubic-bezier(0.4, 0, 0.2, 1);
+        will-change: transform;
+    }
+
+    /* On card hover: remove fade and animate */
+    .slip-card:hover .title-marquee-container.has-overflow {
+        mask-image: none;
+        -webkit-mask-image: none;
+    }
+
+    .slip-card:hover .marquee-text {
+        transform: translateY(calc(-100% + 120px));
+        transition-delay: 0.3s;
+    }
+
+    @keyframes title-scroll {
+
+        0%,
+        15% {
+            transform: translateY(0);
+        }
+
+        85%,
+        100% {
+            transform: translateY(calc(-100% + 120px));
+        }
+    }
+
+    /* Elegant Custom Scrollbar for Vertical Text */
+    .custom-scrollbar::-webkit-scrollbar {
+        height: 6px;
+    }
+
+    .custom-scrollbar::-webkit-scrollbar-track {
+        background: transparent;
+        border-radius: 4px;
+    }
+
+    .custom-scrollbar::-webkit-scrollbar-thumb {
+        background-color: transparent;
+        border-radius: 4px;
+    }
+
+    /* Show scrollbar conditionally via class to prevent layout shifts */
+    .custom-scrollbar.show-scrollbar::-webkit-scrollbar-track {
+        background: rgba(220, 216, 206, 0.3);
+    }
+
+    .custom-scrollbar.show-scrollbar::-webkit-scrollbar-thumb {
+        background-color: rgba(220, 216, 206, 1);
+    }
+
+    .custom-scrollbar.show-scrollbar::-webkit-scrollbar-thumb:hover,
+    .custom-scrollbar.show-scrollbar::-webkit-scrollbar-thumb:active {
+        background-color: rgba(166, 43, 43, 0.6);
+    }
+
+    /* Fan-out Cards Effect for Collapsed Nodes */
+    .fan-card {
+        position: absolute;
+        inset: 0;
+        z-index: -1;
+        background-image: url('/assets/ui/card-bg-1.jpg');
+        background-size: 100% 100%;
+        background-position: center;
+        background-repeat: no-repeat;
+        mix-blend-mode: multiply;
+        transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        pointer-events: none;
+        transform-origin: bottom center;
+    }
+
+    .fan-left {
+        transform: rotate(calc(-1 * var(--fan-angle, 3deg)));
+    }
+
+    .fan-right {
+        transform: rotate(var(--fan-angle, 3deg));
+    }
+
+    /* Ink Draw Animation for Dynasty Rings */
+    @property --draw-angle {
+        syntax: '<angle>';
+        initial-value: 360deg;
+        inherits: false;
+    }
+
+    @keyframes ink-draw-ccw {
+        0% {
+            --draw-angle: 360deg;
+            opacity: 0;
+            transform: scale(0.8);
+        }
+
+        5% {
+            opacity: 1;
+        }
+
+        100% {
+            --draw-angle: 0deg;
+            opacity: 1;
+            transform: scale(1);
+        }
+    }
+
+    .ink-draw-anim {
+        -webkit-mask-image: conic-gradient(from 180deg, transparent var(--draw-angle), black 0deg);
+        mask-image: conic-gradient(from 180deg, transparent var(--draw-angle), black 0deg);
+        animation: ink-draw-ccw 0.7s cubic-bezier(0.1, 0.8, 0.2, 1) forwards;
+    }
+
+    @keyframes ink-fade-out {
+        0% {
+            opacity: 1;
+            transform: scale(1);
+        }
+
+        100% {
+            opacity: 0;
+            transform: scale(0.6);
+        }
+    }
+
+    .ink-fade-out-anim {
+        animation: ink-fade-out 0.25s ease-out forwards;
+    }
+}
