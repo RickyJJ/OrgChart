@@ -3,7 +3,7 @@
 
 @layer base {
     body {
-        @apply bg-paper text-text-main font-sans min-h-screen overflow-x-hidden leading-relaxed;
+        @apply bg-main-bg bg-repeat text-text-main font-sans min-h-screen overflow-x-hidden leading-relaxed;
     }
 }
 
@@ -26,7 +26,8 @@
     }
 
     .tree ul {
-        @apply pt-8 relative transition-all duration-500;
+        @apply pt-1 relative;
+        transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1);
         text-align: center;
         white-space: nowrap;
         padding-left: 0;
@@ -36,7 +37,7 @@
     }
 
     .tree li {
-        @apply text-center relative pt-8 list-none;
+        @apply text-center relative pt-1 list-none;
         display: inline-block;
         vertical-align: top;
         white-space: normal;
@@ -44,8 +45,8 @@
         padding-right: 1.25rem;
         font-size: 1rem;
         line-height: 1.5;
-        /* Remove transition-all to prevent vertical layout "drifting" during child height changes */
-        transition: transform 0.5s ease, opacity 0.5s ease;
+        /* Quartic Out easing for more "premium" feel: fast start, very smooth end */
+        transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.5s ease;
     }
 
     .tree li:only-child {
@@ -54,7 +55,7 @@
 
     /* SVG Tree Connections */
     .tree-connections {
-        transition: opacity 0.4s ease;
+        transition: opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1);
     }
 
     /* Node Card Ink Splash Effect */
@@ -145,16 +146,14 @@
         box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
     }
 
-    /* Counter-translate the hanger elements when the card hovers/activates up (-translate-y-1 = -4px) to keep them visually static */
-    .slip-card-bg:hover::before,
-    .slip-card-bg.active::before {
+    /* Counter-translate the hanger elements when the card hovers up (-translate-y-1 = -4px) to keep them visually static */
+    .slip-card-bg:hover::before {
         margin-top: 4px;
         /* counteract -4px card shift */
         height: 11px;
     }
 
-    .slip-card-bg:hover::after,
-    .slip-card-bg.active::after {
+    .slip-card-bg:hover::after {
         margin-top: 4px;
         /* counteract -4px card shift */
     }
@@ -253,9 +252,12 @@
         background-position: center;
         background-repeat: no-repeat;
         mix-blend-mode: multiply;
-        transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        /* Combined transform with scale/rotation for "unrolling" feel */
+        transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.4s ease, scale 0.6s cubic-bezier(0.16, 1, 0.3, 1);
         pointer-events: none;
         transform-origin: bottom center;
+        opacity: 0;
+        scale: 0.95;
     }
 
     .fan-left {
@@ -264,6 +266,12 @@
 
     .fan-right {
         transform: rotate(var(--fan-angle, 3deg));
+    }
+
+    /* Active state for fan cards (when parent is collapsed) */
+    [data-children-visible="false"]>div>.fan-card {
+        opacity: 1;
+        scale: 1;
     }
 
     /* Ink Draw Animation for Dynasty Rings */
@@ -311,5 +319,53 @@
 
     .ink-fade-out-anim {
         animation: ink-fade-out 0.25s ease-out forwards;
+    }
+}
+
+/* 典故呼吸印记样式 */
+.lore-breathing-mark {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    width: 8px;
+    height: 8px;
+    background-color: #af292e;
+    border-radius: 50%;
+    box-shadow: 0 0 6px #af292e;
+    z-index: 30;
+    pointer-events: none;
+    animation: lore-pulse 3s infinite ease-in-out;
+}
+
+@keyframes lore-pulse {
+
+    0%,
+    100% {
+        opacity: 0.5;
+        transform: scale(0.8);
+        box-shadow: 0 0 2px #af292e;
+    }
+
+    50% {
+        opacity: 1;
+        transform: scale(1.1);
+        box-shadow: 0 0 8px #af292e;
+    }
+}
+
+.scroll-unroll-anim {
+    animation: scroll-unroll 700ms cubic-bezier(0.16, 1, 0.3, 1) both;
+    transform-origin: center center;
+}
+
+@keyframes scroll-unroll {
+    0% {
+        clip-path: inset(0 50% 0 50%);
+        opacity: 0.2;
+    }
+
+    100% {
+        clip-path: inset(0 0 0 0);
+        opacity: 1;
     }
 }

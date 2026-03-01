@@ -8,10 +8,10 @@ function DetailPanel({ node, onClose }) {
     // We can extract an image source from allusions or fallback to a default thematic image
     const illustrationImage = node.panelImage || (node.allusions && node.allusions.length > 0 && node.allusions[0].loreImage)
         ? (node.panelImage || node.allusions[0].loreImage)
-        : '/assets/content/tang_military_default.jpg'; // Placeholder default image path
+        : '/assets/content/horse_rider.png';
 
     return (
-        <div className={`absolute right-[8%] top-16 w-[340px] bg-[#f5f3ee] rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.15)] z-[100] transition-all duration-400 ease-out border-2 border-white overflow-hidden flex flex-col ${node ? 'opacity-100 translate-y-0 pointer-events-auto' : 'opacity-0 translate-y-5 pointer-events-none'}`}>
+        <div className={`detail-panel-container absolute right-[8%] top-16 w-[340px] bg-[#f5f3ee] rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.15)] z-[100] transition-all duration-400 ease-out border-2 border-white overflow-hidden flex flex-col ${node ? 'opacity-100 translate-y-0 pointer-events-auto' : 'opacity-0 translate-y-5 pointer-events-none'}`}>
 
             {/* Top Section: Title & Badge */}
             <div className="pt-6 pb-4 pr-10 pl-6 relative flex flex-col items-start bg-gradient-to-b from-[#f5f3ee] to-transparent">

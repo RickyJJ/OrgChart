@@ -28,6 +28,7 @@ export default {
             backgroundImage: {
                 'ink-splash': "url('/assets/ui/ink_splash.png')",
                 'dynasty-bg': "url('/assets/ui/switch-bg-1.png')",
+                'main-bg': "url('/assets/ui/main-bg.png')",
             }
         },
     },

@@ -40,45 +40,57 @@ function TreeConnections({ containerRef }) {
             const parentCard = parentLi.querySelector(':scope > div > div[data-card]');
             if (!parentCard) return;
 
+            // Fixed visibility: recursively check if any ancestor is collapsed
+            const isSelfVisible = parentLi.getAttribute('data-children-visible') !== 'false';
+            if (!isSelfVisible) return;
+
+            let isAncestorCollapsed = false;
+            let currentParent = parentLi.parentElement;
+            while (currentParent && currentParent !== container) {
+                if (currentParent.tagName === 'LI' && currentParent.getAttribute('data-children-visible') === 'false') {
+                    isAncestorCollapsed = true;
+                    break;
+                }
+                currentParent = currentParent.parentElement;
+            }
+            if (isAncestorCollapsed) return;
+
             const childUl = parentLi.querySelector(':scope > ul');
             if (!childUl) return;
 
             const childLis = childUl.querySelectorAll(':scope > li[data-node-id]');
             if (childLis.length === 0) return;
 
-            const parentRect = parentCard.getBoundingClientRect();
-            // Project screen-space rect differences back into unscaled local canvas coordinates
-            const px = (parentRect.left + parentRect.width / 2 - containerRect.left) / scale;
-            const py = (parentRect.bottom - containerRect.top) / scale;
+            const parentAnchor = parentCard.querySelector(':scope > [data-anchor="bottom"]');
+            if (!parentAnchor) return;
+
+            const pAnchorRect = parentAnchor.getBoundingClientRect();
+            const px = (pAnchorRect.left + pAnchorRect.width / 2 - containerRect.left) / scale;
+            const py = (pAnchorRect.top - containerRect.top) / scale;
 
             const children = [];
             childLis.forEach((childLi) => {
                 const childCard = childLi.querySelector(':scope > div > div[data-card]');
-                const childAnchor = childLi.querySelector(':scope > [data-anchor]');
-                if (!childCard || !childAnchor) return;
+                if (!childCard) return;
+                const childAnchor = childCard.querySelector(':scope > [data-anchor="top"]');
+                if (!childAnchor) return;
 
                 const anchorRect = childAnchor.getBoundingClientRect();
                 children.push({
                     x: (anchorRect.left + anchorRect.width / 2 - containerRect.left) / scale,
                     y: (anchorRect.top - containerRect.top) / scale,
                     id: childLi.dataset.nodeId,
-                    isSlip: childCard.classList.contains('slip-card-bg'),
+                    isSlip: childCard.getAttribute('data-is-slip') === 'true',
                 });
             });
 
             if (children.length > 0) {
                 const isVisible = parentLi.getAttribute('data-children-visible') !== 'false';
-                const parentAnchor = parentLi.querySelector(':scope > [data-anchor]');
-                if (!parentAnchor) return;
-
-                const pAnchorRect = parentAnchor.getBoundingClientRect();
-                const px = (pAnchorRect.left + pAnchorRect.width / 2 - containerRect.left) / scale;
-                const py = (pAnchorRect.top - containerRect.top) / scale;
 
                 newGroups.push({
                     parentId: parentLi.dataset.nodeId,
                     px, py, children,
-                    isParentSlip: parentCard.classList.contains('slip-card-bg'),
+                    isParentSlip: parentCard.getAttribute('data-is-slip') === 'true',
                     isVisible
                 });
             }
@@ -148,11 +160,11 @@ function TreeConnections({ containerRef }) {
         >
             {groups.map(({ px, py, children, parentId, isParentSlip, isVisible }) => {
                 const sorted = [...children].sort((a, b) => a.x - b.x);
-                const topChildY = Math.min(...children.map(c => c.y));
-                const midY = (py + topChildY) / 2;
+                // Fix midY to a relative offset instead of average of children to prevent row-jump on hover
+                const midY = py + 12;
 
                 const groupStyle = {
-                    transition: 'opacity 0.4s ease-in-out',
+                    transition: 'opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1)',
                     opacity: isVisible ? 1 : 0,
                     pointerEvents: 'none'
                 };

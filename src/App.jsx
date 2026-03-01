@@ -5,34 +5,107 @@ import Sidebar from './components/Sidebar';
 import HierarchyTree from './components/HierarchyTree';
 import DetailPanel from './components/DetailPanel';
 import SimulationDashboard from './components/SimulationDashboard';
+import GlobalSearch from './components/GlobalSearch';
 
 function App() {
   const [activeTab, setActiveTab] = useState('hierarchy');
   const [activeDynastyId, setActiveDynastyId] = useState(dynastyData[0].id);
   const [selectedNode, setSelectedNode] = useState(null);
-  const [expandedNodes, setExpandedNodes] = useState({});
+  const [pendingSearchTarget, setPendingSearchTarget] = useState(null);
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
   const activeDynasty = dynastyData.find(d => d.id === activeDynastyId);
 
-  const handleNodeExpand = (nodeId) => {
-    setExpandedNodes(prev => {
-      if (prev[nodeId]) return {};
-      return { [nodeId]: true };
-    });
-  };
-
   const handleReadMore = (node) => {
-    setSelectedNode(node);
+    setSelectedNode(prev => (prev?.id === node.id ? null : node));
   };
 
   const closeDetail = () => {
     setSelectedNode(null);
   };
 
+  const handleNavigate = (tab) => {
+    setIsSearchOpen(false);
+    setActiveTab(tab);
+  };
+
+  const handleSearchSelect = ({ dynastyId, node }) => {
+    setActiveTab('hierarchy');
+
+    if (dynastyId !== activeDynastyId) {
+      setPendingSearchTarget({ dynastyId, node });
+      setActiveDynastyId(dynastyId);
+      return;
+    }
+
+    setSelectedNode(node);
+  };
+
+  React.useEffect(() => {
+    const handleClickOutside = (event) => {
+      // If no node is selected, no need to check
+      if (!selectedNode) return;
+
+      // Check if click is on a card or the detail panel
+      const isCardClick = event.target.closest('[data-card="true"]');
+      const isPanelClick = event.target.closest('.detail-panel-container'); // Need to ensure DetailPanel has this class or similar
+
+      if (!isCardClick && !isPanelClick) {
+        closeDetail();
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [selectedNode]);
+
+  React.useEffect(() => {
+    setSelectedNode(null);
+  }, [activeDynastyId]);
+
+  React.useEffect(() => {
+    if (!pendingSearchTarget) return;
+    if (pendingSearchTarget.dynastyId !== activeDynastyId) return;
+
+    setSelectedNode(pendingSearchTarget.node);
+    setPendingSearchTarget(null);
+  }, [activeDynastyId, pendingSearchTarget]);
+
+  React.useEffect(() => {
+    const handleEsc = (event) => {
+      if (event.key === 'Escape') {
+        setIsSearchOpen(false);
+      }
+    };
+
+    document.addEventListener('keydown', handleEsc);
+    return () => document.removeEventListener('keydown', handleEsc);
+  }, []);
+
+  React.useEffect(() => {
+    if (!isSearchOpen) return;
+
+    const handleSearchBlurClose = (event) => {
+      const isDrawerClick = event.target.closest('[data-search-drawer="true"]');
+      const isToggleClick = event.target.closest('[data-search-toggle="true"]');
+
+      if (isDrawerClick || isToggleClick) return;
+      setIsSearchOpen(false);
+    };
+
+    document.addEventListener('mousedown', handleSearchBlurClose);
+    return () => document.removeEventListener('mousedown', handleSearchBlurClose);
+  }, [isSearchOpen]);
+
   return (
     <div className="flex min-h-screen w-full">
-      <Sidebar activeTab={activeTab} onNavigate={setActiveTab} />
+      <Sidebar
+        activeTab={activeTab}
+        onNavigate={handleNavigate}
+        isSearchOpen={isSearchOpen}
+        onToggleSearch={() => setIsSearchOpen(prev => !prev)}
+      />
 
-      <main className="ml-64 flex-1 p-10 flex flex-col relative bg-paper shadow-inner border-l border-[#d3ccbf]">
+      <main className="ml-64 flex-1 p-10 flex flex-col relative bg-transparent shadow-inner border-l border-[#d3ccbf]">
         {activeTab === 'hierarchy' && (
           <div className="bg-board flex-1 relative shadow-[0_4px_20px_rgba(0,0,0,0.03)] flex flex-col overflow-hidden rounded-xl">
             {/* Inner decorative border overlay */}
@@ -74,8 +147,6 @@ function App() {
               <div className="w-full h-full pointer-events-auto flex flex-col">
                 <HierarchyTree
                   activeDynasty={activeDynasty}
-                  expandedNodes={expandedNodes}
-                  onNodeExpand={handleNodeExpand}
                   onReadMore={handleReadMore}
                   selectedNodeId={selectedNode?.id}
                 />
@@ -86,6 +157,7 @@ function App() {
               node={selectedNode}
               onClose={closeDetail}
             />
+
           </div>
         )}
 
@@ -95,13 +167,29 @@ function App() {
           </div>
         )}
 
+        {activeTab === 'lore' && (
+          <div className="flex-1 w-full rounded-xl border border-[#d3ccbf] bg-board p-8 flex items-center justify-center text-[#2a2624]">
+            典故连珠模块开发中
+          </div>
+        )}
+
+        {activeTab === 'status' && (
+          <div className="flex-1 w-full rounded-xl border border-[#d3ccbf] bg-board p-8 flex items-center justify-center text-[#2a2624]">
+            我的官职模块开发中
+          </div>
+        )}
+
         <footer className="text-center text-xs text-text-muted mt-4 tracking-widest">
           青云志 | 弘扬中华古代文化 | Web PM 精心呈现
         </footer>
       </main>
 
-      {/* Optional Overlay to dismiss detail panel when clicking outside */}
-      {selectedNode && activeTab === 'hierarchy' && <div className="fixed inset-0 z-[99]" onClick={closeDetail}></div>}
+      <GlobalSearch
+        dynasties={dynastyData}
+        onSelectResult={handleSearchSelect}
+        isOpen={isSearchOpen}
+        onClose={() => setIsSearchOpen(false)}
+      />
     </div>
   );
 }

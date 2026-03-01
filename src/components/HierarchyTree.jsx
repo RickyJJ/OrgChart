@@ -2,7 +2,7 @@ import React, { useRef, useEffect } from 'react';
 import NodeCard from './NodeCard';
 import TreeConnections from './TreeConnections';
 
-function HierarchyTree({ activeDynasty, expandedNodes, onNodeExpand, onReadMore, selectedNodeId }) {
+function HierarchyTree({ activeDynasty, onReadMore, selectedNodeId }) {
     const viewportRef = useRef(null);
     const canvasRef = useRef(null);
 
@@ -109,7 +109,7 @@ function HierarchyTree({ activeDynasty, expandedNodes, onNodeExpand, onReadMore,
 
     return (
         <div
-            className="w-full flex-1 overflow-hidden cursor-grab viewport relative z-[5]"
+            className="w-full flex-1 overflow-hidden cursor-grab viewport relative z-[5] scroll-unroll-anim"
             ref={viewportRef}
         >
             <div
@@ -121,8 +121,6 @@ function HierarchyTree({ activeDynasty, expandedNodes, onNodeExpand, onReadMore,
                 <ul className="org-tree tree inline-block min-w-full align-top">
                     <NodeCard
                         node={activeDynasty.structure}
-                        expandedNodes={expandedNodes}
-                        onExpand={onNodeExpand}
                         onReadMore={onReadMore}
                         selectedNodeId={selectedNodeId}
                         isRoot={true}

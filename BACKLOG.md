@@ -10,13 +10,13 @@
 | 006 | Feature | Implementation of vertical text for traditional feel | Done | 1.2 |
 | 007 | Feature | Add more dynasties (Song, Qing) | Pending | 2.1 |
 | 008 | Feature | 扩充数据结构：增加典故、人物和诗词字段 | Done | 3.2 |
-| 009 | Feature | 详情页重新设计：支持多维度文化内容展示 | Done | 2.3 |
+| 009 | Feature | 详情页重新设计：支持多维度文化内容展示 (High-Fidelity) | Ongoing | 2.4 |
 | 010 | Feature | 梳理唐代/明代核心官职的代表人物与诗词数据 | Done | 2.4 |
 | 011 | Feature | 实现官职卡片的双层展开（一级内联摘要，二级侧边全量） | Done | 2.3 |
 | 012 | Feature | 设计并接入官职类型的小图标/印记系统 | Done | 2.3 |
 | 013 | Feature | 深度优化古风诗词展示组件（竹简/笺纸风格等） | Done | 2.4 |
 | 014 | Feature | 关键信息确认或生成时，实现“朱红印章盖下”的视觉交互反馈 | Pending | 1.2 |
-| 015 | Feature | 典故连珠：实现全局跨朝代模糊搜索，点击结果平滑平移(Pan)/缩放(Zoom)居中目标并自动呼出详情 | Pending | 2.5 |
+| 015 | Feature | 典故连珠：实现全局跨朝代模糊搜索，点击结果平滑平移(Pan)/缩放(Zoom)居中目标并自动呼出详情 | Ongoing | 2.5 |
 | 016 | Content | 典故连珠：补充“左拾遗”、“司马”等高频文化官职的具体内容及白话翻译 | Pending | 2.5 |
 | 017 | Feature | “入仕”模拟器：根据映射字典匹配古今职业，增强社交传播属性 | Pending | 2.6 |
 | 018 | Feature | 委任状海报生成：集成 html2canvas 生成带朱红印章盖印动效的分享海报 | Pending | 2.6 |
@@ -48,6 +48,7 @@
 | 041 | UI/UX | 为“入仕模拟”板块落地基于 /ui-ux-pro-max 规范的深色模式仪表盘 (Dark Mode Neo-Chinese Bento Grid)，并嵌入 Recharts 数据图表 | Done | 2.6 |
 | 039 | Feature | 树状图连线风格重置：改为方正直角线（Orthogonal Lines）+ 圆角转折，强化建筑感与秩序感，并移除手绘滤镜 | Done | 1.2 |
 | 041 | UI/UX | 为官阶卡片应用新增的 card-border 图片，采用 border-image 属性实现九宫格平铺，绝不拉伸变形 | Done | 1.2 |
+| 042 | Arch | 配置 IDE 运行与调试环境 (tasks.json & launch.json) | Done | 3.1 |
 | 042 | Bug | 修复“兵部”节点配图丢失问题：校正 data.js 中 `panelImage` 属性名为 `bgImage`，以匹配 NodeCard 渲染逻辑 | Done | 1.2 |
 | 042 | Design | 纯矢量风格的亚字形折角长方形牌匾轮廓图片生成 | Done | 1.2 |
 | 043 | UI/UX | 将生成的亚字形纯矢量牌匾轮廓应用到官职卡片上作为边框，修改 border-image 属性适配 | Done | 1.2 |
@@ -92,7 +93,13 @@
 | 082 | UI/UX | 去除官职卡片标题底部的半透明渐变遮罩，并将跑马灯滚动优化为仅单次触发 | Done | 1.2 |
 | 083 | UI/UX | 调整跑马灯触发阈值：由 4 个字改为 5 个字（即 4 个字以内正常显示，不滚动） | Done | 1.2 |
 | 084 | Feature | 皇帝根节点背景图更新为 `emperor-bg.png` 并移除文字与边框 | Done | 1.2 |
-| 085 | Bug | 修复父节点点击收起/展开时树状连线垂直跳动（约4px）的问题，通过实现稳定性锚点及固定卡片容器高度解决 | Done | 1.2 |
-| 086 | Feature | 典故呼吸印记 (Lore Breathing Mark)：为含有典故的官职增加极微小朱砂红动态呼吸印章 (#af292e) | Pending | 1.2 |
+| 085 | Bug | 树状线逻辑解耦与稳定性优化：通过 Data Attributes 替换类名依赖，并固定水平连线高度，彻底解决悬停/选中导致的整行跳动问题 | Done | 1.2 |
+| 086 | Feature | 典故呼吸印记 (Lore Breathing Mark)：为含有典故的官职增加极微小朱砂红动态呼吸印章 (#af292e) | Ongoing | 1.2 |
 | 087 | UI/UX | 朝代切换 UI 同步：支持从顶部下拉菜单或横向时间轴快速切换（同步 SPEC 2.1） | Pending | 2.1 |
+| 088 | Bug | 修复树状图连线乱了的问题：引入 `top`/`bottom` 双锚点系统，并调整 CSS 间距使连线长度固定为 8px，同时消除点击卡片时的连线位移抖动，确保结构稳固 | Done | 1.2 |
+| 089 | UI/UX | 同步子官职卡片与树状线的消失动画，统一使用 0.6s Quartic Out 曲线 | Done | 1.2 |
+| 090 | UI/UX | 优化卡片交互逻辑：点击选中时不产生位移突跳，通过移除物理遮罩层并引入全局点击监听，实现“点击不跳动，移出自动回位”的效果 | Done | 1.2 |
+| 091 | Bug | 修复皇帝根节点上方出现冗余锚点线的问题，并优化全节点容器尺寸以确保连线精准对齐 | Done | 1.2 |
+| 092 | UI/UX | 点击逻辑优化：支持重复点击卡片切换（开启/关闭）详情面板 | Done | 1.2 |
+| 093 | Bug | 修复折叠时子层级连线残留问题：通过 `TreeConnections.jsx` 递归检查祖先展开状态实现彻底隐藏 | Done | 1.2 |
 
