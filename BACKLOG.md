@@ -5,19 +5,19 @@
 | 001 | Feature | Initialize project structure | Done | 3.1 |
 | 002 | Feature | Explain PLANNING mode flow | Done | N/A |
 | 003 | Feature | Refine visual style to "Ink & Wash" cultural theme | Done | 1.2 |
-| 004 | Feature | Add "Unrolling Scroll" entrance animation | Pending | 1.2 |
+| 004 | Feature | Add "Unrolling Scroll" entrance animation | Done | 1.2 |
 | 005 | Feature | Replace generic badges with "Seal" style stamps | Done | 1.2 |
 | 006 | Feature | Implementation of vertical text for traditional feel | Done | 1.2 |
 | 007 | Feature | Add more dynasties (Song, Qing) | Pending | 2.1 |
 | 008 | Feature | 扩充数据结构：增加典故、人物和诗词字段 | Done | 3.2 |
-| 009 | Feature | 详情页重新设计：支持多维度文化内容展示 (High-Fidelity) | Ongoing | 2.4 |
+| 009 | Feature | 详情页重新设计：支持多维度文化内容展示 (High-Fidelity) | Done | 2.4 |
 | 010 | Feature | 梳理唐代/明代核心官职的代表人物与诗词数据 | Done | 2.4 |
 | 011 | Feature | 实现官职卡片的双层展开（一级内联摘要，二级侧边全量） | Done | 2.3 |
 | 012 | Feature | 设计并接入官职类型的小图标/印记系统 | Done | 2.3 |
 | 013 | Feature | 深度优化古风诗词展示组件（竹简/笺纸风格等） | Done | 2.4 |
 | 014 | Feature | 关键信息确认或生成时，实现“朱红印章盖下”的视觉交互反馈 | Pending | 1.2 |
-| 015 | Feature | 典故连珠：实现全局跨朝代模糊搜索，点击结果平滑平移(Pan)/缩放(Zoom)居中目标并自动呼出详情 | Ongoing | 2.5 |
-| 016 | Content | 典故连珠：补充“左拾遗”、“司马”等高频文化官职的具体内容及白话翻译 | Pending | 2.5 |
+| 015 | Feature | 典故连珠：实现全局跨朝代模糊搜索，点击结果平滑平移(Pan)/缩放(Zoom)居中目标并自动呼出详情 | Done | 2.5 |
+| 016 | Content | 典故连珠：补充“左拾遗”、“司马”等高频文化官职的具体内容及白话翻译 | Done | 2.5 |
 | 017 | Feature | “入仕”模拟器：根据映射字典匹配古今职业，增强社交传播属性 | Pending | 2.6 |
 | 018 | Feature | 委任状海报生成：集成 html2canvas 生成带朱红印章盖印动效的分享海报 | Pending | 2.6 |
 | 019 | Arch | 技术栈重构：将纯前端项目迁移至 React + Vite 构建体系 | Done | 3.1 |
@@ -94,7 +94,7 @@
 | 083 | UI/UX | 调整跑马灯触发阈值：由 4 个字改为 5 个字（即 4 个字以内正常显示，不滚动） | Done | 1.2 |
 | 084 | Feature | 皇帝根节点背景图更新为 `emperor-bg.png` 并移除文字与边框 | Done | 1.2 |
 | 085 | Bug | 树状线逻辑解耦与稳定性优化：通过 Data Attributes 替换类名依赖，并固定水平连线高度，彻底解决悬停/选中导致的整行跳动问题 | Done | 1.2 |
-| 086 | Feature | 典故呼吸印记 (Lore Breathing Mark)：为含有典故的官职增加极微小朱砂红动态呼吸印章 (#af292e) | Ongoing | 1.2 |
+| 086 | Feature | 典故呼吸印记 (Lore Breathing Mark)：为含有典故的官职增加极微小朱砂红动态呼吸印章 (#af292e) | Done | 1.2 |
 | 087 | UI/UX | 朝代切换 UI 同步：支持从顶部下拉菜单或横向时间轴快速切换（同步 SPEC 2.1） | Pending | 2.1 |
 | 088 | Bug | 修复树状图连线乱了的问题：引入 `top`/`bottom` 双锚点系统，并调整 CSS 间距使连线长度固定为 8px，同时消除点击卡片时的连线位移抖动，确保结构稳固 | Done | 1.2 |
 | 089 | UI/UX | 同步子官职卡片与树状线的消失动画，统一使用 0.6s Quartic Out 曲线 | Done | 1.2 |

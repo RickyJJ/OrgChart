@@ -55,13 +55,13 @@ function GlobalSearch({ dynasties, onSelectResult, isOpen, onClose }) {
   return (
     <>
       <div
-        className={`fixed inset-0 z-30 bg-black/10 transition-opacity duration-300 ${isOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'}`}
+        className={`global-search-scrim ${isOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'}`}
         onClick={onClose}
       />
 
       <aside
         data-search-drawer="true"
-        className={`fixed top-0 left-0 z-40 h-screen w-80 border-r border-[#d3ccbf] bg-[#f6f0e5]/98 p-4 shadow-[10px_0_24px_rgba(0,0,0,0.12)] backdrop-blur-sm transition-transform duration-400 ease-[cubic-bezier(0.16,1,0.3,1)] ${isOpen ? 'translate-x-64' : 'translate-x-[-100%]'}`}
+        className={`global-search-panel p-4 ${isOpen ? 'is-active' : ''}`}
         aria-hidden={!isOpen}
       >
         <div className="mb-3">

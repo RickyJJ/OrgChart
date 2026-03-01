@@ -1,93 +1,166 @@
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
+import { PenTool, X } from 'lucide-react';
 
 function DetailPanel({ node, onClose }) {
-    const [isHoveringText, setIsHoveringText] = useState(false);
+  const [isLoreExpanded, setIsLoreExpanded] = useState(false);
+  const [imageFailed, setImageFailed] = useState(false);
+  const hasPoetry = Array.isArray(node?.poetry) && node.poetry.length > 0;
+  const hasAllusions = Array.isArray(node?.allusions) && node.allusions.length > 0;
+  const hasLore = hasPoetry || hasAllusions;
+  const hasFigures = Array.isArray(node?.figures) && node.figures.length > 0;
 
-    if (!node) return null;
+  const loreText = useMemo(() => {
+    if (hasPoetry) {
+      return node.poetry.map(item => `${item.author}《${item.poem}》`).join('\n\n');
+    }
+    if (hasAllusions) {
+      return node.allusions.map(item => `${item.title}：${item.text}`).join('\n\n');
+    }
+    return '';
+  }, [hasPoetry, hasAllusions, node?.poetry, node?.allusions]);
 
-    // We can extract an image source from allusions or fallback to a default thematic image
-    const illustrationImage = node.panelImage || (node.allusions && node.allusions.length > 0 && node.allusions[0].loreImage)
-        ? (node.panelImage || node.allusions[0].loreImage)
-        : '/assets/content/horse_rider.png';
+  const shouldShowLoreExpand = loreText.length > 120;
 
-    return (
-        <div className={`detail-panel-container absolute right-[8%] top-16 w-[340px] bg-[#f5f3ee] rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.15)] z-[100] transition-all duration-400 ease-out border-2 border-white overflow-hidden flex flex-col ${node ? 'opacity-100 translate-y-0 pointer-events-auto' : 'opacity-0 translate-y-5 pointer-events-none'}`}>
+  const illustrationImage = useMemo(
+    () => node?.panelImage || node?.allusions?.[0]?.loreImage || '/assets/content/horse_rider.png',
+    [node]
+  );
 
-            {/* Top Section: Title & Badge */}
-            <div className="pt-6 pb-4 pr-10 pl-6 relative flex flex-col items-start bg-gradient-to-b from-[#f5f3ee] to-transparent">
-                {/* Close Button */}
-                <button onClick={onClose} className="absolute top-4 right-4 text-gray-400 hover:text-ink transition-colors cursor-pointer bg-transparent border-none">
-                    <i className="fas fa-times text-lg"></i>
-                </button>
+  if (!node) return null;
 
-                <h2 className="font-serif text-[2.2rem] text-[#111] font-black tracking-widest mb-1.5">
-                    {node.title}
-                </h2>
-                {node.englishTitle && (
-                    <div className="font-sans text-[0.65rem] text-gray-400 font-bold uppercase tracking-[0.15em] mb-3 ml-1">
-                        {node.englishTitle}
-                    </div>
-                )}
+  const stopBubble = (event) => {
+    event.stopPropagation();
+  };
 
-                {/* Traditional Plaque Badge */}
-                <div
-                    className="inline-flex items-center bg-gradient-to-r from-[#8b1c1c] text-white px-5 py-[0.25rem] relative"
-                    style={{
-                        backgroundColor: '#a62b2b',
-                        clipPath: 'polygon(10% 0, 90% 0, 100% 25%, 100% 75%, 90% 100%, 10% 100%, 0 75%, 0 25%)',
-                        boxShadow: 'inset 0 0 4px rgba(0,0,0,0.3)'
-                    }}
-                >
-                    <span className="text-[0.4rem] mr-2 opacity-90 pt-[1px] font-bold">◆</span>
-                    <span className="font-serif text-[0.85rem] tracking-[0.2em] font-bold z-10">{node.level || '未知'}</span>
-                    <span className="text-[0.4rem] ml-1 opacity-90 pt-[1px] font-bold">◆</span>
-                </div>
+  return (
+    <aside
+      className="detail-panel-container detail-panel-paper detail-panel-slide-in fixed right-8 top-8 bottom-8 w-[420px] max-w-[calc(100vw-2rem)] rounded-2xl border-2 border-white overflow-hidden flex flex-col"
+      style={{ zIndex: 'var(--z-detail-card)' }}
+      onMouseDown={stopBubble}
+      onClick={stopBubble}
+    >
+      <div className="flex-1 overflow-y-auto px-8 py-8 custom-scrollbar relative flex flex-col gap-6">
+        {/* Close Button */}
+        <button
+          type="button"
+          onClick={(event) => {
+            event.stopPropagation();
+            onClose();
+          }}
+          className="absolute top-6 right-6 text-[#7a7467] hover:text-[#2a2624] transition-colors z-30"
+          aria-label="close detail panel"
+        >
+          <X size={20} />
+        </button>
+
+        {/* Section 1: Header (No label) */}
+        <section>
+          <div className="flex items-baseline gap-4 mb-1">
+            <h2 className="font-serif text-3xl text-[#1f1a17] font-bold tracking-wide">
+              {node.title}
+            </h2>
+            <span className="font-serif text-xl text-[#4f473f]">
+              {node.level}
+            </span>
+          </div>
+          {node.englishTitle && (
+            <p className="text-base italic text-[#766f62] font-serif leading-none">
+              {node.englishTitle}
+            </p>
+          )}
+        </section>
+
+        {/* Section 2: Summary (No label) */}
+        <section>
+          <p className="font-sans text-[0.95rem] leading-7 text-[#3b3531]">
+            {node.description}
+          </p>
+        </section>
+
+        {/* Section 3: Illustration */}
+        <section>
+          <div className="ink-illustration-container w-full h-[220px] overflow-hidden flex items-center justify-center">
+            {!imageFailed ? (
+              <img
+                src={illustrationImage}
+                alt={node.title}
+                className="w-full h-full object-contain mix-blend-multiply"
+                onError={() => setImageFailed(true)}
+              />
+            ) : (
+              <div className="w-full h-full border border-dashed border-[#cabfae] bg-[#f7f2e8] flex flex-col items-center justify-center text-[#8a8376]">
+                <PenTool size={24} className="mb-2" />
+                <span className="text-[11px] tracking-wide italic">水墨插图载入中...</span>
+              </div>
+            )}
+          </div>
+        </section>
+
+        {/* Section 4: Lore Pearls */}
+        {hasLore && (
+          <section className="flex flex-col gap-3">
+            <div className="flex items-center gap-2 text-[#2a2624]">
+              <PenTool size={18} className="text-[#5a5349]" />
+              <span className="font-serif text-lg font-bold">典故连珠</span>
             </div>
 
-            {/* Divider shadow: soft centered line, vertically shorter middle shadow */}
-            <div className="w-full relative flex flex-col items-center mt-2">
-                <div className="w-[90%] h-[1px] bg-[#f0eee6]"></div>
-                <div className="w-[85%] h-2.5 bg-transparent" style={{ background: 'radial-gradient(75% 100% at 50% 0%, rgba(139, 115, 85, 0.1) 0%, rgba(139, 115, 85, 0) 100%)' }}></div>
+            <div className="relative">
+              <p
+                className={`font-serif text-[1.1rem] leading-8 text-[#2d2824] whitespace-pre-wrap ${isLoreExpanded ? '' : 'line-clamp-3'
+                  }`}
+              >
+                {loreText}
+                {/* Red Seal Placeholder */}
+                <span className="inline-block ml-2 w-4 h-4 rounded-sm bg-[#af292e] align-middle opacity-80" aria-hidden="true" title="历史印鉴"></span>
+              </p>
+
+              {!isLoreExpanded && shouldShowLoreExpand && (
+                <div className="lore-expand-mask absolute inset-x-0 bottom-0 h-12 pointer-events-none"></div>
+              )}
             </div>
 
-            {/* Middle Section: Text Content (Vertical Writing Layout) */}
-            <div
-                className="px-8 py-5 h-[270px] flex justify-end"
-                onMouseEnter={() => setIsHoveringText(true)}
-                onMouseLeave={() => setIsHoveringText(false)}
-            >
-                <div
-                    className={`font-serif text-[1.05rem] text-[#444] leading-[1.8] tracking-normal overflow-x-auto overflow-y-hidden whitespace-pre-wrap custom-scrollbar pr-2 pb-2 ${isHoveringText ? 'show-scrollbar' : ''}`}
-                    style={{
-                        writingMode: 'vertical-rl',
-                        textOrientation: 'upright',
-                        maxHeight: '100%',
-                    }}
-                >
-                    {node.description || '职能描述载入中...'}
-                </div>
+            {shouldShowLoreExpand && (
+              <button
+                type="button"
+                onClick={(event) => {
+                  event.stopPropagation();
+                  setIsLoreExpanded(prev => !prev);
+                }}
+                className="text-sm text-[#7e1f23] hover:text-[#af292e] text-center bg-[#fdfaf3] py-1 rounded-md border border-[#eee4d5] transition-colors"
+              >
+                {isLoreExpanded ? '收起全文' : '...展开阅读'}
+              </button>
+            )}
+          </section>
+        )}
+
+        {/* Section 5: Figures */}
+        {hasFigures && (
+          <section>
+            <div className="flex flex-wrap gap-x-2 gap-y-1 text-[0.85rem] text-[#5e574d]/80 font-sans tracking-wide">
+              {node.figures.map((figure, index) => (
+                <span key={`${figure}-${index}`}>
+                  {figure}
+                  {index < node.figures.length - 1 ? '、' : ''}
+                </span>
+              ))}
             </div>
+          </section>
+        )}
+      </div>
 
-            {/* Bottom Section: Illustration */}
-            <div className="relative w-full h-[280px] bg-transparent flex items-end justify-center rounded-b-xl overflow-hidden mt-auto">
-
-                <img
-                    src={illustrationImage}
-                    alt="历史人物图"
-                    className="w-[90%] h-[92%] object-contain mix-blend-multiply opacity-95 object-bottom"
-                    onError={(e) => {
-                        e.target.style.display = 'none';
-                        e.target.nextSibling.style.display = 'flex';
-                    }}
-                />
-                {/* Placeholder shown if image fails/missing */}
-                <div className="hidden w-[80%] h-[80%] mb-4 border-2 border-dashed border-[#ddd8cd] rounded-lg items-center justify-center text-[#999] font-serif text-sm bg-[#f2edd8] shadow-inner font-medium tracking-widest">
-                    <i className="fas fa-image mr-2 text-xl mb-2"></i><br />历史插图缺失
-                </div>
-            </div>
-
-        </div>
-    );
+      {/* Section 6: CTA Button */}
+      <div className="px-8 pb-8 pt-2">
+        <button
+          type="button"
+          onClick={stopBubble}
+          className="w-full h-12 rounded-lg bg-[#af292e] text-[#fff] font-bold tracking-[0.2em] transition-all hover:bg-[#8a2d2f] active:scale-95 shadow-md"
+        >
+          尝试此官职
+        </button>
+      </div>
+    </aside>
+  );
 }
 
 export default DetailPanel;

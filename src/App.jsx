@@ -31,13 +31,30 @@ function App() {
   const handleSearchSelect = ({ dynastyId, node }) => {
     setActiveTab('hierarchy');
 
+    // If we only have an ID (from LoreCenter), we need to find the full node reference
+    let targetNode = node;
+    if (!node.title) {
+      const dynasty = dynastyData.find(d => d.id === dynastyId);
+      const findNode = (n) => {
+        if (n.id === node.id) return n;
+        if (n.children) {
+          for (const child of n.children) {
+            const result = findNode(child);
+            if (result) return result;
+          }
+        }
+        return null;
+      };
+      targetNode = findNode(dynasty.structure);
+    }
+
     if (dynastyId !== activeDynastyId) {
-      setPendingSearchTarget({ dynastyId, node });
+      setPendingSearchTarget({ dynastyId, node: targetNode });
       setActiveDynastyId(dynastyId);
       return;
     }
 
-    setSelectedNode(node);
+    setSelectedNode(targetNode);
   };
 
   React.useEffect(() => {
@@ -97,7 +114,7 @@ function App() {
   }, [isSearchOpen]);
 
   return (
-    <div className="flex min-h-screen w-full">
+    <div className="flex min-h-screen w-full relative" style={{ zIndex: 'var(--z-base-canvas)' }}>
       <Sidebar
         activeTab={activeTab}
         onNavigate={handleNavigate}
@@ -105,9 +122,9 @@ function App() {
         onToggleSearch={() => setIsSearchOpen(prev => !prev)}
       />
 
-      <main className="ml-64 flex-1 p-10 flex flex-col relative bg-transparent shadow-inner border-l border-[#d3ccbf]">
+      <main className="flex-1 p-10 flex flex-col relative bg-transparent shadow-inner border-l border-[#d3ccbf]" style={{ marginLeft: 'var(--sidebar-width)' }}>
         {activeTab === 'hierarchy' && (
-          <div className="bg-board flex-1 relative shadow-[0_4px_20px_rgba(0,0,0,0.03)] flex flex-col overflow-hidden rounded-xl">
+          <div className="bg-board scroll-unroll-anim flex-1 relative shadow-[0_4px_20px_rgba(0,0,0,0.03)] flex flex-col overflow-hidden rounded-xl">
             {/* Inner decorative border overlay */}
             <div
               className="absolute inset-2 pointer-events-none z-20"
@@ -143,7 +160,7 @@ function App() {
             </div>
 
             {/* Clipping container for the tree */}
-            <div className="absolute inset-[13px] overflow-hidden z-10 pointer-events-none sticky-container flex flex-col transition-all duration-300 mix-blend-multiply">
+            <div className="absolute inset-[13px] overflow-hidden pointer-events-none sticky-container flex flex-col transition-all duration-300 mix-blend-multiply" style={{ zIndex: 'var(--z-tree)' }}>
               <div className="w-full h-full pointer-events-auto flex flex-col">
                 <HierarchyTree
                   activeDynasty={activeDynasty}
@@ -153,23 +170,12 @@ function App() {
               </div>
             </div>
 
-            <DetailPanel
-              node={selectedNode}
-              onClose={closeDetail}
-            />
-
           </div>
         )}
 
         {activeTab === 'simulation' && (
           <div className="flex-1 w-full h-full">
             <SimulationDashboard />
-          </div>
-        )}
-
-        {activeTab === 'lore' && (
-          <div className="flex-1 w-full rounded-xl border border-[#d3ccbf] bg-board p-8 flex items-center justify-center text-[#2a2624]">
-            典故连珠模块开发中
           </div>
         )}
 
@@ -183,6 +189,12 @@ function App() {
           青云志 | 弘扬中华古代文化 | Web PM 精心呈现
         </footer>
       </main>
+
+      <DetailPanel
+        key={selectedNode?.id || 'detail-panel-empty'}
+        node={activeTab === 'hierarchy' ? selectedNode : null}
+        onClose={closeDetail}
+      />
 
       <GlobalSearch
         dynasties={dynastyData}

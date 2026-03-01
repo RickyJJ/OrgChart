@@ -3,7 +3,10 @@ import { Network, BookOpen, PenTool, User, Search } from 'lucide-react';
 
 function Sidebar({ activeTab, onNavigate, isSearchOpen, onToggleSearch }) {
   return (
-    <aside className="w-64 bg-ink-dark h-screen fixed left-0 top-0 text-sidebar-text flex flex-col shadow-lg z-50">
+    <aside
+      className="bg-ink-dark h-screen fixed left-0 top-0 text-sidebar-text flex flex-col shadow-lg"
+      style={{ width: 'var(--sidebar-width)', zIndex: 'var(--z-sidebar)' }}
+    >
       <div className="py-10 text-center border-b border-white/10">
         <img src="/assets/ui/scroll_icon.png" className="w-[60px] h-[60px] object-contain mb-3 inline-block" alt="Scroll Logo" />
         <h1 className="font-serif text-[2rem] font-bold tracking-[4px] m-0 text-white">青云策</h1>
@@ -19,17 +22,6 @@ function Sidebar({ activeTab, onNavigate, isSearchOpen, onToggleSearch }) {
           <div className="flex flex-col">
             <span className="font-serif text-[1.1rem] tracking-[1px]">官阶巡礼</span>
             <span className="font-sans text-[0.75rem] opacity-60 mt-0.5">Hierarchy Tree</span>
-          </div>
-        </button>
-
-        <button
-          onClick={() => onNavigate('lore')}
-          className={`w-full text-left flex items-center px-6 py-4 transition-all duration-300 relative group cursor-pointer ${activeTab === 'lore' ? 'bg-white/10 text-white border-l-4 border-vermilion' : 'text-gray-300 hover:bg-white/10 hover:text-white border-l-4 border-transparent'}`}
-        >
-          <div className="mr-4 flex-shrink-0"><BookOpen size={20} /></div>
-          <div className="flex flex-col">
-            <span className="font-serif text-[1.1rem] tracking-[1px]">典故连珠</span>
-            <span className="font-sans text-[0.75rem] opacity-60 mt-0.5">Lore Details</span>
           </div>
         </button>
 

@@ -1,6 +1,17 @@
 @import "tailwindcss";
 @config "../tailwind.config.js";
 
+:root {
+    --sidebar-width: 256px;
+    --color-xuan-paper: #f5f5dc;
+    --color-xuan-paper-alpha: rgba(245, 245, 220, 0.85);
+    --z-base-canvas: 0;
+    --z-tree: 10;
+    --z-detail-card: 50;
+    --z-search-panel: 90;
+    --z-sidebar: 100;
+}
+
 @layer base {
     body {
         @apply bg-main-bg bg-repeat text-text-main font-sans min-h-screen overflow-x-hidden leading-relaxed;
@@ -367,5 +378,129 @@
     100% {
         clip-path: inset(0 0 0 0);
         opacity: 1;
+    }
+}
+
+/* Detail panel (high-fidelity refactor) */
+.detail-panel-paper {
+    background-color: #fcfaf2;
+    background-image: url('https://www.transparenttextures.com/patterns/natural-paper.png');
+    box-shadow: -4px 8px 24px rgba(30, 41, 59, 0.15);
+}
+
+.ink-illustration-container {
+    mask-image: radial-gradient(circle at center, black 40%, transparent 95%);
+    -webkit-mask-image: radial-gradient(circle at center, black 40%, transparent 95%);
+    filter: grayscale(0.8) contrast(1.1) brightness(1.05);
+}
+
+.lore-expand-mask {
+    background: linear-gradient(to bottom, transparent, #fcfaf2);
+}
+
+.detail-panel-slide-in {
+    animation: detail-slide-in 0.3s ease-out forwards;
+}
+
+@keyframes detail-slide-in {
+    from {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+.global-search-scrim {
+    position: fixed;
+    inset: 0;
+    z-index: 45;
+    background: rgba(0, 0, 0, 0.08);
+    transition: opacity 0.35s ease;
+}
+
+.global-search-panel {
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    left: var(--sidebar-width);
+    width: 360px;
+    height: 100vh;
+    z-index: var(--z-search-panel);
+    background-color: var(--color-xuan-paper-alpha);
+    -webkit-backdrop-filter: blur(8px);
+    backdrop-filter: blur(8px);
+    border-right: 1px solid rgba(30, 41, 59, 0.1);
+    box-shadow: 4px 0 24px rgba(30, 41, 59, 0.08);
+    transform: translateX(-100%);
+    transition: transform 0.35s cubic-bezier(0.2, 0.8, 0.2, 1), visibility 0.35s;
+    visibility: hidden;
+}
+
+.global-search-panel.is-active {
+    transform: translateX(0);
+    visibility: visible;
+}
+
+/* 详情面板新中式样式 (High-Fidelity) */
+.detail-panel-paper {
+    background-color: #fcfaf2;
+    /* 宣纸暖白 */
+    background-image: url('https://www.transparenttextures.com/patterns/natural-paper.png');
+    /* 浅纸张纤维纹理 */
+    box-shadow: -4px 8px 24px rgba(30, 41, 59, 0.15);
+    /* 柔和暖灰色弥散阴影 */
+}
+
+/* 水墨插图羽化效果 */
+.ink-illustration-container {
+    -webkit-mask-image: radial-gradient(circle at center, black 40%, transparent 95%);
+    mask-image: radial-gradient(circle at center, black 40%, transparent 95%);
+    filter: grayscale(0.8) contrast(1.1) brightness(1.05);
+    /* 低饱和度水墨化 */
+}
+
+/* 典故文字展开渐变遮罩 */
+.lore-expand-mask {
+    background: linear-gradient(to bottom, transparent, #fcfaf2);
+}
+
+/* 出场动画 */
+.detail-panel-slide-in {
+    animation: detail-slide-in 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes detail-slide-in {
+    from {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+/* 画卷平铺入场动画 */
+.scroll-unroll-anim {
+    animation: scroll-unroll 1.2s cubic-bezier(0.16, 1, 0.3, 1) both;
+    transform-origin: center center;
+}
+
+@keyframes scroll-unroll {
+    0% {
+        clip-path: inset(0 50% 0 50%);
+        opacity: 0.2;
+        transform: scale(0.98);
+    }
+
+    100% {
+        clip-path: inset(0 0 0 0);
+        opacity: 1;
+        transform: scale(1);
     }
 }
