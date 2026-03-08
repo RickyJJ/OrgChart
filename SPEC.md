@@ -83,26 +83,50 @@
   - 视界定位: 用户点击检索结果后，主界面的“官阶巡礼”树状图需自动平滑移动（Pan）并缩放（Zoom），将目标官职节点居中显示。
   - 状态联动: 目标节点自动触发边缘发光高亮选中态。
   - 详情呼出: 定位完成后，右侧自动弹出悬浮详情卡片 ，直接向用户展示该官职完整的四维文化数据 （含历史配图、人物及引言典故 ）。
-### 2.6 “入仕”模拟器 (Modern-to-Ancient Job Matcher)
-- **功能描述**: 趣味互动模块，打破古今壁垒。用户输入现代职业，系统匹配最贴合的古代官职，增强社交传播属性。
-- **交互流程**:
-  1. 提供极简输入框（如用户输入“程序员”、“产品经理”、“财务总监”）。
-  2. 系统通过预设的映射字典（Mapping Dictionary），智能输出对应的古代官职（如：“程序员” -> “将作监丞”，“产品经理” -> “中书舍人”或“考功司员外郎”）。
-  3. **视觉反馈**: 动态生成一张带有新中式边框、**朱红印章**盖印动效的“委任状”海报。
-  4. 支持前端使用 HTML-to-Image (如 `html2canvas`) 技术实现海报保存，支持用户长按保存或分享。
+
+#### 2.6 “入仕”模拟器与裂变引擎 (Modern-to-Ancient Job Matcher & Viral Engine)
+
+* **功能描述:** 趣味互动模块，打破古今壁垒 。用户输入现代职业，系统匹配最贴合的古代官职，增强社交传播属性 。不仅是互动核心，更是全站自然流量裂变与商业引流的起点。
+* **交互流程:**
+  1. **输入:** 提供极简输入框（如用户输入“程序员”、“产品经理”、“财务总监”） 。
+  2. **匹配:** 系统通过预设的映射字典（Mapping Dictionary），智能输出对应的古代官职（如：“程序员” -> “将作监丞”，“产品经理” -> “中书舍人”或“考功司员外郎”） 。
+  3. **视觉反馈:** 动态生成一张带有新中式边框、朱红印章盖印动效的“委任状”海报 。
+  4. **裂变锚点 (新增):** 海报右下角自动生成专属水墨风二维码，包含 UTM 追踪参数，强制指向《青云志》主站模拟器落地页，拒绝直接导流外部电商以防社交平台屏蔽。
+  5. **技术实现:** 支持前端使用 HTML-to-Image (如 html2canvas) 技术实现海报保存，支持用户长按保存或分享 。
+  6. **情绪转化 (新增):** 在海报生成并展示后，界面下方延迟 800ms 淡入关联的“文创周边”推荐入口，点击后平滑导航至“造办处”展览页。
+
+#### 2.7 商业引流与“造办处”文创展览 (Cultural Merch Exhibition - "The Imperial Workshop") (新增)
+
+* **功能定位:** 在不破坏“官阶巡礼”纯粹科普体验的前提下，建立高转化率的商业引流阵地。平台自身不处理订单与交易，仅作为“高品质文化展览与引流漏斗”。
+* **入口设计:**
+  * **全局常驻:** 置于左侧深色导航侧边栏 (Sidebar Navigation) 的常驻功能键，命名为“造办处”或“珍宝阁”，图标采用极简的折扇或锦囊融合设计。
+  * **场景触发:** 由“入仕模拟器”结果页或特定的“典故悬浮卡片”底部关联顺滑呼出。
+* **页面形态 (无头电商展示):**
+  * 延续新中式极简风 (Neo-Chinese Minimalist) 与“水墨卷轴”结合的整体风格 ，采用“线上美术馆”的画廊式网格布局展现文创商品。
+  * 剥离传统的“加入购物车”概念，以“赏鉴”、“请回案头”等古风文案作为 Call-to-Action (CTA) 按钮。
+* **导流机制 (重定向追踪):**
+  * 用户点击意向商品后，系统需先触发埋点事件（记录来源页 ID、商品 ID），随后通过 302 重定向或拉起外部小程序，无缝跳转至指定的第三方电商平台（淘宝/微店/小红书）。
 
 ## 3. 架构与数据模型
 
 ### 3.1 核心技术栈与架构
-- **Frontend**: React 18, Vite.
-- **Styling**: TailwindCSS (Custom configuration for Neo-Chinese theme variables).
-- **Icons**: Font Awesome 6 (React components) or SVG.
-- **Fonts**: Noto Serif SC, Inter (Google Fonts).
-- **Architecture Highlights**: 
-  - **视觉-逻辑解耦 (Visual-Logical Decoupling)**: 引入稳定的 `CardContainer` 容器层。树状连线的坐标计算仅依赖该静态容器，而视觉动效（如 Hover 上浮、选中缩放）仅在容器内部发生。这确保了交互过程中连线的绝对稳定性。
-  - **递归可见性检查 (Recursive Visibility)**: 树状连线渲染器会递归检查祖先节点的展开状态，确保折叠子树内部的连线被物理隐藏，避免“虚影线”残留。
-- **Structure**: Component-based architecture. State managed via React hooks. `data.js` will be converted to a module or JSON.
-- **Tools**: `html2canvas` (or similar) for the poster generation module.
+
+* **Frontend (前端):** React 18, Vite.
+* **Styling (样式):** TailwindCSS (Custom configuration for Neo-Chinese theme variables).
+* **Icons (图标):** Font Awesome 6 (React components) or SVG.
+* **Fonts (字体):** Noto Serif SC, Inter (Google Fonts).
+* **Backend & API (后端服务 - 新增):** * **核心框架:** Node.js (Express / NestJS) 或采用轻量级 Headless CMS (如 Strapi / Directus)。主打快速开发与内容接口的分发。
+    * **业务职责:** 仅负责核心文化数据（官职、典故、人物）的读取分发、文创商品的引流链接管理，以及用户行为埋点（如模拟器裂变转化率、点击穿透率）的收集。**绝对不涉足任何订单交易与库存锁定逻辑。**
+* **Database & Search (数据与检索 - 新增):**
+    * **主数据库:** PostgreSQL。利用其强大的关系型特性保障数据一致性，并可引入 `ltree` 扩展原生处理“三省六部”等复杂的树状层级结构存储。
+    * **检索引擎:** Elasticsearch 或 Meilisearch。作为“文化虫洞”的底层驱动，实现忽略空格的“人-官-文”多维模糊跨朝代检索。
+* **Infrastructure (基础设施 - 新增):** 强依赖 CDN (内容分发网络)。所有高保真背景图、印泥动效图、水墨遮罩等静态资源必须全量上 CDN，确保即便裂变拉新导致高并发，主站依然能丝滑加载。
+* **Architecture Highlights (架构亮点):**
+    * **视觉-逻辑解耦 (Visual-Logical Decoupling):** 引入稳定的 CardContainer 容器层。树状连线的坐标计算仅依赖该静态容器，而视觉动效（如 Hover 上浮、选中缩放）仅在容器内部发生。这确保了交互过程中连线的绝对稳定性 。
+    * **递归可见性检查 (Recursive Visibility):** 树状连线渲染器会递归检查祖先节点的展开状态，确保折叠子树内部的连线被物理隐藏，避免“虚影线”残留 。
+    * **动静分离与防雪崩:** 核心科普（静态缓存优先）与埋点重定向（异步处理）在接口层严格分离，确保引流模块的高并发不会拖垮主站。
+* **Structure (结构):** Component-based architecture. State managed via React hooks. data.js will be converted to a module or JSON.
+* **Tools (工具):** html2canvas (or similar) for the poster generation module.
 
 ### 3.2 数据结构规范 (Data Model)
 所有的朝代数据需遵循严格的 JSON schema `node`：
@@ -139,3 +163,17 @@ interface Node {
 - **严禁硬编码路径**: 详情面板的背景图、遮罩图需引用 CSS 变量或全局常量。
 - **动态读取**: 业务插图（Figure/Illustration）必须从 `data.js` 的 `panelImage` 字段读取，严禁在组件内直接 `import` 业务图片。
 - **缺省处理**: 若字段为空，必须回退至 `/public/assets/content/horse_rider.png`。
+
+### 4.3 社交引流交互流转图 (User Flow)：命运卷轴 (The Scroll of Destiny) 转化漏斗
+1. **[站外触达] 扫码入局**
+   * **场景:** 用户 B 在社交平台（如朋友圈）看到用户 A 分享的“入仕委任状”海报。
+   * **动作:** 用户 B 扫描海报专属的水墨风二维码，进入带有 UTM 追踪参数的链接（如 `qingyunzhi.com/simulator?ref=poster_share`）。
+2. **[站内承接] 极简入场**
+   * **场景:** 微信等内置浏览器直接平滑拉起网页，进入主站“入仕模拟器”模块。
+   * **动作:** 界面展现极简输入框及微交互文案（如：“你的好友已入局大唐官场，你呢？”）。
+3. **[核心体验] 职业匹配**
+   * **动作:** 用户 B 输入现代职业，点击生成。系统智能输出匹配的古代官职。
+4. **[情绪高点] 委任状生成**
+   * **场景:** 伴随“盖印”动效，生成专属用户 B 的新中式委任状海报。
+5. **[顺水推舟] 雅玩引流**
+   * **动作:** 海报下方延迟淡入“造办处”文创推荐卡片（如：“履新此职，怎能少了一把好扇？ 👉 赴【造办处】赏玩同款水墨折扇”）。用户点击后重定向至外部电商完成最终转化。
