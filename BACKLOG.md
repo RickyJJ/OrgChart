@@ -104,10 +104,12 @@
 | 093 | Bug | 修复折叠时子层级连线残留问题：通过 `TreeConnections.jsx` 递归检查祖先展开状态实现彻底隐藏 | Done | 1.2 |
 | 094 | Feature | 典故连珠：实现全量文化看板组件 `LoreCenter.jsx` 及一键穿透定位逻辑 | Done | 2.5 |
 | 095 | UI/UX | 典故连珠：根据反馈移除导航栏独立菜单入口，保持侧边栏极简，相关内容由全局搜索承接 | Done | 1.2 |
-| 096 | Feature | 后端框架选型与搭建：引入 Node.js/Strapi 提供基础文化数据分发、引流链接及埋点收集等 API | Pending | 3.1 |
-| 097 | Feature | 数据库与检索引擎：部署 PostgreSQL 作为主数据库，引入 Elasticsearch/Meilisearch 驱动跨维度模糊搜索引擎 | Pending | 3.1 |
+| 096 | Feature | 后端框架选型与搭建：引入基于 Node.js 生态的 Headless CMS (Directus v11.16) 提供核心文化数据分发、引流及埋点收集，并提供可视化数据后台 | Pending | 3.1 |
+| 097 | Feature | 数据库与检索引擎：部署 PostgreSQL 作为主数据库并启用 `ltree` 扩展，引入 Meilisearch 驱动高性能力且忽略空格的多维跨朝代检索引擎 | Pending | 3.1 |
 | 098 | Arch | 基础设施与 CDN：配置全局 CDN 分发网络，将所有大体积高保真背景、动效与水墨遮罩等静态资源上云以应对拉新裂变高并发 | Pending | 3.1 |
 | 099 | Feature | 商业引流与“造办处”文创页：增加左侧侧边常驻导航入口，实现新中式画廊式商品展示面板（无头电商展示模式） | Pending | 2.7 |
 | 100 | Feature | 埋点追踪与导流体系：实现前端点击文创商品时的埋点事件捕获与重定向/拉起外部小程序（淘宝/小红书等）功能 | Pending | 2.7 |
 | 101 | Feature | 模拟器裂变锚点升级：利用前端技术动态生成包含 UTM 参数的专属水墨二维码，集成入委任状海报右下角 | Pending | 2.6 |
 | 102 | Feature | 模拟器顺水推舟引流：委任海报展现后，延迟 800ms 淡入展示“文创周边”关联按钮，并支持一键无缝导航至造办处界面 | Pending | 2.6 |
+| 103 | Feature | 无感匿名追踪：利用 LocalStorage 或轻量浏览器指纹生成端侧匿名 UUID，以此作为用户行为埋点唯一标识发送后端 | Pending | 3.1 |
+| 104 | Arch | 数据结构迁移：将静态的 `data.js` 历史数据全量结构化清洗并迁移至 PostgreSQL 数据库进行动态管理 | Pending | 3.1 |

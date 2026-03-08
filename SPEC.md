@@ -115,18 +115,26 @@
 * **Styling (样式):** TailwindCSS (Custom configuration for Neo-Chinese theme variables).
 * **Icons (图标):** Font Awesome 6 (React components) or SVG.
 * **Fonts (字体):** Noto Serif SC, Inter (Google Fonts).
-* **Backend & API (后端服务 - 新增):** * **核心框架:** Node.js (Express / NestJS) 或采用轻量级 Headless CMS (如 Strapi / Directus)。主打快速开发与内容接口的分发。
-    * **业务职责:** 仅负责核心文化数据（官职、典故、人物）的读取分发、文创商品的引流链接管理，以及用户行为埋点（如模拟器裂变转化率、点击穿透率）的收集。**绝对不涉足任何订单交易与库存锁定逻辑。**
-* **Database & Search (数据与检索 - 新增):**
-    * **主数据库:** PostgreSQL。利用其强大的关系型特性保障数据一致性，并可引入 `ltree` 扩展原生处理“三省六部”等复杂的树状层级结构存储。
-    * **检索引擎:** Elasticsearch 或 Meilisearch。作为“文化虫洞”的底层驱动，实现忽略空格的“人-官-文”多维模糊跨朝代检索。
-* **Infrastructure (基础设施 - 新增):** 强依赖 CDN (内容分发网络)。所有高保真背景图、印泥动效图、水墨遮罩等静态资源必须全量上 CDN，确保即便裂变拉新导致高并发，主站依然能丝滑加载。
+
+* **Backend & API (后端服务 - 核心更新):** * **核心框架:** 强烈推荐采用基于 Node.js 生态的 Headless CMS，指定Directus v11.16。
+  * **业务职责:** 仅负责核心文化数据（官职、典故、人物）的读取分发、文创商品的引流链接管理，以及用户行为埋点的收集 。提供开箱即用的现代化可视化后台，供运营人员管理数据。**绝对不涉足任何订单交易与库存锁定逻辑。**
+
+* **Database & Search (数据与检索 - 核心更新):**
+  * **主数据库:** PostgreSQL。利用其强大的关系型特性保障数据一致性，并强制引入 `ltree` 扩展原生处理“三省六部”等复杂的树状层级结构存储 。
+  * **检索引擎:** 采用轻量级开源检索引擎 Meilisearch。作为“文化虫洞”的底层驱动，实现极致性能且忽略空格的“人-官-文”多维模糊跨朝代检索 。
+
+* **Infrastructure (基础设施):** 强依赖 CDN (内容分发网络) 。所有高保真背景图、印泥动效图、水墨遮罩等静态资源必须全量上 CDN，确保即便裂变拉新导致高并发，主站依然能丝滑加载 。
+
+* **用户追踪与埋点 (Tracking Analytics):**
+  * **无感匿名追踪 (Frictionless Anonymous Tracking):** 鉴于 MVP 阶段坚决不引入繁杂的用户注册登录系统，前端需利用 `LocalStorage` 或轻量级浏览器指纹技术在端侧生成匿名 UUID 。此 UUID 将作为收集用户行为埋点（如模拟器裂变转化率、商品点击穿透率）时的唯一身份标识发送至后端接口 。以此在保持极致顺滑体验的同时，实现精准的商业引流漏斗分析。
+
 * **Architecture Highlights (架构亮点):**
-    * **视觉-逻辑解耦 (Visual-Logical Decoupling):** 引入稳定的 CardContainer 容器层。树状连线的坐标计算仅依赖该静态容器，而视觉动效（如 Hover 上浮、选中缩放）仅在容器内部发生。这确保了交互过程中连线的绝对稳定性 。
-    * **递归可见性检查 (Recursive Visibility):** 树状连线渲染器会递归检查祖先节点的展开状态，确保折叠子树内部的连线被物理隐藏，避免“虚影线”残留 。
-    * **动静分离与防雪崩:** 核心科普（静态缓存优先）与埋点重定向（异步处理）在接口层严格分离，确保引流模块的高并发不会拖垮主站。
-* **Structure (结构):** Component-based architecture. State managed via React hooks. data.js will be converted to a module or JSON.
-* **Tools (工具):** html2canvas (or similar) for the poster generation module.
+  * **视觉-逻辑解耦 (Visual-Logical Decoupling):** 引入稳定的 CardContainer 容器层 。树状连线的坐标计算仅依赖该静态容器，而视觉动效（如 Hover 上浮、选中缩放）仅在容器内部发生，确保交互过程中连线的绝对稳定性 。
+  * **递归可见性检查 (Recursive Visibility):** 树状连线渲染器会递归检查祖先节点的展开状态，确保折叠子树内部的连线被物理隐藏，避免“虚影线”残留 。
+  * **动静分离与防雪崩:** 核心科普（静态缓存优先）与埋点重定向（异步处理）在接口层严格分离，确保引流模块的高并发不会拖垮主站 。
+
+* **Structure (结构):** Component-based architecture 。 State managed via React hooks 。 `data.js` 及其内容将完全迁移至 PostgreSQL 数据库管理 。
+* **Tools (工具):** `html2canvas` (或类似库) 用于海报生成模块 。
 
 ### 3.2 数据结构规范 (Data Model)
 所有的朝代数据需遵循严格的 JSON schema `node`：
