@@ -1,199 +1,460 @@
-import React from 'react';
-import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
-import { Scroll, Award, Briefcase, Star, Search, Filter } from 'lucide-react';
+import React, { useState, useRef, useCallback, useEffect } from 'react';
+import html2canvas from 'html2canvas';
+import { Scroll, Sparkles, Download, RotateCcw, ChevronRight, BookOpen } from 'lucide-react';
+import { matchJob, jobDictionary } from '../data/jobMapping';
+import AppointmentPoster from './AppointmentPoster';
 
-const mockCurveData = [
-    { year: '贞观元年', rep: 50 },
-    { year: '贞观二年', rep: 55 },
-    { year: '贞观三年', rep: 45 },
-    { year: '贞观四年', rep: 60 },
-    { year: '贞观五年', rep: 70 },
-    { year: '贞观六年', rep: 65 },
-    { year: '贞观七年', rep: 85 },
+/**
+ * SimulationDashboard - 入仕模拟器
+ *
+ * 核心交互流程：
+ *   1. 用户在极简输入框中键入现代职业
+ *   2. 点击"测算仕途"发起匹配
+ *   3. 展示匹配结果卡片 + 渲染委任状海报（含盖印动效与二维码）
+ *   4. 用户可"保存海报"下载为 PNG
+ *   5. 海报生成后 800ms 淡入"造办处"文创推荐入口
+ */
+
+// ─── 推荐职业列表（热门标签快捷入口）──────────────────────────
+const POPULAR_JOBS = [
+    '程序员', '产品经理', '设计师', '老师', '律师', '医生',
+    '会计', 'CEO', '记者', '学生', '军人', '公务员',
 ];
-
-const mockPieData = [
-    { name: '六部尚书', value: 40 },
-    { name: '地方州牧', value: 30 },
-    { name: '御史台', value: 20 },
-    { name: '内阁辅臣', value: 10 },
-];
-const COLORS = ['#C93A3E', '#B08D57', '#4F7768', '#5E6C7D'];
-
-const mockHistory = [
-    { date: '贞观七年', title: '吏部尚书', rank: '正三品', evaluation: '上上 - 擢拔' },
-    { date: '贞观五年', title: '江南道御史', rank: '正五品', evaluation: '上下 - 留任' },
-    { date: '贞观三年', title: '长安县令', rank: '正六品', evaluation: '中上 - 罚俸' },
-];
-
-// Reusable card component applying the glassmorphism dark theme
-const DashboardCard = ({ children, className = '' }) => (
-    <div className={`bg-[#151E2B]/80 backdrop-blur-md border border-[#2A3441] rounded-xl p-5 shadow-xl transition-all duration-300 hover:bg-white/[0.03] ${className}`}>
-        {children}
-    </div>
-);
 
 function SimulationDashboard() {
+    const [inputValue, setInputValue] = useState('');
+    const [matchResult, setMatchResult] = useState(null);
+    const [modernJob, setModernJob] = useState('');
+    const [showPoster, setShowPoster] = useState(false);
+    const [isMatching, setIsMatching] = useState(false);
+    const [showMerchCTA, setShowMerchCTA] = useState(false);
+    const [isSaving, setIsSaving] = useState(false);
+    const posterRef = useRef(null);
+    const merchTimerRef = useRef(null);
+
+    // 清理定时器
+    useEffect(() => {
+        return () => {
+            if (merchTimerRef.current) clearTimeout(merchTimerRef.current);
+        };
+    }, []);
+
+    // ─── 匹配逻辑 ────────────────────────────────────────────────
+    const handleMatch = useCallback((jobInput) => {
+        const value = jobInput || inputValue;
+        if (!value.trim()) return;
+
+        setIsMatching(true);
+        setShowPoster(false);
+        setShowMerchCTA(false);
+        setModernJob(value.trim());
+
+        // 模拟短暂"卜算"延迟，增强仪式感
+        setTimeout(() => {
+            const result = matchJob(value);
+            setMatchResult(result);
+            setIsMatching(false);
+
+            // 延迟展开海报
+            setTimeout(() => {
+                setShowPoster(true);
+
+                // SPEC 2.6：海报展示后 800ms 淡入造办处推荐
+                if (merchTimerRef.current) clearTimeout(merchTimerRef.current);
+                merchTimerRef.current = setTimeout(() => {
+                    setShowMerchCTA(true);
+                }, 800);
+            }, 300);
+        }, 800);
+    }, [inputValue]);
+
+    // ─── 保存海报 ────────────────────────────────────────────────
+    const handleSavePoster = useCallback(async () => {
+        if (!posterRef.current || isSaving) return;
+
+        setIsSaving(true);
+        try {
+            const canvas = await html2canvas(posterRef.current, {
+                scale: 2,
+                useCORS: true,
+                allowTaint: false,
+                backgroundColor: '#f5f0e3',
+            });
+
+            const link = document.createElement('a');
+            link.download = `青云志_委任状_${matchResult?.title || '授官'}.png`;
+            link.href = canvas.toDataURL('image/png');
+            link.click();
+        } catch (err) {
+            console.error('[海报生成失败]', err);
+            alert('海报生成失败，请稍后重试');
+        } finally {
+            setIsSaving(false);
+        }
+    }, [matchResult, isSaving]);
+
+    // ─── 重置 ─────────────────────────────────────────────────────
+    const handleReset = useCallback(() => {
+        setInputValue('');
+        setMatchResult(null);
+        setModernJob('');
+        setShowPoster(false);
+        setShowMerchCTA(false);
+        if (merchTimerRef.current) clearTimeout(merchTimerRef.current);
+    }, []);
+
+    // ─── 快捷标签点击 ─────────────────────────────────────────────
+    const handleQuickSelect = useCallback((job) => {
+        setInputValue(job);
+        handleMatch(job);
+    }, [handleMatch]);
+
+    // ─── 键盘事件 ─────────────────────────────────────────────────
+    const handleKeyDown = useCallback((e) => {
+        if (e.key === 'Enter') {
+            handleMatch();
+        }
+    }, [handleMatch]);
+
     return (
-        <div className="w-full h-full bg-[#0B111A] rounded-xl p-8 overflow-y-auto" style={{ fontFamily: 'Inter, system-ui, sans-serif' }}>
+        <div
+            className="w-full h-full rounded-xl overflow-y-auto relative"
+            style={{
+                backgroundColor: '#0B111A',
+                backgroundImage: `
+          radial-gradient(ellipse at 20% 50%, rgba(175, 41, 46, 0.06) 0%, transparent 60%),
+          radial-gradient(ellipse at 80% 20%, rgba(176, 141, 87, 0.05) 0%, transparent 50%)
+        `,
+                fontFamily: "'Inter', system-ui, sans-serif",
+            }}
+        >
+            <div className="max-w-5xl mx-auto px-8 py-12">
 
-            {/* Header */}
-            <div className="flex justify-between items-center mb-8">
-                <div>
-                    <h2 className="text-[#E5E0D8] font-serif tracking-widest text-3xl font-bold m-0 mb-1">入仕模拟数据中心</h2>
-                    <p className="text-[#8B9BB4] text-sm tracking-wide m-0">纵横捭阖，青云直上 —— 历代仕途数据透视</p>
+                {/* ════════════════════════════════════════════════════════
+            标题区域
+            ════════════════════════════════════════════════════════ */}
+                <div className="text-center mb-12">
+                    <div className="flex items-center justify-center gap-3 mb-4">
+                        <Scroll size={28} className="text-[#B08D57]" />
+                        <h2
+                            className="text-[#E5E0D8] tracking-[6px] text-4xl font-bold m-0"
+                            style={{ fontFamily: "'Noto Serif SC', serif" }}
+                        >
+                            入仕模拟
+                        </h2>
+                        <Scroll size={28} className="text-[#B08D57] scale-x-[-1]" />
+                    </div>
+                    <p className="text-[#8B9BB4] text-sm tracking-wide m-0 mt-2">
+                        穿越古今，测算你在大唐朝堂的官阶与职能
+                    </p>
                 </div>
-                <div className="flex gap-4">
-                    <button className="bg-[#151E2B] border border-[#2A3441] text-[#E5E0D8] px-4 py-2 rounded flex items-center gap-2 hover:bg-[#2A3441] transition-colors cursor-pointer">
-                        <Filter size={16} /> <span className="text-sm">朝代过滤</span>
-                    </button>
-                    <button className="bg-[#C93A3E] border border-transparent text-white px-5 py-2 rounded shadow-[0_0_15px_rgba(201,58,62,0.3)] hover:brightness-110 transition-all cursor-pointer font-medium tracking-widest text-sm">
-                        开始新模拟
-                    </button>
-                </div>
-            </div>
 
-            {/* Grid Layout (Bento Box) */}
-            <div className="grid grid-cols-12 gap-6">
+                {/* ════════════════════════════════════════════════════════
+            输入区域：极简新中式输入框
+            ════════════════════════════════════════════════════════ */}
+                <div className="flex flex-col items-center mb-10">
+                    <div
+                        className="relative w-full max-w-lg group"
+                    >
+                        <input
+                            id="job-input"
+                            type="text"
+                            value={inputValue}
+                            onChange={(e) => setInputValue(e.target.value)}
+                            onKeyDown={handleKeyDown}
+                            placeholder="请输入您的现代职业，如：程序员"
+                            disabled={isMatching}
+                            className="
+                w-full py-4 px-6 pr-36
+                bg-[#151E2B]/80 backdrop-blur-md
+                border border-[#2A3441]
+                rounded-xl
+                text-[#E5E0D8] text-lg
+                placeholder-[#5A6A7F]
+                focus:outline-none focus:border-[#af292e]/60 focus:shadow-[0_0_20px_rgba(175,41,46,0.15)]
+                transition-all duration-300
+                disabled:opacity-50
+              "
+                            style={{ fontFamily: "'Noto Serif SC', serif" }}
+                        />
+                        <button
+                            id="match-btn"
+                            onClick={() => handleMatch()}
+                            disabled={isMatching || !inputValue.trim()}
+                            className="
+                absolute right-2 top-1/2 -translate-y-1/2
+                px-6 py-2.5 rounded-lg
+                text-white text-sm font-medium tracking-[2px]
+                transition-all duration-300
+                cursor-pointer
+                disabled:opacity-40 disabled:cursor-not-allowed
+              "
+                            style={{
+                                background: isMatching
+                                    ? 'linear-gradient(135deg, #8B6914, #6b5d4f)'
+                                    : 'linear-gradient(135deg, #af292e, #C93A3E)',
+                                boxShadow: isMatching
+                                    ? 'none'
+                                    : '0 2px 12px rgba(175, 41, 46, 0.3)',
+                            }}
+                        >
+                            {isMatching ? (
+                                <span className="flex items-center gap-2">
+                                    <Sparkles size={14} className="animate-spin" />
+                                    卜算中…
+                                </span>
+                            ) : (
+                                '测算仕途'
+                            )}
+                        </button>
+                    </div>
 
-                {/* KPI Row */}
-                <DashboardCard className="col-span-12 md:col-span-3 flex flex-col justify-center">
-                    <div className="flex items-center gap-3 mb-2 opacity-80">
-                        <Scroll size={18} className="text-[#B08D57]" />
-                        <span className="text-[#8B9BB4] text-sm tracking-widest">累计应试</span>
-                    </div>
-                    <div className="flex items-end gap-2">
-                        <div className="text-4xl font-serif text-[#E5E0D8]">12</div>
-                        <div className="text-[#8B9BB4] text-sm mb-1">次</div>
-                    </div>
-                </DashboardCard>
-
-                <DashboardCard className="col-span-12 md:col-span-3 flex flex-col justify-center border-l-2 !border-l-[#C93A3E]">
-                    <div className="flex items-center gap-3 mb-2 opacity-80">
-                        <Award size={18} className="text-[#C93A3E]" />
-                        <span className="text-[#8B9BB4] text-sm tracking-widest">最高品阶</span>
-                    </div>
-                    <div className="flex items-end gap-2">
-                        <div className="text-3xl font-serif text-[#E5E0D8] tracking-widest">正二品</div>
-                    </div>
-                </DashboardCard>
-
-                <DashboardCard className="col-span-12 md:col-span-3 flex flex-col justify-center">
-                    <div className="flex items-center gap-3 mb-2 opacity-80">
-                        <Briefcase size={18} className="text-[#4F7768]" />
-                        <span className="text-[#8B9BB4] text-sm tracking-widest">历任实职</span>
-                    </div>
-                    <div className="flex items-end gap-2">
-                        <div className="text-4xl font-serif text-[#E5E0D8]">8</div>
-                        <div className="text-[#8B9BB4] text-sm mb-1">个</div>
-                    </div>
-                </DashboardCard>
-
-                <DashboardCard className="col-span-12 md:col-span-3 flex flex-col justify-center">
-                    <div className="flex items-center gap-3 mb-2 opacity-80">
-                        <Star size={18} className="text-[#B08D57]" />
-                        <span className="text-[#8B9BB4] text-sm tracking-widest">解锁成就</span>
-                    </div>
-                    <div className="flex items-end gap-2">
-                        <div className="text-4xl font-serif text-[#E5E0D8]">15</div>
-                        <div className="text-[#8B9BB4] text-sm mb-1">项</div>
-                    </div>
-                </DashboardCard>
-
-                {/* Main Charts Row */}
-                <DashboardCard className="col-span-12 md:col-span-8 flex flex-col h-[350px]">
-                    <div className="flex justify-between items-center mb-6">
-                        <h3 className="text-[#E5E0D8] font-serif tracking-widest text-lg m-0">廉政治绩演变 (清流度)</h3>
-                    </div>
-                    <div className="flex-1 w-full min-h-0">
-                        <ResponsiveContainer width="100%" height="100%">
-                            <AreaChart data={mockCurveData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
-                                <defs>
-                                    <linearGradient id="colorRep" x1="0" y1="0" x2="0" y2="1">
-                                        <stop offset="5%" stopColor="#C93A3E" stopOpacity={0.3} />
-                                        <stop offset="95%" stopColor="#C93A3E" stopOpacity={0} />
-                                    </linearGradient>
-                                </defs>
-                                <CartesianGrid strokeDasharray="3 3" stroke="#ffffff" strokeOpacity={0.05} vertical={false} />
-                                <XAxis dataKey="year" stroke="#8B9BB4" fontSize={12} tickLine={false} axisLine={false} />
-                                <YAxis stroke="#8B9BB4" fontSize={12} tickLine={false} axisLine={false} />
-                                <Tooltip
-                                    contentStyle={{ backgroundColor: 'rgba(21, 30, 43, 0.9)', borderColor: 'rgba(255,255,255,0.1)', borderRadius: '8px', color: '#E5E0D8' }}
-                                    itemStyle={{ color: '#E5E0D8' }}
-                                />
-                                <Area type="monotone" dataKey="rep" stroke="#C93A3E" strokeWidth={2} fillOpacity={1} fill="url(#colorRep)" />
-                            </AreaChart>
-                        </ResponsiveContainer>
-                    </div>
-                </DashboardCard>
-
-                <DashboardCard className="col-span-12 md:col-span-4 flex flex-col h-[350px]">
-                    <h3 className="text-[#E5E0D8] font-serif tracking-widest text-lg mb-2 m-0">履职机构分布</h3>
-                    <div className="flex-1 w-full min-h-0 relative">
-                        <ResponsiveContainer width="100%" height="100%">
-                            <PieChart>
-                                <Pie
-                                    data={mockPieData}
-                                    cx="50%"
-                                    cy="50%"
-                                    innerRadius={60}
-                                    outerRadius={100}
-                                    paddingAngle={2}
-                                    dataKey="value"
-                                    stroke="none"
+                    {/* ── 热门职业快捷标签 ── */}
+                    {!matchResult && (
+                        <div className="flex flex-wrap justify-center gap-2 mt-6 max-w-lg">
+                            {POPULAR_JOBS.map((job) => (
+                                <button
+                                    key={job}
+                                    onClick={() => handleQuickSelect(job)}
+                                    className="
+                    px-3 py-1.5 rounded-full text-xs
+                    bg-[#1A2530]/80 border border-[#2A3441]/60
+                    text-[#8B9BB4] hover:text-[#E5E0D8] hover:border-[#af292e]/40
+                    transition-all duration-200 cursor-pointer
+                  "
                                 >
-                                    {mockPieData.map((entry, index) => (
-                                        <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                                    ))}
-                                </Pie>
-                                <Tooltip contentStyle={{ backgroundColor: 'rgba(21, 30, 43, 0.9)', borderColor: 'rgba(255,255,255,0.1)', borderRadius: '8px', color: '#E5E0D8' }} />
-                            </PieChart>
-                        </ResponsiveContainer>
-                        {/* Center Text */}
-                        <div className="absolute inset-0 flex items-center justify-center pointer-events-none flex-col">
-                            <span className="text-[#8B9BB4] text-xs">总计分布</span>
-                            <span className="text-[#E5E0D8] font-serif text-2xl mt-1">100%</span>
+                                    {job}
+                                </button>
+                            ))}
+                        </div>
+                    )}
+                </div>
+
+                {/* ════════════════════════════════════════════════════════
+            匹配结果区域
+            ════════════════════════════════════════════════════════ */}
+                {matchResult && (
+                    <div
+                        className="mb-12"
+                        style={{
+                            animation: 'resultFadeIn 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards',
+                        }}
+                    >
+                        {/* 结果摘要卡片 */}
+                        <div
+                            className="
+                max-w-lg mx-auto p-8 rounded-xl
+                bg-[#151E2B]/80 backdrop-blur-md
+                border border-[#2A3441]
+                shadow-xl
+              "
+                        >
+                            <div className="text-center">
+                                <div className="text-[#8B9BB4] text-sm mb-2 tracking-wider">您的现代职业</div>
+                                <div className="text-[#B08D57] text-lg mb-4 font-medium">{modernJob}</div>
+
+                                <div
+                                    className="w-12 h-[1px] mx-auto mb-4"
+                                    style={{ background: 'linear-gradient(90deg, transparent, #2A3441, transparent)' }}
+                                />
+
+                                <div className="text-[#8B9BB4] text-xs mb-1 tracking-widest">对应大唐官职</div>
+                                <div
+                                    className="text-[#E5E0D8] text-3xl font-bold tracking-[4px] mb-2"
+                                    style={{ fontFamily: "'Noto Serif SC', serif" }}
+                                >
+                                    {matchResult.title}
+                                </div>
+                                <div
+                                    className="inline-block px-4 py-1 rounded-full text-sm font-medium mb-4"
+                                    style={{
+                                        color: '#af292e',
+                                        backgroundColor: 'rgba(175, 41, 46, 0.1)',
+                                        border: '1px solid rgba(175, 41, 46, 0.2)',
+                                    }}
+                                >
+                                    {matchResult.rank}
+                                </div>
+
+                                <p
+                                    className="text-[#8B9BB4] text-sm leading-relaxed mt-4 max-w-sm mx-auto"
+                                    style={{ fontFamily: "'Noto Serif SC', serif" }}
+                                >
+                                    「{matchResult.desc}」
+                                </p>
+                            </div>
+
+                            {/* 操作按钮组 */}
+                            <div className="flex items-center justify-center gap-3 mt-8">
+                                <button
+                                    onClick={handleReset}
+                                    className="
+                    flex items-center gap-2 px-5 py-2.5 rounded-lg
+                    bg-[#1A2530] border border-[#2A3441]
+                    text-[#8B9BB4] text-sm
+                    hover:bg-[#2A3441] hover:text-[#E5E0D8]
+                    transition-all duration-200 cursor-pointer
+                  "
+                                >
+                                    <RotateCcw size={14} />
+                                    重新测算
+                                </button>
+                                {showPoster && (
+                                    <button
+                                        id="save-poster-btn"
+                                        onClick={handleSavePoster}
+                                        disabled={isSaving}
+                                        className="
+                      flex items-center gap-2 px-5 py-2.5 rounded-lg
+                      text-white text-sm font-medium tracking-wider
+                      transition-all duration-200 cursor-pointer
+                      disabled:opacity-50 disabled:cursor-not-allowed
+                    "
+                                        style={{
+                                            background: 'linear-gradient(135deg, #af292e, #C93A3E)',
+                                            boxShadow: '0 2px 12px rgba(175, 41, 46, 0.3)',
+                                        }}
+                                    >
+                                        <Download size={14} />
+                                        {isSaving ? '生成中…' : '谨受命（保存海报）'}
+                                    </button>
+                                )}
+                            </div>
                         </div>
                     </div>
-                </DashboardCard>
+                )}
 
-                {/* Data Table */}
-                <DashboardCard className="col-span-12 min-h-[300px]">
-                    <div className="flex justify-between items-center mb-6">
-                        <h3 className="text-[#E5E0D8] font-serif tracking-widest text-lg m-0">最新履历纪要</h3>
-                        <div className="relative">
-                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-[#8B9BB4]" size={14} />
-                            <input type="text" placeholder="搜索官职..." className="bg-[#0B111A] border border-[#2A3441] rounded-full py-1.5 pl-9 pr-4 text-sm text-[#E5E0D8] placeholder-[#8B9BB4] focus:outline-none focus:border-[#C93A3E] transition-colors" />
+                {/* ════════════════════════════════════════════════════════
+            委任状海报
+            ════════════════════════════════════════════════════════ */}
+                {matchResult && (
+                    <div className="flex justify-center mb-10">
+                        <div
+                            className="rounded-2xl overflow-hidden shadow-2xl"
+                            style={{
+                                boxShadow: showPoster
+                                    ? '0 20px 60px rgba(0, 0, 0, 0.4), 0 0 40px rgba(175, 41, 46, 0.08)'
+                                    : 'none',
+                                transition: 'box-shadow 0.6s ease',
+                            }}
+                        >
+                            <AppointmentPoster
+                                ref={posterRef}
+                                title={matchResult.title}
+                                rank={matchResult.rank}
+                                desc={matchResult.desc}
+                                modernJob={modernJob}
+                                visible={showPoster}
+                            />
                         </div>
                     </div>
+                )}
 
-                    <div className="w-full overflow-x-auto">
-                        <table className="w-full text-left border-collapse">
-                            <thead>
-                                <tr className="border-b border-white/5 text-[#8B9BB4] text-xs uppercase tracking-widest">
-                                    <th className="font-normal pb-3 pl-2">入仕年份</th>
-                                    <th className="font-normal pb-3">职衔</th>
-                                    <th className="font-normal pb-3">品阶</th>
-                                    <th className="font-normal pb-3 text-right pr-2">吏部考评</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {mockHistory.map((row, i) => (
-                                    <tr key={i} className="border-b border-white/[0.03] hover:bg-white/[0.02] transition-colors cursor-pointer group">
-                                        <td className="py-4 pl-2 text-sm text-[#8B9BB4] group-hover:text-[#E5E0D8] transition-colors">{row.date}</td>
-                                        <td className="py-4 text-[#E5E0D8] font-serif tracking-widest text-base group-hover:text-[#B08D57] transition-colors">{row.title}</td>
-                                        <td className="py-4">
-                                            <span className="inline-block px-2 py-1 bg-[#2A3441]/50 text-[#E5E0D8] text-xs rounded border border-[#2A3441]">{row.rank}</span>
-                                        </td>
-                                        <td className="py-4 text-right pr-2 text-sm text-[#4F7768] font-medium">{row.evaluation}</td>
-                                    </tr>
-                                ))}
-                            </tbody>
-                        </table>
+                {/* ════════════════════════════════════════════════════════
+            造办处·文创推荐入口 (800ms 延迟淡入)
+            SPEC 2.6: 情绪转化
+            ════════════════════════════════════════════════════════ */}
+                {showMerchCTA && (
+                    <div
+                        className="max-w-lg mx-auto mb-12"
+                        style={{
+                            animation: 'merchFadeIn 0.8s ease forwards',
+                        }}
+                    >
+                        <div
+                            className="
+                p-6 rounded-xl
+                bg-[#151E2B]/60 backdrop-blur-md
+                border border-[#2A3441]/60
+                flex items-center justify-between
+                cursor-pointer group
+                hover:bg-[#1A2530] hover:border-[#B08D57]/30
+                transition-all duration-300
+              "
+                            onClick={() => {
+                                // TODO: 导航至造办处展览页 (Task #099)
+                                console.log('[造办处] 用户点击了文创推荐入口');
+                            }}
+                        >
+                            <div className="flex items-center gap-4">
+                                <div
+                                    className="w-12 h-12 rounded-lg flex items-center justify-center"
+                                    style={{
+                                        background: 'linear-gradient(135deg, rgba(176,141,87,0.2), rgba(176,141,87,0.05))',
+                                        border: '1px solid rgba(176,141,87,0.2)',
+                                    }}
+                                >
+                                    <BookOpen size={22} className="text-[#B08D57]" />
+                                </div>
+                                <div>
+                                    <div className="text-[#E5E0D8] text-sm font-medium mb-0.5">
+                                        履新此职，怎能少了一把好扇？
+                                    </div>
+                                    <div className="text-[#8B9BB4] text-xs">
+                                        赴【造办处】赏玩同款水墨折扇 →
+                                    </div>
+                                </div>
+                            </div>
+                            <ChevronRight
+                                size={20}
+                                className="text-[#5A6A7F] group-hover:text-[#B08D57] transition-colors duration-200"
+                            />
+                        </div>
                     </div>
-                </DashboardCard>
+                )}
 
+                {/* ════════════════════════════════════════════════════════
+            底部：无匹配状态的装饰文案
+            ════════════════════════════════════════════════════════ */}
+                {!matchResult && !isMatching && (
+                    <div className="text-center mt-8">
+                        <div className="text-[#2A3441] text-sm tracking-wider">
+                            ─── 纵横捭阖，青云直上 ───
+                        </div>
+                        <div className="text-[#1E2A38] text-xs mt-2 opacity-50 tracking-wide">
+                            内置 {Object.keys(jobDictionary).length}+ 职业映射词条 · 模糊匹配 · 智能降级
+                        </div>
+                    </div>
+                )}
+
+                {/* ── 匹配中骨架屏 ── */}
+                {isMatching && (
+                    <div className="flex flex-col items-center gap-4 mt-8">
+                        <div className="w-16 h-16 rounded-full border-2 border-[#af292e]/30 border-t-[#af292e] animate-spin" />
+                        <div
+                            className="text-[#8B9BB4] text-sm tracking-[4px]"
+                            style={{ fontFamily: "'Noto Serif SC', serif" }}
+                        >
+                            正在翻阅吏部典籍…
+                        </div>
+                    </div>
+                )}
             </div>
+
+            {/* ════ 内联 Keyframes ════ */}
+            <style>{`
+        @keyframes resultFadeIn {
+          from {
+            opacity: 0;
+            transform: translateY(20px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+
+        @keyframes merchFadeIn {
+          from {
+            opacity: 0;
+            transform: translateY(12px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+      `}</style>
         </div>
     );
 }

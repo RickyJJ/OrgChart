@@ -18,8 +18,8 @@
 | 014 | Feature | 关键信息确认或生成时，实现“朱红印章盖下”的视觉交互反馈 | Pending | 1.2 |
 | 015 | Feature | 典故连珠：实现全局跨朝代模糊搜索，点击结果平滑平移(Pan)/缩放(Zoom)居中目标并自动呼出详情 | Done | 2.5 |
 | 016 | Content | 典故连珠：补充“左拾遗”、“司马”等高频文化官职的具体内容及白话翻译 | Done | 2.5 |
-| 017 | Feature | “入仕”模拟器：根据映射字典匹配古今职业，增强社交传播属性 | Pending | 2.6 |
-| 018 | Feature | 委任状海报生成：集成 html2canvas 生成带朱红印章盖印动效的分享海报 | Pending | 2.6 |
+| 017 | Feature | “入仕”模拟器：根据映射字典匹配古今职业，增强社交传播属性 | Done | 2.6 |
+| 018 | Feature | 委任状海报生成：集成 html2canvas 生成带朱红印章盖印动效的分享海报 | Done | 2.6 |
 | 019 | Arch | 技术栈重构：将纯前端项目迁移至 React + Vite 构建体系 | Done | 3.1 |
 | 020 | UI/UX | Replace image paper texture with procedural CSS/SVG texture | Done | 1.2 |
 | 021 | Design | UI大改版：全量迁移至“青云志”高保真设计图风格 (侧栏、悬浮窗、水墨卡片) | Done | 1.2 |
@@ -104,12 +104,14 @@
 | 093 | Bug | 修复折叠时子层级连线残留问题：通过 `TreeConnections.jsx` 递归检查祖先展开状态实现彻底隐藏 | Done | 1.2 |
 | 094 | Feature | 典故连珠：实现全量文化看板组件 `LoreCenter.jsx` 及一键穿透定位逻辑 | Done | 2.5 |
 | 095 | UI/UX | 典故连珠：根据反馈移除导航栏独立菜单入口，保持侧边栏极简，相关内容由全局搜索承接 | Done | 1.2 |
-| 096 | Feature | 后端框架选型与搭建：引入基于 Node.js 生态的 Headless CMS (Directus v11.16) 提供核心文化数据分发、引流及埋点收集，并提供可视化数据后台 | Pending | 3.1 |
-| 097 | Feature | 数据库与检索引擎：部署 PostgreSQL 作为主数据库并启用 `ltree` 扩展，引入 Meilisearch 驱动高性能力且忽略空格的多维跨朝代检索引擎 | Pending | 3.1 |
+| 096 | Feature | 后端框架选型与搭建：引入基于 Node.js 生态的 Headless CMS (Directus v11.16) 提供核心文化数据分发、引流及埋点收集，并提供可视化数据后台 | Done | 3.1 |
+| 097 | Feature | 数据库与检索引擎：部署 PostgreSQL 作为主数据库并启用 `ltree` 扩展，引入 Meilisearch 驱动高性能力且忽略空格的多维跨朝代检索引擎 | Ongoing | 3.1 |
 | 098 | Arch | 基础设施与 CDN：配置全局 CDN 分发网络，将所有大体积高保真背景、动效与水墨遮罩等静态资源上云以应对拉新裂变高并发 | Pending | 3.1 |
 | 099 | Feature | 商业引流与“造办处”文创页：增加左侧侧边常驻导航入口，实现新中式画廊式商品展示面板（无头电商展示模式） | Pending | 2.7 |
 | 100 | Feature | 埋点追踪与导流体系：实现前端点击文创商品时的埋点事件捕获与重定向/拉起外部小程序（淘宝/小红书等）功能 | Pending | 2.7 |
-| 101 | Feature | 模拟器裂变锚点升级：利用前端技术动态生成包含 UTM 参数的专属水墨二维码，集成入委任状海报右下角 | Pending | 2.6 |
-| 102 | Feature | 模拟器顺水推舟引流：委任海报展现后，延迟 800ms 淡入展示“文创周边”关联按钮，并支持一键无缝导航至造办处界面 | Pending | 2.6 |
-| 103 | Feature | 无感匿名追踪：利用 LocalStorage 或轻量浏览器指纹生成端侧匿名 UUID，以此作为用户行为埋点唯一标识发送后端 | Pending | 3.1 |
-| 104 | Arch | 数据结构迁移：将静态的 `data.js` 历史数据全量结构化清洗并迁移至 PostgreSQL 数据库进行动态管理 | Pending | 3.1 |
+| 101 | Feature | 模拟器裂变锚点升级：利用前端技术动态生成包含 UTM 参数的专属水墨二维码，集成入委任状海报右下角 | Done | 2.6 |
+| 102 | Feature | 模拟器顺水推舟引流：委任海报展现后，延迟 800ms 淡入展示"文创周边"关联按钮，并支持一键无缝导航至造办处界面 | Ongoing | 2.6 |
+| 103 | Feature | 无感匿名追踪：利用 LocalStorage 或轻量浏览器指纹生成端侧匿名 UUID，以此作为用户行为埋点唯一标识发送后端 | Done | 3.1 |
+| 104 | Arch | 数据结构迁移：将静态的 `data.js` 历史数据全量结构化清洗并迁移至 PostgreSQL 数据库进行动态管理 | Done | 3.1 |
+| 105 | Feature | 前端 API 接入：新建 `src/api/directus.js`，实现从 Directus REST API 拉取数据、重建嵌套树并转换格式；改造 `App.jsx` 以 useEffect 异步加载，降级保留本地 data.js 兜底 | Done | 3.1 |
+| 106 | Arch | Directus 公开访问配置：为 Public Policy 的 `dynasties`、`org_nodes`、`lores` 三个集合配置匿名只读权限；在 `.env` 中添加 CORS 配置允许前端开发服务器跨域访问 | Done | 3.1 |

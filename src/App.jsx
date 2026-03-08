@@ -1,6 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import './index.css';
-import { dynastyData } from './data';
+import { dynastyData as localDynastyData } from './data';
+import { fetchAllDynastiesData } from './api/directus';
+import { getOrCreateUUID } from './utils/tracker';
 import Sidebar from './components/Sidebar';
 import HierarchyTree from './components/HierarchyTree';
 import DetailPanel from './components/DetailPanel';
@@ -8,12 +10,39 @@ import SimulationDashboard from './components/SimulationDashboard';
 import GlobalSearch from './components/GlobalSearch';
 
 function App() {
+  // 阶段一：全局初始化匿名 UUID 追踪
+  useEffect(() => {
+    const uuid = getOrCreateUUID();
+    console.log('[青云志] 匿名追踪 UUID:', uuid);
+  }, []);
   const [activeTab, setActiveTab] = useState('hierarchy');
-  const [activeDynastyId, setActiveDynastyId] = useState(dynastyData[0].id);
+  const [dynastyData, setDynastyData] = useState(localDynastyData);
+  const [isDataLoading, setIsDataLoading] = useState(true);
+  const [activeDynastyId, setActiveDynastyId] = useState(localDynastyData[0].id);
   const [selectedNode, setSelectedNode] = useState(null);
   const [pendingSearchTarget, setPendingSearchTarget] = useState(null);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
-  const activeDynasty = dynastyData.find(d => d.id === activeDynastyId);
+  const activeDynasty = dynastyData.find(d => d.id === activeDynastyId) || dynastyData[0];
+
+  // 从 Directus API 拉取最新数据
+  useEffect(() => {
+    setIsDataLoading(true);
+    fetchAllDynastiesData()
+      .then((data) => {
+        if (data && data.length > 0) {
+          setDynastyData(data);
+          // 如果当前选中朝代在新数据里存在，保持选中；否则切换到第一个
+          if (!data.find(d => d.id === activeDynastyId)) {
+            setActiveDynastyId(data[0].id);
+          }
+        }
+      })
+      .catch((err) => {
+        console.warn('Directus API 不可用，降级使用本地 data.js:', err.message);
+      })
+      .finally(() => setIsDataLoading(false));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const handleReadMore = (node) => {
     setSelectedNode(prev => (prev?.id === node.id ? null : node));
