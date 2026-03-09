@@ -7,10 +7,12 @@ function Sidebar({ activeTab, onNavigate, isSearchOpen, onToggleSearch }) {
       className="bg-ink-dark h-screen fixed left-0 top-0 text-sidebar-text flex flex-col shadow-lg"
       style={{ width: 'var(--sidebar-width)', zIndex: 'var(--z-sidebar)' }}
     >
-      <div className="py-10 text-center border-b border-white/10">
-        <img src="/assets/ui/scroll_icon.png" className="w-[60px] h-[60px] object-contain mb-3 inline-block" alt="Scroll Logo" />
-        <h1 className="font-serif text-[2rem] font-bold tracking-[4px] m-0 text-white">青云志</h1>
-        <p className="font-sans text-[0.7rem] tracking-[2px] text-gray-300 mt-1">THE PATH TO COURT</p>
+      <div className="py-6 text-center border-b border-white/10 flex justify-center items-center">
+        <img
+          src="/assets/ui/qyz_logo.png"
+          className="w-[210px] h-auto object-contain"
+          alt="青云志 Logo"
+        />
       </div>
 
       <nav className="py-5 flex-1 space-y-2">

@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { ShoppingBag, ExternalLink, Eye, Loader2 } from 'lucide-react';
-import { fetchProducts, trackEvent } from '../api/directus';
+import { ShoppingBag, ExternalLink, Eye, Loader2, Heart } from 'lucide-react';
+import { fetchProducts, trackEvent, toggleProductLike } from '../api/directus';
 
 /**
  * ImperialWorkshop (造办处) — 新中式无头电商画廊
@@ -27,6 +27,15 @@ function ImperialWorkshop() {
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState(null);
     const [hoveredId, setHoveredId] = useState(null);
+    const [toastMessage, setToastMessage] = useState(null);
+    const [likedIds, setLikedIds] = useState(() => {
+        try {
+            const saved = localStorage.getItem('qyz_liked_products');
+            return saved ? JSON.parse(saved) : [];
+        } catch {
+            return [];
+        }
+    });
 
     // ─── 加载商品数据 ────────────────────────────────────────
     useEffect(() => {
@@ -43,6 +52,60 @@ function ImperialWorkshop() {
             })
             .finally(() => setIsLoading(false));
     }, []);
+
+    // ─── 点赞功能 ───
+    const handleLikeClick = useCallback(async (product, e) => {
+        e.stopPropagation();
+
+        const isLiked = likedIds.includes(product.id);
+        const newLikeStatus = !isLiked;
+
+        // 乐观更新 UI (Optimistic UI Update)
+        const currentLikes = typeof product.likes_count === 'number' ? product.likes_count : 0;
+        const newLikesCount = currentLikes + (newLikeStatus ? 1 : -1);
+
+        setProducts(prev => prev.map(p =>
+            p.id === product.id ? { ...p, likes_count: newLikesCount } : p
+        ));
+
+        setLikedIds(prev => {
+            const updated = newLikeStatus
+                ? [...prev, product.id]
+                : prev.filter(id => id !== product.id);
+            localStorage.setItem('qyz_liked_products', JSON.stringify(updated));
+            return updated;
+        });
+
+        // 异步更新后端
+        const success = await toggleProductLike(product.id, newLikesCount);
+
+        if (!success) {
+            // 后端更新失败，回滚本地状态
+            setProducts(prev => prev.map(p =>
+                p.id === product.id ? { ...p, likes_count: currentLikes } : p
+            ));
+
+            setLikedIds(prev => {
+                const updated = isLiked
+                    ? [...prev, product.id]
+                    : prev.filter(id => id !== product.id);
+                localStorage.setItem('qyz_liked_products', JSON.stringify(updated));
+                return updated;
+            });
+            console.warn('[点赞] 接口调用失败，已回滚前端状态。');
+
+            // 弹出提示
+            setToastMessage('系统繁忙，未能留存您的心意，请稍后再试');
+            setTimeout(() => setToastMessage(null), 3000);
+            return;
+        }
+
+        // 埋点上报 (仅当实际成功时)
+        trackEvent(newLikeStatus ? 'like_product' : 'unlike_product', {
+            productId: product.id,
+            productName: product.name,
+        });
+    }, [likedIds]);
 
     // ─── CTA 点击处理：先埋点，再重定向 ──────────────────────
     const handleBuyClick = useCallback(async (product, e) => {
@@ -89,6 +152,20 @@ function ImperialWorkshop() {
                 `,
             }}
         >
+            {/* ═══ 顶层提示 (Toast) ═══ */}
+            <div
+                className={`fixed top-6 left-1/2 -translate-x-1/2 z-50 transition-all duration-300 pointer-events-none ${toastMessage ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-4'}`}
+            >
+                {toastMessage && (
+                    <div className="bg-[#1a0f14] border border-[#af292e]/30 shadow-[0_4px_24px_rgba(175,41,46,0.15)] rounded-full px-6 py-2.5 flex items-center gap-3">
+                        <div className="w-1.5 h-1.5 rounded-full bg-[#af292e] animate-pulse" />
+                        <span className="text-[#E5E0D8] text-sm tracking-wider" style={{ fontFamily: "'Noto Serif SC', serif" }}>
+                            {toastMessage}
+                        </span>
+                    </div>
+                )}
+            </div>
+
             <div className="max-w-6xl mx-auto px-8 py-12">
 
                 {/* ═══ 画廊标题区 ═══ */}
@@ -192,12 +269,29 @@ function ImperialWorkshop() {
 
                                     {/* 商品信息 */}
                                     <div className="p-5 pt-2">
-                                        <h3
-                                            className="text-[#E5E0D8] text-lg font-semibold mb-2 tracking-wider"
-                                            style={{ fontFamily: "'Noto Serif SC', serif" }}
-                                        >
-                                            {product.name}
-                                        </h3>
+                                        <div className="flex justify-between items-start mb-2">
+                                            <h3
+                                                className="text-[#E5E0D8] text-lg font-semibold tracking-wider"
+                                                style={{ fontFamily: "'Noto Serif SC', serif" }}
+                                            >
+                                                {product.name}
+                                            </h3>
+
+                                            <button
+                                                onClick={(e) => handleLikeClick(product, e)}
+                                                className="flex items-center gap-1.5 transition-all duration-300 group/like mt-1 cursor-pointer disabled:opacity-50"
+                                                title={likedIds.includes(product.id) ? "取消喜欢" : "标记为喜欢"}
+                                                disabled={toastMessage !== null}
+                                            >
+                                                <Heart
+                                                    size={16}
+                                                    className={`transition-all duration-500 ${likedIds.includes(product.id) ? 'fill-[#af292e] text-[#af292e] scale-110 drop-shadow-[0_0_8px_rgba(175,41,46,0.4)]' : 'text-[#4A5A6F] group-hover/like:text-[#af292e]'}`}
+                                                />
+                                                <span className={`text-xs font-medium tracking-widest transition-colors duration-300 ${likedIds.includes(product.id) ? 'text-[#af292e]' : 'text-[#4A5A6F] group-hover/like:text-[#af292e]'}`}>
+                                                    {typeof product.likes_count === 'number' ? product.likes_count : 0}
+                                                </span>
+                                            </button>
+                                        </div>
 
                                         <p className="text-[#6B7B8F] text-xs leading-relaxed mb-5 line-clamp-2">
                                             {product.description}

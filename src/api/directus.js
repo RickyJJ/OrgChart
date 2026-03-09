@@ -132,7 +132,7 @@ export async function fetchAllDynastiesData() {
 // ─── 拉取已上架商品列表（造办处用）─────────────────────────
 export async function fetchProducts() {
     const products = await directusFetch(
-        '/items/products?filter[status][_eq]=published&sort=sort&limit=-1'
+        '/items/products?filter[status][_eq]=published&sort=-likes_count,sort&limit=-1'
     );
 
     // 为含有 image UUID 的商品拼接完整图片 URL
@@ -142,6 +142,25 @@ export async function fetchProducts() {
             ? `${DIRECTUS_URL}/assets/${p.image}?width=600&quality=80`
             : null,
     }));
+}
+
+// ─── 点赞商品 ──────────────────────────────────────────
+export async function toggleProductLike(productId, newCount) {
+    try {
+        const res = await fetch(`${DIRECTUS_URL}/items/products/${productId}`, {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ likes_count: newCount }),
+        });
+        if (!res.ok) {
+            console.warn('[点赞] 数据更新失败:', res.status, await res.text());
+            return false;
+        }
+        return true;
+    } catch (err) {
+        console.warn('[点赞] 网络异常:', err.message);
+        return false;
+    }
 }
 
 // ─── 埋点上报（fire-and-forget 风格）────────────────────────
