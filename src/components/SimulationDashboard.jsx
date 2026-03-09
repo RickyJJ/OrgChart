@@ -2,6 +2,7 @@ import React, { useState, useRef, useCallback, useEffect } from 'react';
 import html2canvas from 'html2canvas';
 import { Scroll, Sparkles, Download, RotateCcw, ChevronRight, BookOpen } from 'lucide-react';
 import { matchJob, jobDictionary } from '../data/jobMapping';
+import { trackEvent } from '../api/directus';
 import AppointmentPoster from './AppointmentPoster';
 
 /**
@@ -21,7 +22,7 @@ const POPULAR_JOBS = [
     '会计', 'CEO', '记者', '学生', '军人', '公务员',
 ];
 
-function SimulationDashboard() {
+function SimulationDashboard({ onNavigateToWorkshop }) {
     const [inputValue, setInputValue] = useState('');
     const [matchResult, setMatchResult] = useState(null);
     const [modernJob, setModernJob] = useState('');
@@ -58,6 +59,12 @@ function SimulationDashboard() {
             // 延迟展开海报
             setTimeout(() => {
                 setShowPoster(true);
+
+                // 上报海报生成埋点
+                trackEvent('generate_poster', {
+                    modernJob: value.trim(),
+                    ancientTitle: result?.title,
+                });
 
                 // SPEC 2.6：海报展示后 800ms 淡入造办处推荐
                 if (merchTimerRef.current) clearTimeout(merchTimerRef.current);
@@ -371,9 +378,16 @@ function SimulationDashboard() {
                 hover:bg-[#1A2530] hover:border-[#B08D57]/30
                 transition-all duration-300
               "
-                            onClick={() => {
-                                // TODO: 导航至造办处展览页 (Task #099)
-                                console.log('[造办处] 用户点击了文创推荐入口');
+                            onClick={async () => {
+                                // 上报点击模拟器 Banner 埋点
+                                await trackEvent('click_simulation_banner', {
+                                    modernJob: modernJob,
+                                    ancientTitle: matchResult?.title,
+                                });
+                                // 导航至造办处
+                                if (onNavigateToWorkshop) {
+                                    onNavigateToWorkshop();
+                                }
                             }}
                         >
                             <div className="flex items-center gap-4">

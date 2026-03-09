@@ -128,3 +128,45 @@ export async function fetchAllDynastiesData() {
 
     return result;
 }
+
+// ─── 拉取已上架商品列表（造办处用）─────────────────────────
+export async function fetchProducts() {
+    const products = await directusFetch(
+        '/items/products?filter[status][_eq]=published&sort=sort&limit=-1'
+    );
+
+    // 为含有 image UUID 的商品拼接完整图片 URL
+    return products.map((p) => ({
+        ...p,
+        imageUrl: p.image
+            ? `${DIRECTUS_URL}/assets/${p.image}?width=600&quality=80`
+            : null,
+    }));
+}
+
+// ─── 埋点上报（fire-and-forget 风格）────────────────────────
+export async function trackEvent(eventName, payload = {}) {
+    try {
+        let uuid = null;
+        try {
+            uuid = localStorage.getItem('qyz_anon_id');
+        } catch { /* silent */ }
+
+        const res = await fetch(`${DIRECTUS_URL}/items/tracking_events`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                uuid: uuid || 'unknown',
+                event_name: eventName,
+                payload,
+            }),
+        });
+
+        if (!res.ok) {
+            console.warn('[埋点] 上报失败:', res.status);
+        }
+    } catch (err) {
+        // 埋点不影响主流程
+        console.warn('[埋点] 上报异常:', err.message);
+    }
+}

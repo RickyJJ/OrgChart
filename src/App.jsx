@@ -7,6 +7,7 @@ import Sidebar from './components/Sidebar';
 import HierarchyTree from './components/HierarchyTree';
 import DetailPanel from './components/DetailPanel';
 import SimulationDashboard from './components/SimulationDashboard';
+import ImperialWorkshop from './components/ImperialWorkshop';
 import GlobalSearch from './components/GlobalSearch';
 
 function App() {
@@ -204,7 +205,13 @@ function App() {
 
         {activeTab === 'simulation' && (
           <div className="flex-1 w-full h-full">
-            <SimulationDashboard />
+            <SimulationDashboard onNavigateToWorkshop={() => handleNavigate('workshop')} />
+          </div>
+        )}
+
+        {activeTab === 'workshop' && (
+          <div className="flex-1 w-full h-full">
+            <ImperialWorkshop />
           </div>
         )}
 
