@@ -22,7 +22,7 @@ const POPULAR_JOBS = [
     '会计', 'CEO', '记者', '学生', '军人', '公务员',
 ];
 
-function SimulationDashboard({ onNavigateToWorkshop }) {
+function SimulationDashboard({ onNavigateToWorkshop, initialParams, onClearParams }) {
     const [inputValue, setInputValue] = useState('');
     const [matchResult, setMatchResult] = useState(null);
     const [modernJob, setModernJob] = useState('');
@@ -39,6 +39,44 @@ function SimulationDashboard({ onNavigateToWorkshop }) {
             if (merchTimerRef.current) clearTimeout(merchTimerRef.current);
         };
     }, []);
+
+    /**
+     * SPEC 2.7逻辑：受命直下逻辑 (Bypass Matching)
+     * 当从详情面板点击"接旨赴任"跳转过来时，直接生成海报
+     */
+    useEffect(() => {
+        if (initialParams?.node) {
+            const { node } = initialParams;
+            
+            // 直接设置结果，跳过 matchJob
+            setMatchResult({
+                title: node.title,
+                rank: node.level,
+                desc: node.description
+            });
+            setModernJob("钦定入仕");
+            setIsMatching(false);
+            
+            // 立即/微显延迟展现海报
+            const posterTimer = setTimeout(() => {
+                setShowPoster(true);
+                
+                // 触发文创导流 (同原有逻辑)
+                if (merchTimerRef.current) clearTimeout(merchTimerRef.current);
+                merchTimerRef.current = setTimeout(() => {
+                    setShowMerchCTA(true);
+                }, 800);
+            }, 300);
+
+            // 上报埋点
+            trackEvent('direct_take_office', {
+                ancientTitle: node.title,
+                rank: node.level
+            });
+
+            return () => clearTimeout(posterTimer);
+        }
+    }, [initialParams, onClearParams]);
 
     // ─── 匹配逻辑 ────────────────────────────────────────────────
     const handleMatch = useCallback((jobInput) => {
@@ -107,8 +145,9 @@ function SimulationDashboard({ onNavigateToWorkshop }) {
         setModernJob('');
         setShowPoster(false);
         setShowMerchCTA(false);
+        if (onClearParams) onClearParams();
         if (merchTimerRef.current) clearTimeout(merchTimerRef.current);
-    }, []);
+    }, [onClearParams]);
 
     // ─── 快捷标签点击 ─────────────────────────────────────────────
     const handleQuickSelect = useCallback((job) => {

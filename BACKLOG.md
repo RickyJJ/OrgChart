@@ -1,4 +1,4 @@
-#  Project Backlog & Todo
+# Project Backlog & Todo
 
 | 任务 ID | 类型 (Feature/Bug) | 描述 | 状态 (Pending/Ongoing/Done) | 对应规范章节 |
 |---------|--------------------|------|-----------------------------|--------------|
@@ -114,3 +114,11 @@
 | 110 | UI/UX | 调整 Logo 尺寸和间距 | Done | 1.2 |
 | 111 | Feature | 造办处增加喜欢按钮及按热度排序功能 | Done | 2.7 |
 | 112 | Feature | 造办处增加点赞失败自动回滚机制，并弹出新中式 Toast 提示 | Done | 2.7 |
+| 113 | Arch | 数据结构规范：在 SPEC.md 中增加 salary (俸禄) 字段及定义 | Done | 3.2 |
+| 114 | Arch | 数据库表结构变更：在 PostgreSQL 中为 `org_nodes` 增加 `salary` 列 (JSONB 类型) | Done | 3.1 |
+| 115 | Feature | 后端导入改造：修改 `import-full-json.mjs` 以解析、插入 salary 属性并重新落库 | Done | 3.1 |
+| 116 | UI/UX | 详情面板升级：根据 SPEC.md 3.2.1 俸禄映射表，在 UI 渲染官职俸禄模块。要求：参考 docs/tasks/task_116_salary_ui_guide.md 实现动态映射与水墨风格展示。 | Done | 2.4 |
+| 117 | UI/UX | 俸禄模块重构：实现 SalaryFlowBoard 横向流式布局与沉浸式 Tooltip 科普功能 | Done | 2.4 |
+| 118 | Feature | 详情面板与模拟器联动：修改 CTA 按钮文案为“接旨赴任”，并实现点击后直接在模拟器生成对应官职委任状的“短路”逻辑 | Done | 2.7 |
+| 119 | Bug | 修复详情面板属性 Tooltip 在屏幕边缘显示不完整的问题：实现自动边界检测与位置修正逻辑 | Done | 1.2 |
+ 

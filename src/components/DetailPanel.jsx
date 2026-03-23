@@ -1,7 +1,9 @@
 import React, { useMemo, useState } from 'react';
-import { PenTool, X } from 'lucide-react';
+import { PenTool, X, Coins } from 'lucide-react';
 
-function DetailPanel({ node, onClose }) {
+import SalaryFlowBoard from './SalaryFlowBoard';
+
+function DetailPanel({ node, onClose, onTakeOffice }) {
   const [isLoreExpanded, setIsLoreExpanded] = useState(false);
   const [imageFailed, setImageFailed] = useState(false);
   const hasPoetry = Array.isArray(node?.poetry) && node.poetry.length > 0;
@@ -68,6 +70,13 @@ function DetailPanel({ node, onClose }) {
               {node.englishTitle}
             </p>
           )}
+
+          {/* Inline Salary Flow Board (New positioning) */}
+          {node.salary && (Object.keys(node.salary).length > 0) && (
+            <div className="mt-5 scale-95 origin-left">
+               <SalaryFlowBoard salaries={node.salary} dynastyId={node.dynastyId} />
+            </div>
+          )}
         </section>
 
         {/* Section 2: Summary (No label) */}
@@ -76,6 +85,7 @@ function DetailPanel({ node, onClose }) {
             {node.description}
           </p>
         </section>
+
 
         {/* Section 3: Illustration */}
         <section>
@@ -153,10 +163,13 @@ function DetailPanel({ node, onClose }) {
       <div className="px-8 pb-8 pt-2">
         <button
           type="button"
-          onClick={stopBubble}
+          onClick={(e) => {
+            stopBubble(e);
+            if (onTakeOffice) onTakeOffice(node);
+          }}
           className="w-full h-12 rounded-lg bg-[#af292e] text-[#fff] font-bold tracking-[0.2em] transition-all hover:bg-[#8a2d2f] active:scale-95 shadow-md"
         >
-          尝试此官职
+          接旨赴任
         </button>
       </div>
     </aside>

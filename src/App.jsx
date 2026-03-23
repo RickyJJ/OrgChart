@@ -23,6 +23,7 @@ function App() {
   const [selectedNode, setSelectedNode] = useState(null);
   const [pendingSearchTarget, setPendingSearchTarget] = useState(null);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const [simulationParams, setSimulationParams] = useState(null);
   const activeDynasty = dynastyData.find(d => d.id === activeDynastyId) || dynastyData[0];
 
   // 从 Directus API 拉取最新数据
@@ -56,6 +57,15 @@ function App() {
   const handleNavigate = (tab) => {
     setIsSearchOpen(false);
     setActiveTab(tab);
+    if (tab !== 'simulation') {
+      setSimulationParams(null);
+    }
+  };
+
+  const handleTakeOffice = (node) => {
+    setSimulationParams({ node });
+    setActiveTab('simulation');
+    setSelectedNode(null);
   };
 
   const handleSearchSelect = ({ dynastyId, node }) => {
@@ -205,7 +215,11 @@ function App() {
 
         {activeTab === 'simulation' && (
           <div className="flex-1 w-full h-full">
-            <SimulationDashboard onNavigateToWorkshop={() => handleNavigate('workshop')} />
+            <SimulationDashboard
+              onNavigateToWorkshop={() => handleNavigate('workshop')}
+              initialParams={simulationParams}
+              onClearParams={() => setSimulationParams(null)}
+            />
           </div>
         )}
 
@@ -230,6 +244,7 @@ function App() {
         key={selectedNode?.id || 'detail-panel-empty'}
         node={activeTab === 'hierarchy' ? selectedNode : null}
         onClose={closeDetail}
+        onTakeOffice={handleTakeOffice}
       />
 
       <GlobalSearch

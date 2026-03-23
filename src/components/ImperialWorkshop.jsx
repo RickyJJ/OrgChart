@@ -22,6 +22,16 @@ const FALLBACK_IMAGES = {
     6: '/assets/content/products/bookmark.png',
 };
 
+// ─── 本地兜底商品数据 (当后端 Directus 服务未启动或请求失败时使用) ───
+const LOCAL_PRODUCTS = [
+    { id: 1, name: '水墨折扇 · 远山', description: '手工宣纸扇面，配以苏式乌木扇骨。墨色层叠如远山，清风徐来，尽显文人雅趣。', status: 'published', external_url: '#', likes_count: 128 },
+    { id: 2, name: '青云志 · 经折装手抄本', description: '传统经折装帧，特选手工安徽宣纸。封面烫金工艺，适合临摹诗词、记录案头心绪。', status: 'published', external_url: '#', likes_count: 86 },
+    { id: 3, name: '朱砂印泥 · 翰墨香', description: '秘制朱砂精炼，色泽鲜正，历久不褪。含有淡淡沉香，盖印间雅韵十足。', status: 'published', external_url: '#', likes_count: 245 },
+    { id: 4, name: '云纹铜胎景泰蓝杯垫', description: '掐丝工艺精制而成，云纹勾勒古雅。釉色莹润，防烫耐用，赋予茶席端庄美感。', status: 'published', external_url: '#', likes_count: 72 },
+    { id: 5, name: '龙涎香 · 线香', description: '天然龙涎香料，遵循古法研磨。烟形细密如线，静坐焚香，神清气爽。', status: 'published', external_url: '#', likes_count: 156 },
+    { id: 6, name: '镂空黄铜书签 · 竹影', description: '极细金属镂空，勾勒翠竹挺拔之姿。流苏垂坠，于书页间留住一抹清雅。', status: 'published', external_url: '#', likes_count: 94 },
+];
+
 function ImperialWorkshop() {
     const [products, setProducts] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
@@ -42,13 +52,19 @@ function ImperialWorkshop() {
         setIsLoading(true);
         fetchProducts()
             .then((data) => {
-                setProducts(data);
+                if (!data || data.length === 0) {
+                    console.log('[造办处] 接口返回空数据，启用本地兜底...');
+                    setProducts(LOCAL_PRODUCTS);
+                } else {
+                    setProducts(data);
+                }
                 // 进入造办处时上报埋点
                 trackEvent('enter_workshop', { source: 'sidebar' });
             })
             .catch((err) => {
-                console.error('[造办处] 商品加载失败:', err.message);
-                setError('暂时无法加载商品，请稍后再试');
+                console.warn('[造办处] 接口连接失败，启用本地兜底模式:', err.message);
+                setProducts(LOCAL_PRODUCTS);
+                // 此时不显示全局报错，让用户仍能浏览商品
             })
             .finally(() => setIsLoading(false));
     }, []);
@@ -245,22 +261,32 @@ function ImperialWorkshop() {
                                     }}
                                 >
                                     {/* 商品图片 */}
-                                    <div className="relative overflow-hidden aspect-[4/3]">
+                                    <div className="relative overflow-hidden aspect-[4/3] bg-[#111923] border-b border-[#111923]">
                                         <img
                                             src={getProductImage(product)}
                                             alt={product.name}
-                                            className="w-full h-full transition-transform duration-700 ease-out"
+                                            className="absolute top-0 left-0 w-full h-full transition-transform duration-700 ease-out will-change-transform block z-0"
                                             style={{
                                                 objectFit: 'cover',
-                                                transform: hoveredId === product.id ? 'scale(1.05)' : 'scale(1)',
+                                                transform: hoveredId === product.id ? 'scale(1.05) translateZ(0)' : 'scale(1.01) translateZ(0)',
                                                 filter: 'grayscale(0.15) contrast(1.05)',
+                                            }}
+                                            onError={(e) => {
+                                                e.target.onerror = null;
+                                                // Create a simple hash from product.id to pick a stable fallback image 1-6
+                                                const hash = String(product.id).split('').reduce((a, b) => {
+                                                    a = ((a << 5) - a) + b.charCodeAt(0);
+                                                    return a & a;
+                                                }, 0);
+                                                const index = (Math.abs(hash) % 6) + 1;
+                                                e.target.src = FALLBACK_IMAGES[index] || '/assets/content/products/fan.png';
                                             }}
                                         />
                                         {/* 底部渐变遮罩 */}
                                         <div
                                             className="absolute inset-0 pointer-events-none"
                                             style={{
-                                                background: 'linear-gradient(to top, #111923 0%, transparent 40%)',
+                                                background: 'linear-gradient(to top, #111923 0%, transparent 100%)',
                                             }}
                                         />
                                     </div>
@@ -268,7 +294,7 @@ function ImperialWorkshop() {
 
 
                                     {/* 商品信息 */}
-                                    <div className="p-5 pt-2">
+                                    <div className="p-5 pt-2 relative" style={{ marginTop: '-1px', background: 'linear-gradient(145deg, #151E2B, #111923)' }}>
                                         <div className="flex justify-between items-start mb-2">
                                             <h3
                                                 className="text-[#E5E0D8] text-lg font-semibold tracking-wider"

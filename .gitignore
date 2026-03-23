@@ -38,3 +38,5 @@ dist-ssr
 
 public/assets/sample/*
 SOCIAL_VIRAL_HANDOVER.md
+backend/temp/*
+docs

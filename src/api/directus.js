@@ -60,6 +60,8 @@ function transformNode(dbNode, loresMap) {
         panelImage: dbNode.panel_image || undefined,
         hideText: dbNode.hide_text || false,
         hideBorder: dbNode.hide_border || false,
+        salary: dbNode.salary || undefined,
+        dynastyId: dbNode.dynasty_id || undefined,
         figures: lores.filter(l => l.type === 'figure').map(l => l.title),
         allusions: lores
             .filter(l => l.type === 'allusion')
