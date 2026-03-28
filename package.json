@@ -6,12 +6,12 @@
   "scripts": {
     "dev": "vite",
     "dev:all": "concurrently -n \"Vite,CMS\" -c \"green,blue\" \"npm run dev\" \"npm run backend\"",
-    "backend": "cd backend && npx directus start",
+    "backend": "npm start --prefix backend",
     "build": "vite build",
     "lint": "eslint .",
     "preview": "vite preview",
     "start": "npm run dev:all",
-    "stop": "stop.bat"
+    "stop": "node scripts/stop-services.js"
   },
   "dependencies": {
     "@fortawesome/fontawesome-svg-core": "^7.2.0",
@@ -31,6 +31,7 @@
     "@types/react": "^19.2.7",
     "@types/react-dom": "^19.2.3",
     "@vitejs/plugin-react": "^5.1.1",
+    "concurrently": "^9.2.1",
     "dotenv": "^17.3.1",
     "eslint": "^9.39.1",
     "eslint-plugin-react-hooks": "^7.0.1",
