@@ -5,9 +5,13 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "dev:all": "concurrently -n \"Vite,CMS\" -c \"green,blue\" \"npm run dev\" \"npm run backend\"",
+    "backend": "cd backend && npx directus start",
     "build": "vite build",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "start": "npm run dev:all",
+    "stop": "stop.bat"
   },
   "dependencies": {
     "@fortawesome/fontawesome-svg-core": "^7.2.0",

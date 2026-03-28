@@ -1,4 +1,4 @@
-﻿/** @type {import('tailwindcss').Config} */
+/** @type {import('tailwindcss').Config} */
 export default {
     content: [
         "./index.html",
@@ -29,6 +29,7 @@ export default {
                 'ink-splash': "url('/assets/ui/ink_splash.png')",
                 'dynasty-bg': "url('/assets/ui/switch-bg-1.png')",
                 'main-bg': "url('/assets/ui/main-bg.png')",
+                'rushi-bg': "url('/assets/ui/rushi_bg.png')",
             }
         },
     },

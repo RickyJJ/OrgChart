@@ -165,6 +165,19 @@ export async function toggleProductLike(productId, newCount) {
     }
 }
 
+// ─── 搜索节点（ Meilisearch 兜底或 Directus 原生搜索）────────
+export async function searchNodes(query) {
+    try {
+        // Directus 原生搜索参数 ?search=xxx
+        // 在 org_nodes 中搜索标题或描述包含关键词的节点
+        const result = await directusFetch(`/items/org_nodes?search=${encodeURIComponent(query)}&limit=5`);
+        return result || [];
+    } catch (err) {
+        console.warn('[搜索] 失败:', err.message);
+        return [];
+    }
+}
+
 // ─── 埋点上报（fire-and-forget 风格）────────────────────────
 export async function trackEvent(eventName, payload = {}) {
     try {

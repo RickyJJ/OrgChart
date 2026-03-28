@@ -88,7 +88,7 @@
 | 084 | Feature | 皇帝根节点背景图更新为 `emperor-bg.png` 并移除文字与边框 | Done | 1.2 |
 | 085 | Bug | 树状线逻辑解耦与稳定性优化：通过 Data Attributes 替换类名依赖，并固定水平连线高度，彻底解决悬停/选中导致的整行跳动问题 | Done | 1.2 |
 | 086 | Feature | 典故呼吸印记 (Lore Breathing Mark)：为含有典故的官职增加极微小朱砂红动态呼吸印章 (#af292e) | Done | 1.2 |
-| 087 | UI/UX | 朝代切换 UI 同步：支持从顶部下拉菜单或横向时间轴快速切换（同步 SPEC 2.1） | Pending | 2.1 |
+| 087 | UI/UX | 朝代切换 UI 同步：支持从顶部下拉菜单或横向时间轴快速切换（同步 SPEC 2.1） | Cancelled | 2.1 |
 | 088 | Bug | 修复树状图连线乱了的问题：引入 `top`/`bottom` 双锚点系统，并调整 CSS 间距使连线长度固定为 8px，同时消除点击卡片时的连线位移抖动，确保结构稳固 | Done | 1.2 |
 | 089 | UI/UX | 同步子官职卡片与树状线的消失动画，统一使用 0.6s Quartic Out 曲线 | Done | 1.2 |
 | 090 | UI/UX | 优化卡片交互逻辑：点击选中时不产生位移突跳，通过移除物理遮罩层并引入全局点击监听，实现“点击不跳动，移出自动回位”的效果 | Done | 1.2 |
@@ -121,4 +121,24 @@
 | 117 | UI/UX | 俸禄模块重构：实现 SalaryFlowBoard 横向流式布局与沉浸式 Tooltip 科普功能 | Done | 2.4 |
 | 118 | Feature | 详情面板与模拟器联动：修改 CTA 按钮文案为“接旨赴任”，并实现点击后直接在模拟器生成对应官职委任状的“短路”逻辑 | Done | 2.7 |
 | 119 | Bug | 修复详情面板属性 Tooltip 在屏幕边缘显示不完整的问题：实现自动边界检测与位置修正逻辑 | Done | 1.2 |
- 
+| 120 | Feature | 命运卷轴: UI 入场态极简输入、核心CTA按钮及海报材质开发 (Ref: docs/destiny-scroll/01-ui-ux-design.md) | Done | 2.6 |
+| 121 | Feature | 命运卷轴: 朱红印章物理盖印动效与800ms文创卡片延迟淡入 (Ref: docs/destiny-scroll/02-animations-interactions.md) | Done | 2.6 |
+| 122 | Feature | 命运卷轴: 黑盒随机匹配、Meilisearch 兜底与无感 UUID 追踪 (Ref: docs/destiny-scroll/03-matching-logic-tracking.md) | Done | 2.6 |
+| 123 | Feature | 命运卷轴: 水墨二维码生成及前端 html2canvas海报合成 (Ref: docs/destiny-scroll/03-matching-logic-tracking.md) | Done | 2.6 |
+| 124 | Bug | 修复初次加载时由于未及时拉取到数据库数据而展示本地 Mock 数据造成的显示错误，添加加载屏动画 | Done | N/A |
+| 127 | UI/UX | 命运卷轴：应用 `rushi_bg.png` 作为入仕模拟器的全局背景，提升沉浸感 | Done | 2.6 |
+| 130 | Feature | 命运卷轴：使用 `yinzhang.png` 作为印章背景，并动态生成职业专属文字印章 | Done | 2.6 |
+| 131 | Feature | 命运卷轴：实现前端 Canvas 动态像素抠图工具以剔除海报印章白边，并封装为复用工具类 | Done | 2.6 |
+| 128 | Feature | 核心知识生成引擎：基于 `@google/genai` (Gemini) 自动扫描并补全全量官职的典故、人物、诗词及职能白话翻译 | Pending | 2.4 / 3.2 |
+| 129 | Arch | 知识沉淀：生成 `.knowledge.md` 针对项目架构核心逻辑、数据流转与 UX 交互标准的深度总结文档 | Pending | 3.1 |
+| 135 | Feature | 命运卷轴：为朱红印章添加核心物理砸击动效 (Stamp Smash Physics) | Done | 2.6 |
+| 136 | UI/UX | 命运卷轴：清洗海报现代UI元素，恢复『新中式极简风』(去除印章阴影白字、云纹背景、现代矩形容器及二维码白边) | Done | 1.2 |
+| 137 | UI/UX | 命运卷轴：升级为『极简装裱』，应用纸张提亮、古法双线装裱外框以及温润物理投影 | Done | 1.2 |
+| 138 | UI/UX | 命运卷轴：印章动效升级，注入 0%->55%->60%->80% 砸下挤压反弹物理缓动，并内置 Web Audio API 纯前端合成神级“砰——咚”回声音效 | Done | 1.2 |
+| 140 | UI/UX | 命运卷轴：调整海报引文段落，强制职业名词独立成行并使用 whitespace-nowrap 防断行，增加行高营造新中式呼吸感 | Done | 1.2 |
+| 139 | UI/UX | 命运卷轴：海报植入【大唐俸禄与恩典】题跋式竖排文本，极简字号，辅以深灰/带红深灰色彩及细线分割 | Done | 1.2 |
+| 141 | UI/UX | 命运卷轴：移除官名与品阶间的红点分割符，通过 32px 留白实现极简视觉隔离 | Done | 1.2 |
+| 142 | UI/UX | 命运卷轴：实现『降格排版』，官品顶部对齐并下沉 60px；提升印章 Z-index 至最高并确保『盖印透墨』视觉效果 | Done | 1.2 |
+| 143 | Bug | 修复委任状主官名首字在竖排模式下被容器 overflow 裁切的问题，通过优化 paddingTop 及移除重复负边距确保视觉完整 | Done | 1.2 |
+| 144 | UI/UX | 命运卷轴：升级官品样式为双线装裱印章风格，内外框线分离并维持完全透明背景 | Done | 1.2 |
+| 145 | Arch | 配置项目一键启动脚本：实现 start.bat 与 npm 联合调度的全局开发者控制面板，支持前后端并行启动 | Done | 3.1 |

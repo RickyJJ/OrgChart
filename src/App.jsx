@@ -9,6 +9,7 @@ import DetailPanel from './components/DetailPanel';
 import SimulationDashboard from './components/SimulationDashboard';
 import ImperialWorkshop from './components/ImperialWorkshop';
 import GlobalSearch from './components/GlobalSearch';
+import { Loader2 } from 'lucide-react';
 
 function App() {
   // 阶段一：全局初始化匿名 UUID 追踪
@@ -17,14 +18,15 @@ function App() {
     console.log('[青云志] 匿名追踪 UUID:', uuid);
   }, []);
   const [activeTab, setActiveTab] = useState('hierarchy');
-  const [dynastyData, setDynastyData] = useState(localDynastyData);
+  const [dynastyData, setDynastyData] = useState([]);
   const [isDataLoading, setIsDataLoading] = useState(true);
-  const [activeDynastyId, setActiveDynastyId] = useState(localDynastyData[0].id);
+  const [activeDynastyId, setActiveDynastyId] = useState(null);
   const [selectedNode, setSelectedNode] = useState(null);
   const [pendingSearchTarget, setPendingSearchTarget] = useState(null);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [simulationParams, setSimulationParams] = useState(null);
-  const activeDynasty = dynastyData.find(d => d.id === activeDynastyId) || dynastyData[0];
+  
+  const activeDynasty = dynastyData.length > 0 ? (dynastyData.find(d => d.id === activeDynastyId) || dynastyData[0]) : null;
 
   // 从 Directus API 拉取最新数据
   useEffect(() => {
@@ -33,14 +35,22 @@ function App() {
       .then((data) => {
         if (data && data.length > 0) {
           setDynastyData(data);
-          // 如果当前选中朝代在新数据里存在，保持选中；否则切换到第一个
           if (!data.find(d => d.id === activeDynastyId)) {
             setActiveDynastyId(data[0].id);
+          }
+        } else {
+          setDynastyData(localDynastyData);
+          if (!localDynastyData.find(d => d.id === activeDynastyId)) {
+            setActiveDynastyId(localDynastyData[0].id);
           }
         }
       })
       .catch((err) => {
         console.warn('Directus API 不可用，降级使用本地 data.js:', err.message);
+        setDynastyData(localDynastyData);
+        if (!localDynastyData.find(d => d.id === activeDynastyId)) {
+          setActiveDynastyId(localDynastyData[0].id);
+        }
       })
       .finally(() => setIsDataLoading(false));
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -162,53 +172,64 @@ function App() {
         onToggleSearch={() => setIsSearchOpen(prev => !prev)}
       />
 
-      <main className="flex-1 p-10 flex flex-col relative bg-transparent shadow-inner border-l border-[#d3ccbf]" style={{ marginLeft: 'var(--sidebar-width)' }}>
+      <main
+        className={`flex-1 flex flex-col relative bg-transparent shadow-inner border-l border-[#d3ccbf] ${activeTab === 'simulation' ? 'p-0 bg-[#f5f5dc]' : 'p-10'}`}
+        style={{ 
+          marginLeft: 'var(--sidebar-width)',
+          ...(activeTab === 'simulation' ? {
+            backgroundImage: "url('https://www.transparenttextures.com/patterns/handmade-paper.png')",
+            backgroundBlendMode: 'multiply'
+          } : {})
+        }}
+      >
         {activeTab === 'hierarchy' && (
           <div className="bg-board scroll-unroll-anim flex-1 relative shadow-[0_4px_20px_rgba(0,0,0,0.03)] flex flex-col overflow-hidden rounded-xl">
-            {/* Inner decorative border overlay */}
-            <div
-              className="absolute inset-2 pointer-events-none z-20"
-              style={{
-                border: '28px solid transparent',
-                borderImage: 'url(/assets/ui/bg-border.png) 90 repeat'
-              }}
-            ></div>
+            {isDataLoading && (
+              <div className="absolute inset-0 z-50 flex flex-col items-center justify-center bg-board/90 backdrop-blur-sm">
+                <Loader2 className="w-10 h-10 animate-spin text-[#8b6b4e] mb-4" />
+                <span className="font-xingkai text-2xl text-[#5c4b3c] tracking-widest">正在展开史卷...</span>
+              </div>
+            )}
 
-            <div className="absolute top-12 left-12 flex flex-col items-start gap-4 z-30 pointer-events-none">
-              <div className="font-ancient font-bold text-[3rem] text-[#1A2530] tracking-widest drop-shadow-sm leading-[1.2] pointer-events-auto select-none">
-                {activeDynasty.name}官制架构图
-              </div>
-              <div className="flex flex-col gap-3 ml-2 mt-2 pointer-events-auto">
-                {dynastyData.map(d => (
-                  <button
-                    key={d.id}
-                    className={`relative border-none font-xingkai text-[1.4rem] cursor-pointer w-14 h-14 flex items-center justify-center transition-colors duration-200 rounded-full ${activeDynastyId === d.id
-                      ? 'text-[#2a1f14] drop-shadow-sm'
-                      : 'text-[#2a1f14]/70 hover:text-[#2a1f14] bg-transparent'
-                      }`}
-                    onClick={() => setActiveDynastyId(d.id)}
-                  >
-                    <div
-                      className={`absolute inset-0 bg-dynasty-bg bg-[length:100%] bg-center bg-no-repeat ${activeDynastyId === d.id ? 'ink-draw-anim' : 'ink-fade-out-anim'}`}
-                    ></div>
-                    <span className={`relative z-10 select-none transition-transform duration-200 ease-out ${activeDynastyId === d.id ? 'translate-y-[2px]' : ''}`}>
-                      {d.name.replace('朝', '')}
-                    </span>
-                  </button>
-                ))}
-              </div>
-            </div>
+            {activeDynasty && (
+              <>
+                <div className="absolute top-12 left-12 flex flex-col items-start gap-4 z-30 pointer-events-none">
+                  <div className="font-ancient font-bold text-[3rem] text-[#1A2530] tracking-widest drop-shadow-sm leading-[1.2] pointer-events-auto select-none">
+                    {activeDynasty.name}官制架构图
+                  </div>
+                  <div className="flex flex-col gap-3 ml-2 mt-2 pointer-events-auto">
+                    {dynastyData.map(d => (
+                      <button
+                        key={d.id}
+                        className={`relative border-none font-xingkai text-[1.4rem] cursor-pointer w-14 h-14 flex items-center justify-center transition-colors duration-200 rounded-full ${activeDynastyId === d.id
+                          ? 'text-[#2a1f14] drop-shadow-sm'
+                          : 'text-[#2a1f14]/70 hover:text-[#2a1f14] bg-transparent'
+                          }`}
+                        onClick={() => setActiveDynastyId(d.id)}
+                      >
+                        <div
+                          className={`absolute inset-0 bg-dynasty-bg bg-[length:100%] bg-center bg-no-repeat ${activeDynastyId === d.id ? 'ink-draw-anim' : 'ink-fade-out-anim'}`}
+                        ></div>
+                        <span className={`relative z-10 select-none transition-transform duration-200 ease-out ${activeDynastyId === d.id ? 'translate-y-[2px]' : ''}`}>
+                          {d.name.replace('朝', '')}
+                        </span>
+                      </button>
+                    ))}
+                  </div>
+                </div>
 
-            {/* Clipping container for the tree */}
-            <div className="absolute inset-[13px] overflow-hidden pointer-events-none sticky-container flex flex-col transition-all duration-300 mix-blend-multiply" style={{ zIndex: 'var(--z-tree)' }}>
-              <div className="w-full h-full pointer-events-auto flex flex-col">
-                <HierarchyTree
-                  activeDynasty={activeDynasty}
-                  onReadMore={handleReadMore}
-                  selectedNodeId={selectedNode?.id}
-                />
-              </div>
-            </div>
+                {/* Clipping container for the tree */}
+                <div className="absolute inset-[13px] overflow-hidden pointer-events-none sticky-container flex flex-col transition-all duration-300 mix-blend-multiply" style={{ zIndex: 'var(--z-tree)' }}>
+                  <div className="w-full h-full pointer-events-auto flex flex-col">
+                    <HierarchyTree
+                      activeDynasty={activeDynasty}
+                      onReadMore={handleReadMore}
+                      selectedNodeId={selectedNode?.id}
+                    />
+                  </div>
+                </div>
+              </>
+            )}
 
           </div>
         )}
