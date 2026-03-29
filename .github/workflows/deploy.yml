@@ -1,0 +1,61 @@
+name: CD-Deploy-to-Aliyun-SWAS
+
+on:
+  push:
+    branches:
+      - main  # 监听 main 分支的推送
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install & Build Frontend
+        env:
+          VITE_DIRECTUS_URL: http://${{ secrets.SERVER_IP }}:8055
+        run: |
+          npm install
+          npm run build
+
+      - name: Deploy to Server via SSH
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.SERVER_IP }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: |
+            # 1. 进入项目目录（请确保服务器上已手动创建并克隆过一次）
+            mkdir -p /www/wwwroot/orgChart
+            cd /www/wwwroot/orgChart
+            
+            # 2. 如果目录为空，初始化 git（仅在初次同步时生效）
+            if [ ! -d ".git" ]; then
+              git clone https://github.com/${{ github.repository }}.git .
+            fi
+
+            # 3. 拉取最新代码
+            git fetch --all
+            git reset --hard origin/main
+
+            # 4. 安装生产环境依赖
+            npm install --production
+            cd backend && npm install --production
+            cd ..
+
+            # 5. 同步前端构建产物（已经在 GitHub Actions 侧构建好了，也可以选择在服务器构建）
+            # 由于上面已经在 GitHub 构建了，通常可以通过 rsync 同步。
+            # 但为了简单稳定，我们在服务器侧重新 build 一次。
+            export VITE_DIRECTUS_URL=http://${{ secrets.SERVER_IP }}:8055
+            npm run build
+
+            # 6. 使用 PM2 管理并重启后端服务
+            pm2 start ecosystem.config.cjs --env production || pm2 reload ecosystem.config.cjs
+            pm2 save

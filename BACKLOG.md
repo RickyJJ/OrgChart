@@ -142,3 +142,7 @@
 | 143 | Bug | 修复委任状主官名首字在竖排模式下被容器 overflow 裁切的问题，通过优化 paddingTop 及移除重复负边距确保视觉完整 | Done | 1.2 |
 | 144 | UI/UX | 命运卷轴：升级官品样式为双线装裱印章风格，内外框线分离并维持完全透明背景 | Done | 1.2 |
 | 145 | Arch | 配置项目一键启动脚本：实现 start.bat 与 npm 联合调度的全局开发者控制面板，支持前后端并行启动 | Done | 3.1 |
+| 146 | Arch | 部署环境初始化：阿里云 SWAS 服务器基建搭建 (Node.js/PM2/Nginx/防火墙) | Done | 3.3 |
+| 147 | Arch | CI/CD 自动化：签署 SSH 部署密钥并配置 GitHub Secrets (SERVER_IP/SERVER_USER/SSH_PRIVATE_KEY) | Done | 3.3 |
+| 148 | Arch | 自动化蓝图：编写 .github/workflows/deploy.yml 与 ecosystem.config.cjs 并一键发布上线 | Done | 3.3 |
+| 098 | Arch | 基础设施与 CDN：配置全局 CDN 分发网络，将所有大体积高保真背景、动效与水墨遮罩等静态资源上云以应对拉新裂变高并发 | Pending | 3.1 |

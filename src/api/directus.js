@@ -6,7 +6,7 @@
  * 避开 Directus v11 关系字段需要特殊权限配置的问题。
  */
 
-const DIRECTUS_URL = 'http://127.0.0.1:8055';
+const DIRECTUS_URL = import.meta.env.VITE_DIRECTUS_URL || 'http://127.0.0.1:8055';
 
 // ─── 基础请求函数 ────────────────────────────────────────
 async function directusFetch(path) {
