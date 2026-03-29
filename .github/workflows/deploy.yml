@@ -3,7 +3,7 @@ name: CD-Deploy-to-Aliyun-SWAS
 on:
   push:
     branches:
-      - main  # 监听 main 分支的推送
+      - main
 
 jobs:
   deploy:
@@ -32,30 +32,35 @@ jobs:
           username: ${{ secrets.SERVER_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
-            # 1. 进入项目目录（请确保服务器上已手动创建并克隆过一次）
+            # 强化 PATH 环境变量，确保服务器能认出 node/git/pm2
+            export PATH=$PATH:/usr/local/bin:/usr/bin:/bin
+
+            # 1. 确保项目根目录存在
             mkdir -p /www/wwwroot/orgChart
             cd /www/wwwroot/orgChart
             
-            # 2. 如果目录为空，初始化 git（仅在初次同步时生效）
+            # 2. 如果尚未克隆 Git，则执行初次拉取
             if [ ! -d ".git" ]; then
+              # 先把目录清空
+              rm -rf * 
+              # 您需要确认您的仓库地址（如果是私有库可能需要设置凭据，但通过 Actions 推送通常没问题）
               git clone https://github.com/${{ github.repository }}.git .
             fi
 
-            # 3. 拉取最新代码
+            # 3. 强制同步最新代码
             git fetch --all
             git reset --hard origin/main
 
-            # 4. 安装生产环境依赖
+            # 4. 分别安装前后端生产依赖
             npm install --production
             cd backend && npm install --production
             cd ..
 
-            # 5. 同步前端构建产物（已经在 GitHub Actions 侧构建好了，也可以选择在服务器构建）
-            # 由于上面已经在 GitHub 构建了，通常可以通过 rsync 同步。
-            # 但为了简单稳定，我们在服务器侧重新 build 一次。
+            # 5. 在服务器完成最终构建（注入线上 API 地址）
             export VITE_DIRECTUS_URL=http://${{ secrets.SERVER_IP }}:8055
             npm run build
 
-            # 6. 使用 PM2 管理并重启后端服务
+            # 6. 利用 PM2 启动/重启后端服务
+            # 首次启动使用 start，后续使用 reload 确保零秒停机
             pm2 start ecosystem.config.cjs --env production || pm2 reload ecosystem.config.cjs
             pm2 save
