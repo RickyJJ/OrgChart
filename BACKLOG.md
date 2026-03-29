@@ -129,7 +129,7 @@
 | 127 | UI/UX | 命运卷轴：应用 `rushi_bg.png` 作为入仕模拟器的全局背景，提升沉浸感 | Done | 2.6 |
 | 130 | Feature | 命运卷轴：使用 `yinzhang.png` 作为印章背景，并动态生成职业专属文字印章 | Done | 2.6 |
 | 131 | Feature | 命运卷轴：实现前端 Canvas 动态像素抠图工具以剔除海报印章白边，并封装为复用工具类 | Done | 2.6 |
-| 128 | Feature | 核心知识生成引擎：基于 `@google/genai` (Gemini) 自动扫描并补全全量官职的典故、人物、诗词及职能白话翻译 | Pending | 2.4 / 3.2 |
+| 128 | Feature | 核心知识生成引擎：基于 `@google/genai` (Gemini) 自动扫描并补全全量官职的典故、人物、诗词及职能白话翻译 (Ref: docs/tasks/task_128_ai_content_filler.md) | Ongoing | 2.4 / 3.2 |
 | 129 | Arch | 知识沉淀：生成 `.knowledge.md` 针对项目架构核心逻辑、数据流转与 UX 交互标准的深度总结文档 | Cancelled | 3.1 |
 | 135 | Feature | 命运卷轴：为朱红印章添加核心物理砸击动效 (Stamp Smash Physics) | Done | 2.6 |
 | 136 | UI/UX | 命运卷轴：清洗海报现代UI元素，恢复『新中式极简风』(去除印章阴影白字、云纹背景、现代矩形容器及二维码白边) | Done | 1.2 |
