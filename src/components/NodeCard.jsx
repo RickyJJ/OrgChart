@@ -1,11 +1,10 @@
-import React, { useState } from 'react';
+import React from 'react';
 
-function NodeCard({ node, onReadMore, selectedNodeId, isRoot, index = 0 }) {
+function NodeCard({ node, onReadMore, selectedNodeId, isRoot, index = 0, expandedIds, onToggleNode }) {
     const isSelected = selectedNodeId === node.id;
     const hasLore = (node.allusions && node.allusions.length > 0) || (node.poetry && node.poetry.length > 0);
 
-    // Local state for expanding children tree
-    const [childrenVisible, setChildrenVisible] = useState(true);
+    const childrenVisible = expandedIds ? expandedIds.has(node.id) : true;
 
     const handleCardClick = (e) => {
         e.stopPropagation();
@@ -14,7 +13,7 @@ function NodeCard({ node, onReadMore, selectedNodeId, isRoot, index = 0 }) {
 
     const toggleChildren = (e) => {
         e.stopPropagation();
-        setChildrenVisible(!childrenVisible);
+        if (onToggleNode) onToggleNode(node.id);
     };
 
     const isLongTitle = !isRoot && !node.bgImage && node.title.length > 4;
@@ -24,7 +23,7 @@ function NodeCard({ node, onReadMore, selectedNodeId, isRoot, index = 0 }) {
     const showFan = hasChildren && !childrenVisible;
 
     if (isRoot) {
-        cardClass = `w-32 h-32 ${node.hideBorder ? '' : 'border-4 border-vermilion rounded-lg'} bg-contain bg-center bg-no-repeat text-vermilion bg-transparent flex items-center justify-center z-[1] select-none flex-col items-center cursor-pointer transition-all duration-300`;
+        cardClass = `w-32 h-32 ${node.hideBorder ? '' : 'border-4 border-vermilion rounded-lg'} bg-contain bg-center bg-no-repeat text-vermilion bg-transparent flex items-center justify-center z-[1] select-none flex-col cursor-pointer transition-all duration-300`;
     } else if (node.bgImage) {
         cardClass = `w-24 h-32 bg-contain bg-center bg-no-repeat inline-flex flex-col items-center justify-center cursor-pointer relative z-[2] select-none transition-all duration-300 ${isSelected ? 'scale-[1.02] drop-shadow-[0_0_10px_rgba(120,113,108,0.5)]' : 'hover:scale-[1.02] hover:drop-shadow-[0_0_8px_rgba(120,113,108,0.3)]'}`;
     } else {
@@ -33,18 +32,14 @@ function NodeCard({ node, onReadMore, selectedNodeId, isRoot, index = 0 }) {
 
     const isSlipCard = !isRoot && !node.bgImage;
 
-    // Explicit sizing for stable CardContainer to ensure correct anchor positioning
     const containerStyle = isRoot
         ? { width: '128px', height: '128px' } // w-32 h-32
         : node.bgImage
             ? { width: '96px', height: '128px' } // w-24 h-32
             : { width: '60px', height: '167px' }; // slip card
 
-    // Fan angle default 3; set to 0 when expanded to animate close
     const fanAngle = 3;
     const activeFanAngle = showFan ? fanAngle : 0;
-
-    // Calculate dynamic duration for marquee: Base 0.4s per character beyond 4 chars
     const marqueeDuration = isLongTitle ? `${(node.title.length - 3) * 0.5}s` : '0s';
 
     return (
@@ -59,11 +54,6 @@ function NodeCard({ node, onReadMore, selectedNodeId, isRoot, index = 0 }) {
             }}
         >
             <div className="flex justify-center items-start w-full relative z-10 mix-blend-multiply" style={{ height: '220px' }}>
-                {/* 
-                  Stable CardContainer: 
-                  It stays static in the document flow to provide 100% stable 
-                  anchoring coordinates for TreeConnections.
-                */}
                 <div
                     className="relative"
                     data-card="true"
@@ -74,11 +64,9 @@ function NodeCard({ node, onReadMore, selectedNodeId, isRoot, index = 0 }) {
                         marginTop: '18px'
                     }}
                 >
-                    {/* Anchors for SVG connections: 'top' for incoming lines, 'bottom' for outgoing lines */}
                     {!isRoot && <div data-anchor="top" className="absolute top-[-18px] left-1/2 -translate-x-1/2 w-0 h-0" />}
                     <div data-anchor="bottom" className="absolute bottom-[-2px] left-1/2 -translate-x-1/2 w-0 h-0" />
 
-                    {/* Animated Visual Card */}
                     <div
                         className={cardClass}
                         onClick={handleCardClick}
@@ -88,9 +76,7 @@ function NodeCard({ node, onReadMore, selectedNodeId, isRoot, index = 0 }) {
                             inset: 0
                         }}
                     >
-                        {/* Inner watercolor insight layer — alpha-masked to frame interior */}
                         {isSlipCard && <div className="card-insight-layer" />}
-                        {/* Border line overlay — re-renders frame border on top of insight */}
                         {isSlipCard && <div className="card-border-overlay" />}
                         {isSlipCard && hasLore && <div className="lore-breathing-mark" title="此处有典故" />}
                         {isRoot ? (
@@ -123,8 +109,7 @@ function NodeCard({ node, onReadMore, selectedNodeId, isRoot, index = 0 }) {
                                 </svg>
                             </div>
                         )}
-                        {/* Fan-out pseudo cards — always rendered for smooth transition, angle toggled via CSS var */}
-                        {hasChildren && !isRoot && (
+                        {showFan && !isRoot && (
                             <>
                                 <div className="fan-card fan-left">
                                     <div className="card-insight-layer" />
@@ -138,6 +123,13 @@ function NodeCard({ node, onReadMore, selectedNodeId, isRoot, index = 0 }) {
                         )}
                     </div>
                 </div>
+
+                {/* Breadcrumb explicit Fold hint */}
+                {showFan && (
+                    <div className="absolute top-[195px] left-1/2 -translate-x-1/2 text-[0.75rem] text-stone-500 font-sans tracking-wide pointer-events-none whitespace-nowrap drop-shadow-sm font-semibold opacity-80">
+                        [辖 {node.children.length} {node.title.endsWith('省') ? '部' : '司'}]
+                    </div>
+                )}
             </div>
 
             {
@@ -145,7 +137,7 @@ function NodeCard({ node, onReadMore, selectedNodeId, isRoot, index = 0 }) {
                     <ul
                         className={`transition-all duration-600 ease-[cubic-bezier(0.16,1,0.3,1)] overflow-hidden ${childrenVisible ? 'opacity-100' : 'opacity-0 invisible pointer-events-none'}`}
                         style={!childrenVisible
-                            ? { maxHeight: 0, paddingTop: 0, margin: 0 }
+                            ? { maxHeight: 0, paddingTop: 0, margin: 0, display: 'none' } // DOM removal per SPEC
                             : { maxHeight: '2000px' }
                         }
                     >
@@ -157,6 +149,8 @@ function NodeCard({ node, onReadMore, selectedNodeId, isRoot, index = 0 }) {
                                 selectedNodeId={selectedNodeId}
                                 isRoot={false}
                                 index={idx}
+                                expandedIds={expandedIds}
+                                onToggleNode={onToggleNode}
                             />
                         ))}
                     </ul>

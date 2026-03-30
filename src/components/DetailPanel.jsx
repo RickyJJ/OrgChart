@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from 'react';
-import { PenTool, X, Coins } from 'lucide-react';
+import { PenTool, X, Coins, Users } from 'lucide-react';
 
 import SalaryFlowBoard from './SalaryFlowBoard';
 
@@ -21,7 +21,11 @@ function DetailPanel({ node, onClose, onTakeOffice }) {
     return '';
   }, [hasPoetry, hasAllusions, node?.poetry, node?.allusions]);
 
-  const shouldShowLoreExpand = loreText.length > 120;
+  const shouldShowLoreExpand = useMemo(() => {
+    if (!loreText) return false;
+    const lines = loreText.split('\n').length;
+    return loreText.length > 60 || lines > 3;
+  }, [loreText]);
 
   const illustrationImage = useMemo(
     () => node?.panelImage || node?.allusions?.[0]?.loreImage || '/assets/content/horse_rider.png',
@@ -136,9 +140,10 @@ function DetailPanel({ node, onClose, onTakeOffice }) {
                   event.stopPropagation();
                   setIsLoreExpanded(prev => !prev);
                 }}
-                className="text-sm text-[#7e1f23] hover:text-[#af292e] text-center bg-[#fdfaf3] py-1 rounded-md border border-[#eee4d5] transition-colors"
+                className="group/more flex items-center justify-center gap-1.5 mt-1 py-1.5 w-full text-xs font-bold text-[#7e1f23] hover:text-[#af292e] bg-[#fdfaf3]/50 hover:bg-[#fdfaf3] border border-[#eee4d5]/60 hover:border-[#eee4d5] rounded-md transition-all duration-300"
               >
-                {isLoreExpanded ? '收起全文' : '...展开阅读'}
+                <span>{isLoreExpanded ? '收起' : '更多'}</span>
+                <div className={`w-1.5 h-1.5 rounded-full bg-[#af292e] transition-transform duration-500 ${isLoreExpanded ? 'rotate-180 scale-75' : 'animate-pulse'}`}></div>
               </button>
             )}
           </section>
@@ -146,7 +151,11 @@ function DetailPanel({ node, onClose, onTakeOffice }) {
 
         {/* Section 5: Figures */}
         {hasFigures && (
-          <section>
+          <section className="flex flex-col gap-2">
+            <div className="flex items-center gap-2 text-[#2a2624]">
+              <Users size={16} className="text-[#5a5349]" />
+              <span className="font-serif text-[1rem] font-bold">风流人物</span>
+            </div>
             <div className="flex flex-wrap gap-x-2 gap-y-1 text-[0.85rem] text-[#5e574d]/80 font-sans tracking-wide">
               {node.figures.map((figure, index) => (
                 <span key={`${figure}-${index}`}>

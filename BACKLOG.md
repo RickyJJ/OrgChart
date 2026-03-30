@@ -43,7 +43,7 @@
 | 039 | Bug | 修复树状图根节点与子节点不对齐及右侧卡片重叠问题：布局从 flex+float 改为 inline-block+text-align:center，确保父节点始终居中于子树上方 | Done | 1.2 |
 | 040 | Feature | 应对横向宽树布局：重构架构树为全局无界画布 (Infinite Canvas)，引入平滑缩放 (Wheel Zoom) 与拖拽平移 (Pan) 交互，并重写 SVG 连线的缩放系坐标映射 | Done | 1.2 |
 | 041 | UI/UX | 为“入仕模拟”板块落地基于 /ui-ux-pro-max 规范的深色模式仪表盘 (Dark Mode Neo-Chinese Bento Grid)，并嵌入 Recharts 数据图表 | Done | 2.6 |
-| 042 | Bug | 修复“兵部”节点配图丢失问题：校正 data.js 中 `panelImage` 属性名为 `bgImage`，以匹配 NodeCard 渲染逻辑 | Done | 1.2 |
+| 042 | Bug | 修复“兵部”节点配图丢失问题：校正 data.js 中 `panelImage` 属性名为 `bgImage`，以匹配 NodeCard 渲染 logic | Done | 1.2 |
 | 043 | UI/UX | 将生成的亚字形纯矢量牌匾轮廓应用到官职卡片上作为边框，修改 border-image 属性适配 | Done | 1.2 |
 | 044 | UI/UX | 统一所有官职卡片的尺寸为固定高宽，取消随内容自适应高度 | Done | 1.2 |
 | 045 | UI/UX | 扩大官位卡片的固定宽高为 w-[76px] 和 h-[260px] 提供充足空间容纳过长的英文头衔 (如 Shangshu Sheng) | Done | 1.2 |
@@ -97,52 +97,61 @@
 | 093 | Bug | 修复折叠时子层级连线残留问题：通过 `TreeConnections.jsx` 递归检查祖先展开状态实现彻底隐藏 | Done | 1.2 |
 | 094 | Feature | 典故连珠：实现全量文化看板组件 `LoreCenter.jsx` 及一键穿透定位逻辑 | Done | 2.5 |
 | 095 | UI/UX | 典故连珠：根据反馈移除导航栏独立菜单入口，保持侧边栏极简，相关内容由全局搜索承接 | Done | 1.2 |
-| 096 | Feature | 后端框架选型与搭建：引入基于 Node.js 生态的 Headless CMS (Directus v11.16) 提供核心文化数据分发、引流及埋点收集，并提供可视化数据后台 | Done | 3.1 |
-| 097 | Feature | 数据库与检索引擎：部署 PostgreSQL 作为主数据库并启用 `ltree` 扩展，引入 Meilisearch 驱动高性能力且忽略空格的多维跨朝代检索引擎 | Ongoing | 3.1 |
+| 100 | Feature | 后端框架选型与搭建：引入基于 Node.js 生态的 Headless CMS (Directus v11.16) 提供核心文化数据分发、引流及埋点收集，并提供可视化数据后台 | Done | 3.1 |
+| 101 | Feature | 数据库与检索引擎：部署 PostgreSQL 作为主数据库并启用 `ltree` 扩展，引入 Meilisearch 驱动高性能力且忽略空格的多维跨朝代检索引擎 | Ongoing | 3.1 |
 | 098 | Arch | 基础设施与 CDN：配置全局 CDN 分发网络，将所有大体积高保真背景、动效与水墨遮罩等静态资源上云以应对拉新裂变高并发 | Pending | 3.1 |
-| 099 | Feature | 商业引流与“造办处”文创页：增加左侧侧边常驻导航入口，实现新中式画廊式商品展示面板（无头电商展示模式） | Done | 2.7 |
-| 100 | Feature | 埋点追踪与导流体系：实现前端点击文创商品时的埋点事件捕获与重定向/拉起外部小程序（淘宝/小红书等）功能 | Done | 2.7 |
-| 101 | Feature | 模拟器裂变锚点升级：利用前端技术动态生成包含 UTM 参数的专属水墨二维码，集成入委任状海报右下角 | Done | 2.6 |
-| 102 | Feature | 模拟器顺水推舟引流：委任海报展现后，延迟 800ms 淡入展示“文创周边”关联按钮，并支持一键无缝导航至造办处界面 | Done | 2.6 |
-| 103 | Feature | 无感匿名追踪：利用 LocalStorage 或轻量浏览器指纹生成端侧匿名 UUID，以此作为用户行为埋点唯一标识发送后端 | Done | 3.1 |
-| 104 | Arch | 数据结构迁移：将静态的 `data.js` 历史数据全量结构化清洗并迁移至 PostgreSQL 数据库进行动态管理 | Done | 3.1 |
-| 105 | Feature | 前端 API 接入：新建 `src/api/directus.js`，实现从 Directus REST API 拉取数据、重建嵌套树并转换格式；改造 `App.jsx` 以 useEffect 异步加载，降级保留本地 data.js 兜底 | Done | 3.1 |
-| 106 | Arch | Directus 公开访问配置：为 Public Policy 的 `dynasties`、`org_nodes`、`lores` 三个集合配置匿名只读权限；在 `.env` 中添加 CORS 配置允许前端开发服务器跨域访问 | Done | 3.1 |
-| 107 | UI/UX | 移除侧边栏冗余的我的官职导航入口，精简 MVP UI | Done | 1.2 |
-| 108 | UI/UX | 调整并完善详情面板标题区布局及样式 | Done | 2.7 |
-| 109 | UI/UX | 优化导航栏 Logo 显示 | Done | 1.2 |
-| 110 | UI/UX | 调整 Logo 尺寸和间距 | Done | 1.2 |
-| 111 | Feature | 造办处增加喜欢按钮及按热度排序功能 | Done | 2.7 |
-| 112 | Feature | 造办处增加点赞失败自动回滚机制，并弹出新中式 Toast 提示 | Done | 2.7 |
-| 113 | Arch | 数据结构规范：在 SPEC.md 中增加 salary (俸禄) 字段及定义 | Done | 3.2 |
-| 114 | Arch | 数据库表结构变更：在 PostgreSQL 中为 `org_nodes` 增加 `salary` 列 (JSONB 类型) | Done | 3.1 |
-| 115 | Feature | 后端导入改造：修改 `import-full-json.mjs` 以解析、插入 salary 属性并重新落库 | Done | 3.1 |
-| 116 | UI/UX | 详情面板升级：根据 SPEC.md 3.2.1 俸禄映射表，在 UI 渲染官职俸禄模块。要求：参考 docs/tasks/task_116_salary_ui_guide.md 实现动态映射与水墨风格展示。 | Done | 2.4 |
-| 117 | UI/UX | 俸禄模块重构：实现 SalaryFlowBoard 横向流式布局与沉浸式 Tooltip 科普功能 | Done | 2.4 |
-| 118 | Feature | 详情面板与模拟器联动：修改 CTA 按钮文案为“接旨赴任”，并实现点击后直接在模拟器生成对应官职委任状的“短路”逻辑 | Done | 2.7 |
-| 119 | Bug | 修复详情面板属性 Tooltip 在屏幕边缘显示不完整的问题：实现自动边界检测与位置修正逻辑 | Done | 1.2 |
-| 120 | Feature | 命运卷轴: UI 入场态极简输入、核心CTA按钮及海报材质开发 (Ref: docs/destiny-scroll/01-ui-ux-design.md) | Done | 2.6 |
-| 121 | Feature | 命运卷轴: 朱红印章物理盖印动效与800ms文创卡片延迟淡入 (Ref: docs/destiny-scroll/02-animations-interactions.md) | Done | 2.6 |
-| 122 | Feature | 命运卷轴: 黑盒随机匹配、Meilisearch 兜底与无感 UUID 追踪 (Ref: docs/destiny-scroll/03-matching-logic-tracking.md) | Done | 2.6 |
-| 123 | Feature | 命运卷轴: 水墨二维码生成及前端 html2canvas海报合成 (Ref: docs/destiny-scroll/03-matching-logic-tracking.md) | Done | 2.6 |
-| 124 | Bug | 修复初次加载时由于未及时拉取到数据库数据而展示本地 Mock 数据造成的显示错误，添加加载屏动画 | Done | N/A |
-| 127 | UI/UX | 命运卷轴：应用 `rushi_bg.png` 作为入仕模拟器的全局背景，提升沉浸感 | Done | 2.6 |
+| 103 | Feature | 商业引流与“造办处”文创页：增加左侧侧边常驻导航入口，实现新中式画廊式商品展示面板（无头电商展示模式） | Done | 2.7 |
+| 104 | Feature | 埋点追踪与导流体系：实现前端点击文创商品时的埋点事件捕获与重定向/拉起外部小程序（淘宝/小红书等）功能 | Done | 2.7 |
+| 105 | Feature | 模拟器裂变锚点升级：利用前端技术动态生成包含 UTM 参数的专属水墨二维码，集成入委任状海报右下角 | Done | 2.6 |
+| 106 | Feature | 模拟器顺水推舟引流：委任海报展现后，延迟 800ms 淡入展示“文创周边”关联按钮，并支持一键无缝导航至造办处界面 | Done | 2.6 |
+| 107 | Feature | 无感匿名追踪：利用 LocalStorage 或轻量浏览器指纹生成端侧匿名 UUID，以此作为用户行为埋点唯一标识发送后端 | Done | 3.1 |
+| 108 | Arch | 数据结构迁移：将静态的 `data.js` 历史数据全量结构化清洗并迁移至 PostgreSQL 数据库进行动态管理 | Done | 3.1 |
+| 109 | Feature | 前端 API 接入：新建 `src/api/directus.js`，实现从 Directus REST API 拉取数据、重建嵌套树并转换格式；改造 `App.jsx` 以 useEffect 异步加载，降级保留本地 data.js 兜底 | Done | 3.1 |
+| 110 | Arch | Directus 公开访问配置：为 Public Policy 的 `dynasties`、`org_nodes`、`lores` 三个集合配置匿名只读权限；在 `.env` 中添加 CORS 配置允许前端开发服务器跨域访问 | Done | 3.1 |
+| 111 | UI/UX | 移除侧边栏冗余的我的官职导航入口，精简 MVP UI | Done | 1.2 |
+| 112 | UI/UX | 调整并完善详情面板标题区布局及样式 | Done | 2.7 |
+| 113 | UI/UX | 优化导航栏 Logo 显示 | Done | 1.2 |
+| 114 | UI/UX | 调整 Logo 尺寸 and 间距 | Done | 1.2 |
+| 115 | Feature | 造办处增加喜欢按钮及按热度排序功能 | Done | 2.7 |
+| 116 | Feature | 造办处增加点赞失败自动回滚机制，并弹出新中式 Toast 提示 | Done | 2.7 |
+| 117 | Arch | 数据结构规范：在 SPEC.md 中增加 salary (俸禄) 字段及定义 | Done | 3.2 |
+| 118 | Arch | 数据库表结构变更：在 PostgreSQL 中为 `org_nodes` 增加 `salary` 列 (JSONB 类型) | Done | 3.1 |
+| 119 | Feature | 后端导入改造：修改 `import-full-json.mjs` 以解析、插入 salary 属性并重新落库 | Done | 3.1 |
+| 120 | UI/UX | 详情面板升级：根据 SPEC.md 3.2.1 俸禄映射表，在 UI 渲染官职俸禄模块。要求：参考 docs/tasks/task_116_salary_ui_guide.md 实现动态映射与水墨风格展示。 | Done | 2.4 |
+| 121 | UI/UX | 俸禄模块重构：实现 SalaryFlowBoard 横向流式布局与沉浸式 Tooltip 科普功能 | Done | 2.4 |
+| 122 | Feature | 详情面板与模拟器联动：修改 CTA 按钮文案为“接旨赴任”，并实现点击后直接在模拟器生成对应官职委任状的“短路”逻辑 | Done | 2.7 |
+| 123 | Bug | 修复详情面板属性 Tooltip 在屏幕边缘显示不完整的问题：实现自动边界检测与位置修正逻辑 | Done | 1.2 |
+| 124 | Feature | 命运卷轴: UI 入场态极简输入、核心CTA按钮及海报材质开发 (Ref: docs/destiny-scroll/01-ui-ux-design.md) | Done | 2.6 |
+| 125 | Feature | 命运卷轴: 朱红印章物理盖印动效与800ms文创卡片延迟淡入 (Ref: docs/destiny-scroll/02-animations-interactions.md) | Done | 2.6 |
+| 126 | Feature | 命运卷轴: 黑盒随机匹配、Meilisearch 兜底与无感 UUID 追踪 (Ref: docs/destiny-scroll/03-matching-logic-tracking.md) | Done | 2.6 |
+| 127 | Feature | 命运卷轴: 水墨二维码生成及前端 html2canvas海报合成 (Ref: docs/destiny-scroll/03-matching-logic-tracking.md) | Done | 2.6 |
+| 128 | Bug | 修复初次加载时由于未及时拉取到数据库数据而展示本地 Mock 数据造成的显示错误，添加加载屏动画 | Done | N/A |
+| 129 | UI/UX | 命运卷轴：应用 `rushi_bg.png` 作为入仕模拟器的全局背景，提升沉浸感 | Done | 2.6 |
 | 130 | Feature | 命运卷轴：使用 `yinzhang.png` 作为印章背景，并动态生成职业专属文字印章 | Done | 2.6 |
 | 131 | Feature | 命运卷轴：实现前端 Canvas 动态像素抠图工具以剔除海报印章白边，并封装为复用工具类 | Done | 2.6 |
-| 128 | Feature | 核心知识生成引擎：基于 `@google/genai` (Gemini) 自动扫描并补全全量官职的典故、人物、诗词及职能白话翻译 (Ref: docs/tasks/task_128_ai_content_filler.md) | Ongoing | 2.4 / 3.2 |
-| 129 | Arch | 知识沉淀：生成 `.knowledge.md` 针对项目架构核心逻辑、数据流转与 UX 交互标准的深度总结文档 | Cancelled | 3.1 |
-| 135 | Feature | 命运卷轴：为朱红印章添加核心物理砸击动效 (Stamp Smash Physics) | Done | 2.6 |
-| 136 | UI/UX | 命运卷轴：清洗海报现代UI元素，恢复『新中式极简风』(去除印章阴影白字、云纹背景、现代矩形容器及二维码白边) | Done | 1.2 |
-| 137 | UI/UX | 命运卷轴：升级为『极简装裱』，应用纸张提亮、古法双线装裱外框以及温润物理投影 | Done | 1.2 |
-| 138 | UI/UX | 命运卷轴：印章动效升级，注入 0%->55%->60%->80% 砸下挤压反弹物理缓动，并内置 Web Audio API 纯前端合成神级“砰——咚”回声音效 | Done | 1.2 |
-| 140 | UI/UX | 命运卷轴：调整海报引文段落，强制职业名词独立成行并使用 whitespace-nowrap 防断行，增加行高营造新中式呼吸感 | Done | 1.2 |
+| 132 | Feature | 核心知识生成引擎：基于 `@google/genai` (Gemini) 自动扫描并补全全量官职的典故、人物、诗词及职能白话翻译 (Ref: docs/tasks/task_128_ai_content_filler.md) | Ongoing | 2.4 / 3.2 |
+| 133 | Arch | 知识沉淀：生成 `.knowledge.md` 针对项目架构核心逻辑、数据流转与 UX 交互标准的深度总结文档 | Cancelled | 3.1 |
+| 134 | Feature | 命运卷轴：为朱红印章添加核心物理砸击动效 (Stamp Smash Physics) | Done | 2.6 |
+| 135 | UI/UX | 命运卷轴：清洗海报现代UI元素，恢复『新中式极简风』(去除印章阴影白字、云纹背景、现代矩形容器及二维码白边) | Done | 1.2 |
+| 136 | UI/UX | 命运卷轴：升级为『极简装裱』，应用纸张提亮、古法双线装裱外框以及温润物理投影 | Done | 1.2 |
+| 137 | UI/UX | 命运卷轴：印章动效升级，注入 0%->55%->60%->80% 砸下挤压反弹物理缓动，并内置 Web Audio API 纯前端合成神级“砰——咚”回声音效 | Done | 1.2 |
+| 138 | UI/UX | 命运卷轴：调整海报引文段落，强制职业名词独立成行并使用 whitespace-nowrap 防断行，增加行高营造新中式呼吸感 | Done | 1.2 |
 | 139 | UI/UX | 命运卷轴：海报植入【大唐俸禄与恩典】题跋式竖排文本，极简字号，辅以深灰/带红深灰色彩及细线分割 | Done | 1.2 |
-| 141 | UI/UX | 命运卷轴：移除官名与品阶间的红点分割符，通过 32px 留白实现极简视觉隔离 | Done | 1.2 |
-| 142 | UI/UX | 命运卷轴：实现『降格排版』，官品顶部对齐并下沉 60px；提升印章 Z-index 至最高并确保『盖印透墨』视觉效果 | Done | 1.2 |
-| 143 | Bug | 修复委任状主官名首字在竖排模式下被容器 overflow 裁切的问题，通过优化 paddingTop 及移除重复负边距确保视觉完整 | Done | 1.2 |
-| 144 | UI/UX | 命运卷轴：升级官品样式为双线装裱印章风格，内外框线分离并维持完全透明背景 | Done | 1.2 |
-| 145 | Arch | 配置项目一键启动脚本：实现 start.bat 与 npm 联合调度的全局开发者控制面板，支持前后端并行启动 | Done | 3.1 |
-| 146 | Arch | 部署环境初始化：阿里云 SWAS 服务器基建搭建 (Node.js/PM2/Nginx/防火墙) | Done | 3.3 |
-| 147 | Arch | CI/CD 自动化：签署 SSH 部署密钥并配置 GitHub Secrets (SERVER_IP/SERVER_USER/SSH_PRIVATE_KEY) | Done | 3.3 |
-| 148 | Arch | 自动化蓝图：编写 .github/workflows/deploy.yml 与 ecosystem.config.cjs 并一键发布上线 | Done | 3.3 |
-| 098 | Arch | 基础设施与 CDN：配置全局 CDN 分发网络，将所有大体积高保真背景、动效与水墨遮罩等静态资源上云以应对拉新裂变高并发 | Pending | 3.1 |
+| 140 | UI/UX | 命运卷轴：移除官名与品阶间的红点分割符，通过 32px 留白实现极简视觉隔离 | Done | 1.2 |
+| 141 | UI/UX | 命运卷轴：实现『降格排版』，官品顶部对齐并下沉 60px；提升印章 Z-index 至最高并确保『盖印透墨』视觉效果 | Done | 1.2 |
+| 142 | Bug | 修复委任状主官名首字在竖排模式下被容器 overflow 裁切的问题，通过优化 paddingTop 及移除重复负边距确保视觉完整 | Done | 1.2 |
+| 143 | UI/UX | 命运卷轴：升级官品样式为双线装裱印章风格，内外框线分离并维持完全透明背景 | Done | 1.2 |
+| 144 | Arch | 配置项目一键启动脚本：实现 start.bat 与 npm 联合调度的全局开发者控制面板，支持前后端并行启动 | Done | 3.1 |
+| 145 | Arch | 部署环境初始化：阿里云 SWAS 服务器基建搭建 (Node.js/PM2/Nginx/防火墙) | Done | 3.3 |
+| 146 | Arch | CI/CD 自动化：签署 SSH 部署密钥并配置 GitHub Secrets (SERVER_IP/SERVER_USER/SSH_PRIVATE_KEY) | Done | 3.3 |
+| 147 | Arch | 自动化蓝图：编写 .github/workflows/deploy.yml 与 ecosystem.config.cjs 并一键发布上线 | Done | 3.3 |
+| 148 | Arch | 基础设施与 CDN：配置全局 CDN 分发网络，将所有大体积高保真背景、动效与水墨遮罩等静态资源上云以应对拉新裂变高并发 | Pending | 3.1 |
+| 149 | Feature | 全局错误边界 (Error Boundary) 与“系统维护”兜底页面 | Done | 2.8 |
+| 150 | Feature | SEO 优化与社交媒体分享卡片 (OG/Twitter Tags) | Done | 2.9 |
+| 151 | Feature | 移除官阶巡礼 Mock 数据兜底，网络失败直接展示错误页面 | Done | 3.1 |
+| 152 | Feature | 官阶巡礼重构：渐进式渲染与 DOM 物理裁剪 (Progessive Rendering)，初次仅展示一层级，动态销毁折叠节点，增加底部[辖 N 司]提示 (Ref: docs/tasks/task_152_hierarchy_tree_refactor.md) | Done | 2.2 |
+| 153 | Feature | 官阶巡礼重构：视界平滑跟随交互 (Pan & Zoom Focus)，点击展开自动平滑居中父节点，锁定缩放并防误触 (Ref: docs/tasks/task_152_hierarchy_tree_refactor.md) | Done | 2.2 |
+| 154 | Feature | 官阶巡礼重构：“云迹”面包屑导航 (Breadcrumb) 左上角悬浮，支持点击祖先反向寻路与平移折叠 (Ref: docs/tasks/task_152_hierarchy_tree_refactor.md) | Done | 2.2 |
+| 155 | Feature | 架构树与检索联动：全局搜索目标后向上反查连线链路并强制展开DOM渲染，排他性自动折叠旁支，精准平滑定位与高亮 (Ref: docs/tasks/task_152_hierarchy_tree_refactor.md) | Done | 2.5 |
+| 156 | UI/UX | 典故连珠：优化详情面板中的内容展开/收起逻辑，支持多行检测并更名为“收起/更多” | Done | 2.4 |
+| 157 | UI/UX | 详情面板：为风流人物区域增加带有 Users 图标的标题，对齐全局页面设计规范 | Done | 2.4 |

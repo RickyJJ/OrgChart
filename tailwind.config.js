@@ -30,8 +30,24 @@ export default {
                 'dynasty-bg': "url('/assets/ui/switch-bg-1.png')",
                 'main-bg': "url('/assets/ui/main-bg.png')",
                 'rushi-bg': "url('/assets/ui/rushi_bg.png')",
+                'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',
+            },
+            animation: {
+                'spin-slow': 'spin 8s linear infinite',
             }
         },
     },
-    plugins: [],
+    plugins: [
+        function ({ addUtilities }) {
+            const newUtilities = {
+                '.writing-vertical': {
+                    'writing-mode': 'vertical-rl',
+                },
+                '.writing-horizontal': {
+                    'writing-mode': 'horizontal-tb',
+                },
+            }
+            addUtilities(newUtilities)
+        }
+    ],
 }
