@@ -48,7 +48,7 @@ export const MaintenanceUI = ({ onReload, isFullScreen = false }) => (
         </button>
         
         <a 
-          href="mailto:support@example.com" 
+          href="mailto:qingyunzhi-support@sianstudio.cn" 
           className="px-8 py-3 border border-[#1a1a1a]/20 text-[#1a1a1a]/60 font-serif tracking-[0.1em] hover:border-[#af292e]/40 hover:text-[#af292e] transition-all"
         >
           官邮求助 (Email)

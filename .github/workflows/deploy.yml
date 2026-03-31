@@ -34,25 +34,32 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
             export PATH=$PATH:/usr/local/bin:/usr/bin:/bin
-            mkdir -p /www/wwwroot/orgChart
             cd /www/wwwroot/orgChart
-            
-            if [ ! -d ".git" ]; then
-              rm -rf * 
-              git clone https://github.com/${{ github.repository }}.git .
-            fi
+            # 1. 同步源代码
             git fetch --all
             git reset --hard origin/main
-            # 【修复点 1】：必须安装全部依赖（包括 Vite 构建工具）
+            
+            # 2. 强制清理老的构建产物，确保“推倒重来”
+            rm -rf dist/
+            
+            # 3. 安装依赖（确保所有构建工具都在）
             npm install
             
-            # 安装后端依赖 (后端只需要生产环境依赖)
+            # 4. 构建前环境变量注入并执行构建
+            export VITE_DIRECTUS_URL=http://${{ secrets.SERVER_IP }}:8055
+            echo "Starting Vite Build..."
+            npx vite build
+            
+            # 5. 【关键调试】：检查 dist 目录是否生成以及最新文件的戳记
+            if [ -d "dist" ]; then
+              echo "Build successful. Latest index.html state:"
+              ls -l dist/index.html
+            else
+              echo "ERROR: dist directory was not created!"
+              exit 1
+            fi
+            # 6. 后端依赖与 PM2 重启
             cd backend && npm install --production
             cd ..
-            # 【修复点 2】：注入线上环境地址并正式构建
-            export VITE_DIRECTUS_URL=http://${{ secrets.SERVER_IP }}:8055
-            # 使用 npx 锁定本地路径下的 vite 运行
-            npx vite build
-            # 6. PM2 重启
             pm2 start ecosystem.config.cjs --env production || pm2 reload ecosystem.config.cjs
             pm2 save
