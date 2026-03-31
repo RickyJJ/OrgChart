@@ -155,3 +155,4 @@
 | 155 | Feature | 架构树与检索联动：全局搜索目标后向上反查连线链路并强制展开DOM渲染，排他性自动折叠旁支，精准平滑定位与高亮 (Ref: docs/tasks/task_152_hierarchy_tree_refactor.md) | Done | 2.5 |
 | 156 | UI/UX | 典故连珠：优化详情面板中的内容展开/收起逻辑，支持多行检测并更名为“收起/更多” | Done | 2.4 |
 | 157 | UI/UX | 详情面板：为风流人物区域增加带有 Users 图标的标题，对齐全局页面设计规范 | Done | 2.4 |
+| 158 | Feature | 更新地址栏图标 (Favicon) 为 `qyz_icon.png` | Done | 1.2 / 2.9 |
