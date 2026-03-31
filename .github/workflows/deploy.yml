@@ -52,8 +52,9 @@ jobs:
             echo "Installing dependencies..."
             npm install --no-audit
             
-            # 手动清理上一次的缓存，确保 dist 是因为这次构建产生的
-            rm -rf dist/
+            echo "Cleaning dist/ folder safely (skipping .user.ini)..."
+            # 仅删除除 .user.ini 之外的所有文件和文件夹，防止宝塔/阿里云环境权限冲突
+            find dist/ -mindepth 1 ! -name '.user.ini' -delete 2>/dev/null || true
             
             echo "Building frontend..."
             export VITE_DIRECTUS_URL=http://${{ secrets.SERVER_IP }}:8055
