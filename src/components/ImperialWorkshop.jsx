@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { ShoppingBag, ExternalLink, Eye, Loader2, Heart } from 'lucide-react';
-import { fetchProducts, trackEvent, toggleProductLike } from '../api/directus';
+import { fetchProducts, trackEvent, toggleProductLike } from '../api/localData';
 
 /**
  * ImperialWorkshop (造办处) — 新中式无头电商画廊

@@ -10,26 +10,21 @@ echo  ==============================================================
 echo     青 云 志 - Path to Court (Dev Control Panel)
 echo  ==============================================================
 echo.
-echo  [SYSTEM] 正在初始化并行开发环境... (Initializing...)
+echo  [SYSTEM] 全静态化模式 - 仅启动前端 (Static Mode - Frontend Only)
 echo.
 
-:: 1. Backend
-echo  [1/2] 部署后端驱动: Directus CMS (Port: 8055)...
-echo       ^> 窗口名称: [QYZ-Backend]
-start "QYZ-Backend" cmd /v:on /k "cd backend && echo [Directus] Starting... && npx directus start"
-
-:: 2. Frontend
-timeout /t 2 /nobreak > nul
-echo  [2/2] 部署前端引擎: Vite + React (Port: 5173)...
+:: Frontend only (Directus/PostgreSQL 已砍掉)
+echo  [1/1] 部署前端引擎: Vite + React (Port: 5173)...
 echo       ^> 窗口名称: [QYZ-Frontend]
 start "QYZ-Frontend" cmd /v:on /k "echo [Vite] Starting... && npm run dev"
 
 echo.
 echo  --------------------------------------------------------------
-echo  [SUCCESS] 指令已全量下发。
+echo  [SUCCESS] 前端服务已启动。
 echo.
-echo  - 后端管理后台: http://127.0.0.1:8055/admin
 echo  - 前端开发地址: http://localhost:5173
 echo.
-echo  按任意键关闭此窗口（关联窗口将继续启动）。
+echo  [NOTE] 如需恢复后端服务，请运行: npm run start:full
+echo.
+echo  按任意键关闭此窗口。
 pause > nul

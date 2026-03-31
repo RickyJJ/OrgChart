@@ -2,7 +2,7 @@ import React, { useState, useRef, useCallback, useEffect } from 'react';
 import html2canvas from 'html2canvas';
 import { Scroll, Sparkles, Download, RotateCcw, ChevronRight, BookOpen } from 'lucide-react';
 import { matchJob, jobDictionary, fallbackJob } from '../data/jobMapping';
-import { trackEvent, searchNodes } from '../api/directus';
+import { trackEvent, searchNodes } from '../api/localData';
 import { getOrCreateUUID } from '../utils/tracker';
 import AppointmentPoster from './AppointmentPoster';
 

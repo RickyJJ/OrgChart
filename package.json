@@ -10,7 +10,8 @@
     "build": "vite build",
     "lint": "eslint .",
     "preview": "vite preview",
-    "start": "npm run dev:all",
+    "start": "npm run dev",
+    "start:full": "npm run dev:all",
     "stop": "node scripts/stop-services.js"
   },
   "dependencies": {

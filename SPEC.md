@@ -142,12 +142,11 @@
 * **Icons (图标):** Font Awesome 6 (React components) or SVG.
 * **Fonts (字体):** Noto Serif SC, Inter (Google Fonts).
 
-* **Backend & API (后端服务 - 核心更新):** * **核心框架:** 强烈推荐采用基于 Node.js 生态的 Headless CMS，指定Directus v11.16。
-  * **业务职责:** 仅负责核心文化数据（官职、典故、人物）的读取分发、文创商品的引流链接管理，以及用户行为埋点的收集 。提供开箱即用的现代化可视化后台，供运营人员管理数据。**绝对不涉足任何订单交易与库存锁定逻辑。**
-
-* **Database & Search (数据与检索 - 核心更新):**
-  * **主数据库:** PostgreSQL。利用其强大的关系型特性保障数据一致性，并强制引入 `ltree` 扩展原生处理“三省六部”等复杂的树状层级结构存储 。
-  * **检索引擎:** 采用轻量级开源检索引擎 Meilisearch。作为“文化虫洞”的底层驱动，实现极致性能且忽略空格的“人-官-文”多维模糊跨朝代检索 。
+* **数据架构 (全静态化 - Serverless):**
+  * ~~Backend & API: Directus v11.16~~ → **已砍掉。** 所有官职、典故、俸禄数据直接硬编码为前端 JSON 文件 (src/data/dynastyData.js, src/data/products.js)，随 Vite 打包分发，零后端依赖。
+  * ~~Database: PostgreSQL + ltree~~ → **已砍掉。** 数据已从数据库全量导出并固化为静态 ES Module。
+  * ~~Search: Meilisearch~~ → **已砍掉。** 改为纯前端客户端模糊搜索 (src/api/localData.js: searchNodes())。
+  * **恢复路径:** 原 Directus API 客户端 (src/api/directus.js) 保留未删除，恢复数据库模式只需将各组件 import 从 localData 切回 directus 即可。
 
 * **Infrastructure (基础设施):** 强依赖 CDN (内容分发网络) 。所有高保真背景图、印泥动效图、水墨遮罩等静态资源必须全量上 CDN，确保即便裂变拉新导致高并发，主站依然能丝滑加载 。
 

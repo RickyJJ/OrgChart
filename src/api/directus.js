@@ -1,5 +1,9 @@
 /**
- * Directus API 客户端
+ * Directus API 客户端 —— ⚠️ 当前已暂停使用
+ * 
+ * 项目已切换为全静态化模式，所有数据从 src/data/ 下的硬编码 JSON 加载。
+ * 若需恢复数据库模式，将各组件的 import 路径从 './api/localData' 改回 './api/directus' 即可。
+ * 
  * 负责从 Directus 拉取官制数据并重建前端所需的嵌套树结构
  *
  * 策略：两次独立请求（org_nodes + lores）后在前端合并，

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import './index.css';
-import { fetchAllDynastiesData } from './api/directus';
+import { fetchAllDynastiesData } from './api/localData';
 import { getOrCreateUUID } from './utils/tracker';
 import Sidebar from './components/Sidebar';
 import HierarchyTree from './components/HierarchyTree';
