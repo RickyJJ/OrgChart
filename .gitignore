@@ -19,9 +19,10 @@ dist-ssr
 .DS_Store
 *.suo
 *.ntvs*
-*.njsproj
+.njsproj
 *.sln
 *.sw?
+.claude/
 
 # AI Agent 自动生成的缓存
 .agent/**/__pycache__/

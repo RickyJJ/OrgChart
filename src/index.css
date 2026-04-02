@@ -2,7 +2,8 @@
 @config "../tailwind.config.js";
 
 :root {
-    --sidebar-width: 256px;
+    --sidebar-width: 0px;
+    --sidebar-width-md: 256px;
     --color-xuan-paper: #f5f5dc;
     --color-xuan-paper-alpha: rgba(245, 245, 220, 0.85);
     --z-base-canvas: 0;
@@ -12,9 +13,21 @@
     --z-sidebar: 100;
 }
 
+@media (min-width: 768px) {
+    :root {
+        --sidebar-width: var(--sidebar-width-md);
+    }
+}
+
 @layer base {
     body {
         @apply bg-main-bg bg-repeat text-text-main font-sans min-h-screen overflow-x-hidden leading-relaxed;
+        -webkit-tap-highlight-color: transparent;
+    }
+    
+    /* Global focus ring removal for cleaner mobile experience */
+    *:focus {
+        outline: none !important;
     }
 }
 
@@ -29,6 +42,34 @@
     .framed-board-inner::after {
         content: '❅';
         @apply absolute top-0.5 left-2.5 text-sm text-ink-dark pointer-events-none;
+    }
+
+    /* ──── 2MD Agile: High-Fidelity Nine-Patch Board Frame ──── */
+    .premium-board-frame {
+        @apply absolute inset-0 z-20 pointer-events-none mix-blend-multiply;
+        border: 32px solid transparent;
+        border-image-source: url('/assets/ui/bg-border.png');
+        border-image-slice: 70;
+        /* Highly stable slice value */
+        border-image-repeat: stretch;
+        border-image-outset: 0px;
+        /* Reset outset to ensure visibility within parent bounds */
+        opacity: 0.95; /* Soften the border slightly */
+    }
+
+    /* Soft paper board style for premium readability */
+    .bg-board-soft {
+        background-color: rgba(236, 232, 222, 0.92); /* #ece8de with 0.92 alpha */
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+    }
+
+    @media (max-width: 768px) {
+        .premium-board-frame {
+            border-width: 16px;
+            /* Consistent scaling for mobile */
+            border-image-slice: 70;
+        }
     }
 
     /* Tree Architecture Lines */
@@ -224,6 +265,53 @@
         }
     }
 
+    /* 205: Mobile Tap-to-Marquee */
+    .active-marquee .marquee-text {
+        animation: title-scroll-once var(--marquee-duration, 1.8s) cubic-bezier(0.4, 0, 0.2, 1) forwards;
+        animation-delay: 0.1s;
+    }
+
+    @keyframes title-scroll-once {
+        0% {
+            transform: translateY(0);
+        }
+
+        15% {
+            transform: translateY(0);
+        }
+
+        85% {
+            transform: translateY(calc(-100% + 120px));
+        }
+
+        100% {
+            transform: translateY(calc(-100% + 120px));
+        }
+    }
+
+    /* 205: Mobile Touch Feedback */
+    .touch-feedback-active {
+        animation: touch-feedback 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    @keyframes touch-feedback {
+        0% {
+            transform: scale(1);
+            filter: brightness(1);
+        }
+
+        40% {
+            transform: scale(0.92);
+            filter: brightness(1.3);
+            box-shadow: 0 0 20px rgba(175, 41, 46, 0.3);
+        }
+
+        100% {
+            transform: scale(1);
+            filter: brightness(1);
+        }
+    }
+
     /* Elegant Custom Scrollbar for Vertical Text */
     .custom-scrollbar::-webkit-scrollbar {
         height: 6px;
@@ -314,6 +402,7 @@
         -webkit-mask-image: conic-gradient(from 180deg, transparent var(--draw-angle), black 0deg);
         mask-image: conic-gradient(from 180deg, transparent var(--draw-angle), black 0deg);
         animation: ink-draw-ccw 0.7s cubic-bezier(0.1, 0.8, 0.2, 1) forwards;
+        animation-delay: 0.5s; /* Sync with board unroll */
     }
 
     @keyframes ink-fade-out {
@@ -427,8 +516,9 @@
     top: 0;
     bottom: 0;
     left: var(--sidebar-width);
-    width: 360px;
-    height: 100vh;
+    width: 100%;
+    max-width: 360px;
+    height: 100dvh;
     z-index: var(--z-search-panel);
     background-color: var(--color-xuan-paper-alpha);
     -webkit-backdrop-filter: blur(8px);
@@ -507,52 +597,107 @@
 
 /* ──── 命运卷轴：核心物理砸击动效 (Stamp Smash Physics) ──── */
 @keyframes stampSmash {
-  0% {
-    opacity: 0;
-    transform: scale(4) rotate(-10deg);
-  }
-  55% {
-    opacity: 1;
-    transform: scale(1.1) rotate(0deg);
-  }
-  60% {
-    transform: scale(0.9) rotate(0deg); /* 瞬时降至 scale(0.9)（砸在纸上并压瘪） */
-  }
-  80% {
-    transform: scale(1.05); /* 反弹至 scale(1.05) */
-  }
-  100% {
-    opacity: 1;
-    transform: scale(1); /* 最终定型 */
-  }
+    0% {
+        opacity: 0;
+        transform: scale(4) rotate(-10deg);
+    }
+
+    55% {
+        opacity: 1;
+        transform: scale(1.1) rotate(0deg);
+    }
+
+    60% {
+        transform: scale(0.9) rotate(0deg);
+        /* 瞬时降至 scale(0.9)（砸在纸上并压瘪） */
+    }
+
+    80% {
+        transform: scale(1.05);
+        /* 反弹至 scale(1.05) */
+    }
+
+    100% {
+        opacity: 1;
+        transform: scale(1);
+        /* 最终定型 */
+    }
 }
 
 @keyframes posterVibrate {
-  0% { transform: translateY(0); }
-  20% { transform: translateY(3px) scale(0.997); }
-  40% { transform: translateY(-1.5px); }
-  60% { transform: translateY(1px); }
-  80% { transform: translateY(-0.5px); }
-  100% { transform: translateY(0) scale(1); }
+    0% {
+        transform: translateY(0);
+    }
+
+    20% {
+        transform: translateY(3px) scale(0.997);
+    }
+
+    40% {
+        transform: translateY(-1.5px);
+    }
+
+    60% {
+        transform: translateY(1px);
+    }
+
+    80% {
+        transform: translateY(-0.5px);
+    }
+
+    100% {
+        transform: translateY(0) scale(1);
+    }
 }
 
 .seal-container {
-  width: 120px;
-  height: 120px;
-  background-size: contain;
-  background-position: center;
-  background-repeat: no-repeat;
-  
-  /* 核心！调用动画：总时长 0.35s，使用 ease-in-out 让砸下更干脆，forwards 保持最终状态 */
-  animation: stampSmash 0.35s ease-in-out forwards;
-  
-  /* 如果是动态加载的海报，可以稍微加一点延迟，比如等海报底图淡入后 0.2s 再砸印章 */
-  animation-delay: 0.2s; 
-  opacity: 0; /* 初始隐藏，靠动画接管 */
-  will-change: transform, opacity;
+    width: 120px;
+    height: 120px;
+    background-size: contain;
+    background-position: center;
+    background-repeat: no-repeat;
+
+    /* 核心！调用动画：总时长 0.35s，使用 ease-in-out 让砸下更干脆，forwards 保持最终状态 */
+    animation: stampSmash 0.35s ease-in-out forwards;
+
+    /* 如果是动态加载的海报，可以稍微加一点延迟，比如等海报底图淡入后 0.2s 再砸印章 */
+    animation-delay: 0.2s;
+    opacity: 0;
+    /* 初始隐藏，靠动画接管 */
+    will-change: transform, opacity;
+}
+
+/* ──── 详情面板/造办处：移动端上滑动画 ──── */
+.detail-panel-slide-up {
+    animation: detail-slide-up 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes detail-slide-up {
+    from {
+        transform: translateY(100%);
+    }
+
+    to {
+        transform: translateY(0);
+    }
+}
+
+.animate-fadeIn {
+    animation: fadeIn 0.3s ease-out forwards;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
 }
 
 .poster-vibration-active {
-  animation: posterVibrate 0.3s ease-out forwards;
-  animation-delay: 0.403s; /* 0.2s delay + 0.35s*0.58 impact time */
-}
+    animation: posterVibrate 0.3s ease-out forwards;
+    animation-delay: 0.403s;
+    /* 0.2s delay + 0.35s*0.58 impact time */
+}

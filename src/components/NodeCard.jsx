@@ -3,9 +3,7 @@ import React from 'react';
 function NodeCard({ node, onReadMore, selectedNodeId, isRoot, index = 0, expandedIds, onToggleNode }) {
     const isSelected = selectedNodeId === node.id;
     const hasLore = (node.allusions && node.allusions.length > 0) || (node.poetry && node.poetry.length > 0);
-
     const childrenVisible = expandedIds ? expandedIds.has(node.id) : true;
-
     const handleCardClick = (e) => {
         e.stopPropagation();
         onReadMore(node);
@@ -86,7 +84,7 @@ function NodeCard({ node, onReadMore, selectedNodeId, isRoot, index = 0, expande
                                 </div>
                             )
                         ) : (
-                            <div className={`title-marquee-container ${isLongTitle ? 'has-overflow' : ''}`}>
+                            <div className={`title-marquee-container ${isLongTitle ? 'has-overflow' : ''} ${isLongTitle && isSelected ? 'active-marquee' : ''}`}>
                                 <span
                                     className={`font-serif font-semibold text-[1.6rem] tracking-[0.1em] ${isLongTitle ? 'marquee-text' : ''} ${node.bgImage ? 'text-transparent' : 'text-[#2a2624]'}`}
                                 >

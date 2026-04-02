@@ -1,26 +1,28 @@
-import React, { useRef, useEffect, useState, useCallback } from 'react';
+import React, { useRef, useEffect, useState, useCallback, useImperativeHandle, forwardRef } from 'react';
 import NodeCard from './NodeCard';
 import TreeConnections from './TreeConnections';
 
-function HierarchyTree({ activeDynasty, onReadMore, selectedNodeId, searchTargetTrigger }) {
+const HierarchyTree = forwardRef(({ 
+    activeDynasty, 
+    onReadMore, 
+    onFocusNode, 
+    selectedNodeId, 
+    searchTargetTrigger
+}, ref) => {
     const viewportRef = useRef(null);
     const canvasRef = useRef(null);
     const transformRef = useRef({ x: 0, y: 0, scale: 1 });
 
     const [expandedIds, setExpandedIds] = useState(new Set());
-    const [currentPath, setCurrentPath] = useState([]);
 
-    const getPath = useCallback((rootNode, targetId) => {
-        if (!rootNode) return null;
-        if (rootNode.id === targetId) return [rootNode];
-        if (rootNode.children) {
-            for (const child of rootNode.children) {
-                const p = getPath(child, targetId);
-                if (p) return [rootNode, ...p];
-            }
-        }
-        return null;
-    }, []);
+    const touchStateRef = useRef({
+        lastDistance: 0,
+        lastCenter: { x: 0, y: 0 },
+        dragStart: { x: 0, y: 0 },
+        isPinching: false
+    });
+
+    const prevDynastyIdRef = useRef(null);
 
     const applyTransform = useCallback((animate = false, callback = null) => {
         if (canvasRef.current) {
@@ -50,7 +52,10 @@ function HierarchyTree({ activeDynasty, onReadMore, selectedNodeId, searchTarget
                 if (!viewport || !canvas) return;
 
                 const nodeEl = canvas.querySelector(`[data-node-id="${nodeId}"] > div > div[data-card="true"]`);
-                if (!nodeEl) return;
+                if (!nodeEl) {
+                    console.warn(`[HierarchyTree] Node not found for centering: ${nodeId}`);
+                    return;
+                }
 
                 const cRect = canvas.getBoundingClientRect();
                 const nRect = nodeEl.getBoundingClientRect();
@@ -74,62 +79,65 @@ function HierarchyTree({ activeDynasty, onReadMore, selectedNodeId, searchTarget
         });
     }, [applyTransform]);
 
+    // Expose methods to parent
+    useImperativeHandle(ref, () => ({
+        panToNode: (nodeId, animate = true) => {
+            panToCenterNode(nodeId, animate);
+            if (onFocusNode) onFocusNode(nodeId);
+        },
+        setExpandedPath: (pathIds) => {
+            setExpandedIds(prev => {
+                const next = new Set(prev);
+                pathIds.forEach(id => next.add(id));
+                return next;
+            });
+        }
+    }));
+
     // Track active Dynasty switch or default map init
     useEffect(() => {
-        if (activeDynasty) {
-            const root = activeDynasty.structure;
+        if (!activeDynasty) return;
+
+        // On every dynasty ID change, we always reset expandedIds to root only
+        // EXCEPT if we are currently searching, in which case App.jsx will handle
+        // call setExpandedPath shortly, but we MUST reset to root first to be safe.
+        if (activeDynasty.id !== prevDynastyIdRef.current) {
+            setExpandedIds(new Set([activeDynasty.structure.id]));
+        }
+
+        // We only perform the "Center to Root" pan if we are NOT in a search process
+        // AND this is the first time we are loading this dynasty ID.
+        if (activeDynasty.id !== prevDynastyIdRef.current && !searchTargetTrigger) {
+            prevDynastyIdRef.current = activeDynasty.id;
             
-            // On dynasty switch and if no selected node, default to root only
-            if (!selectedNodeId) {
-                setExpandedIds(new Set([root.id]));
-                setCurrentPath([root]);
-                
-                setTimeout(() => {
-                    const viewport = viewportRef.current;
-                    const canvas = canvasRef.current;
-                    if (!viewport || !canvas) return;
+            setTimeout(() => {
+                const viewport = viewportRef.current;
+                const canvas = canvasRef.current;
+                if (!viewport || !canvas) return;
 
-                    const vWidth = viewport.clientWidth;
-                    const cWidth = canvas.scrollWidth;
+                const rect = viewport.getBoundingClientRect();
+                const vWidth = rect.width;
+                const vHeight = rect.height;
+                const cWidth = canvas.scrollWidth;
 
-                    let scale = 1;
-                    if (cWidth > vWidth * 0.9 && cWidth > 0) {
-                        scale = Math.max((vWidth * 0.9) / cWidth, 0.8);
-                    }
-                    const scaledWidth = cWidth * scale;
-                    transformRef.current = {
-                        x: (vWidth - scaledWidth) / 2,
-                        y: 180,
-                        scale: scale
-                    };
-                    applyTransform();
-                }, 50);
-            }
+                let scale = 1;
+                if (cWidth > vWidth * 0.9 && cWidth > 0) {
+                    scale = Math.max((vWidth * 0.9) / cWidth, 0.8);
+                }
+                const scaledWidth = cWidth * scale;
+                transformRef.current = {
+                    x: (vWidth - scaledWidth) / 2,
+                    y: vHeight > 500 ? 180 : 100, // Adjust Y start for mobile
+                    scale: scale
+                };
+                applyTransform();
+            }, 50);
+        } else if (activeDynasty.id !== prevDynastyIdRef.current) {
+            // Even if we are searching, we must mark that this dynasty has been "seen"
+            // so we don't trigger the "Center to Root" fallback when searchTargetTrigger is cleared.
+            prevDynastyIdRef.current = activeDynasty.id;
         }
-    }, [activeDynasty, applyTransform]);
-
-    // Active Card Selection (Clicking card directly) -> Update Breadcrumbs ONLY
-    useEffect(() => {
-        if (activeDynasty && selectedNodeId) {
-            const path = getPath(activeDynasty.structure, selectedNodeId);
-            if (path) {
-                setCurrentPath(path);
-            }
-        }
-    }, [activeDynasty, selectedNodeId, getPath]);
-
-    // Global Search Penetration (Auto-expansion & Pan)
-    useEffect(() => {
-        if (activeDynasty && searchTargetTrigger) {
-            const nodeId = searchTargetTrigger.nodeId;
-            const path = getPath(activeDynasty.structure, nodeId);
-            if (path) {
-                setCurrentPath(path);
-                setExpandedIds(new Set(path.map(n => n.id)));
-                panToCenterNode(nodeId, true);
-            }
-        }
-    }, [activeDynasty, searchTargetTrigger, getPath, panToCenterNode]);
+    }, [activeDynasty?.id, searchTargetTrigger, applyTransform]);
 
     // Event listeners
     useEffect(() => {
@@ -163,7 +171,6 @@ function HierarchyTree({ activeDynasty, onReadMore, selectedNodeId, searchTarget
         };
 
         const onMouseDown = (e) => {
-            // events on cards shouldn't prevent panning unless it's text selection maybe, but simple block on card
             if (e.target.closest('[data-card="true"]')) return;
             isDragging = true;
             viewport.style.cursor = 'grabbing';
@@ -191,20 +198,109 @@ function HierarchyTree({ activeDynasty, onReadMore, selectedNodeId, searchTarget
             document.removeEventListener('mouseup', onMouseUp);
         };
 
+        const onTouchStart = (e) => {
+            // ONLY stop if we are on a button (like the read more button)
+            // dragging starting on a card should still drag the canvas
+            if (e.target.closest('button')) return;
+            
+            if (e.touches.length === 1) {
+                const touch = e.touches[0];
+                const { x, y } = transformRef.current;
+                touchStateRef.current.dragStart = { x: touch.clientX - x, y: touch.clientY - y };
+                touchStateRef.current.isPinching = false;
+            } else if (e.touches.length === 2) {
+                const touch1 = e.touches[0];
+                const touch2 = e.touches[1];
+                touchStateRef.current.lastDistance = Math.hypot(touch2.clientX - touch1.clientX, touch2.clientY - touch1.clientY);
+                touchStateRef.current.lastCenter = {
+                    x: (touch1.clientX + touch2.clientX) / 2,
+                    y: (touch1.clientY + touch2.clientY) / 2
+                };
+                touchStateRef.current.isPinching = true;
+            }
+        };
+
+        const onTouchMove = (e) => {
+            // Only block if we're hitting UI elements that need their own gestures
+            // (Breadcrumbs are now in App.jsx, but we keep this for safety)
+            if (e.target.closest('[data-drawer="true"]') || e.target.closest('.breadcrumb-item')) {
+                 return; 
+            }
+            
+            if (e.touches.length === 1 && !touchStateRef.current.isPinching) {
+                const touch = e.touches[0];
+                const { scale } = transformRef.current;
+                transformRef.current = {
+                    x: touch.clientX - touchStateRef.current.dragStart.x,
+                    y: touch.clientY - touchStateRef.current.dragStart.y,
+                    scale: scale
+                };
+                applyTransform();
+            } else if (e.touches.length === 2) {
+                e.preventDefault(); // Lock scroll
+                const touch1 = e.touches[0];
+                const touch2 = e.touches[1];
+                const distance = Math.hypot(touch2.clientX - touch1.clientX, touch2.clientY - touch1.clientY);
+                const center = {
+                    x: (touch1.clientX + touch2.clientX) / 2,
+                    y: (touch1.clientY + touch2.clientY) / 2
+                };
+
+                const { x, y, scale } = transformRef.current;
+                const rect = viewport.getBoundingClientRect();
+                
+                // Scale factor
+                const factor = distance / touchStateRef.current.lastDistance;
+                const newScale = Math.min(Math.max(scale * factor, 0.15), 3);
+                
+                if (newScale !== scale) {
+                    const centerX = center.x - rect.left;
+                    const centerY = center.y - rect.top;
+                    
+                    const localX = (centerX - x) / scale;
+                    const localY = (centerY - y) / scale;
+                    
+                    // Pan with center shift
+                    const dx = center.x - touchStateRef.current.lastCenter.x;
+                    const dy = center.y - touchStateRef.current.lastCenter.y;
+
+                    transformRef.current = {
+                        x: centerX - localX * newScale + dx,
+                        y: centerY - localY * newScale + dy,
+                        scale: newScale
+                    };
+                    applyTransform();
+                }
+
+                touchStateRef.current.lastDistance = distance;
+                touchStateRef.current.lastCenter = center;
+            }
+        };
+
+        const onTouchEnd = () => {
+            touchStateRef.current.lastDistance = 0;
+            // If still one finger down, reset dragStart for panning
+            touchStateRef.current.isPinching = false;
+        };
+
         viewport.addEventListener('wheel', onWheel, { passive: false });
         viewport.addEventListener('mousedown', onMouseDown);
+        viewport.addEventListener('touchstart', onTouchStart, { passive: true });
+        viewport.addEventListener('touchmove', onTouchMove, { passive: false });
+        viewport.addEventListener('touchend', onTouchEnd);
 
         return () => {
             viewport.removeEventListener('wheel', onWheel);
             viewport.removeEventListener('mousedown', onMouseDown);
+            viewport.removeEventListener('touchstart', onTouchStart);
+            viewport.removeEventListener('touchmove', onTouchMove);
+            viewport.removeEventListener('touchend', onTouchEnd);
             document.removeEventListener('mousemove', onMouseMove);
             document.removeEventListener('mouseup', onMouseUp);
         };
     }, [applyTransform]);
 
     if (!activeDynasty) return null;
-
-    const dynastyPrefix = activeDynasty.name.replace('朝', '');
 
     const handleNodeToggle = (nodeId) => {
         setExpandedIds(prev => {
@@ -219,42 +315,15 @@ function HierarchyTree({ activeDynasty, onReadMore, selectedNodeId, searchTarget
         
         // Spec: clicks expand parent also pan to center it
         panToCenterNode(nodeId, true);
+        // Sync focal point to breadcrumb trace
+        if (onFocusNode) onFocusNode(nodeId);
     };
 
     return (
         <div
-            className="w-full flex-1 overflow-hidden cursor-grab viewport relative z-[5] scroll-unroll-anim"
+            className="w-full flex-1 overflow-hidden cursor-grab viewport relative z-[5] scroll-unroll-anim touch-none"
             ref={viewportRef}
         >
-            {/* Breadcrumb Navigation - 云迹 */}
-            <div className="absolute bottom-8 left-12 z-20 pointer-events-none p-2 flex flex-col items-start gap-1">
-                <div className="bg-[#f5f5dc]/70 backdrop-blur-md border border-[#c4a984]/50 rounded-lg p-2 px-4 shadow-[0_4px_16px_rgba(0,0,0,0.06)] flex flex-wrap gap-2 pointer-events-auto items-center">
-                    <span className="font-serif text-[#af292e] font-bold text-sm select-none">
-                        {dynastyPrefix}
-                    </span>
-                    {currentPath.length > 0 && <span className="text-[#8b6b4e] select-none">·</span>}
-                    {currentPath.map((n, i) => {
-                        const isLast = i === currentPath.length - 1;
-                        return (
-                            <React.Fragment key={n.id}>
-                                <span 
-                                    className={`font-serif text-sm cursor-pointer transition-colors ${isLast ? 'text-[#1a1a1a] font-bold' : 'text-[#5c4b3c] hover:text-[#af292e]'}`}
-                                    onClick={() => {
-                                        const newPath = currentPath.slice(0, i + 1);
-                                        setCurrentPath(newPath);
-                                        setExpandedIds(new Set(newPath.map(x => x.id)));
-                                        panToCenterNode(n.id, true);
-                                    }}
-                                >
-                                    {n.title}
-                                </span>
-                                {!isLast && <span className="text-[#8b6b4e] select-none">·</span>}
-                            </React.Fragment>
-                        );
-                    })}
-                </div>
-            </div>
-
             <div
                 className="canvas absolute top-0 left-0 min-w-max"
                 ref={canvasRef}
@@ -274,6 +343,8 @@ function HierarchyTree({ activeDynasty, onReadMore, selectedNodeId, searchTarget
             </div>
         </div>
     );
-}
+});
+
+HierarchyTree.displayName = 'HierarchyTree';
 
 export default HierarchyTree;

@@ -2,6 +2,8 @@ import React, { useMemo, useState } from 'react';
 import { PenTool, X, Coins, Users } from 'lucide-react';
 
 import SalaryFlowBoard from './SalaryFlowBoard';
+import { useMobile } from '../hooks/useMobile';
+import { useBodyScrollLock } from '../hooks/useBodyScrollLock';
 
 function DetailPanel({ node, onClose, onTakeOffice }) {
   const [isLoreExpanded, setIsLoreExpanded] = useState(false);
@@ -10,6 +12,10 @@ function DetailPanel({ node, onClose, onTakeOffice }) {
   const hasAllusions = Array.isArray(node?.allusions) && node.allusions.length > 0;
   const hasLore = hasPoetry || hasAllusions;
   const hasFigures = Array.isArray(node?.figures) && node.figures.length > 0;
+  const isMobile = useMobile();
+
+  // 移动端锁屏
+  useBodyScrollLock(!!node && isMobile);
 
   const loreText = useMemo(() => {
     if (hasPoetry) {
@@ -39,13 +45,36 @@ function DetailPanel({ node, onClose, onTakeOffice }) {
   };
 
   return (
-    <aside
-      className="detail-panel-container detail-panel-paper detail-panel-slide-in fixed right-8 top-8 bottom-8 w-[420px] max-w-[calc(100vw-2rem)] rounded-2xl border-2 border-white overflow-hidden flex flex-col"
-      style={{ zIndex: 'var(--z-detail-card)' }}
-      onMouseDown={stopBubble}
-      onClick={stopBubble}
-    >
-      <div className="flex-1 overflow-y-auto px-8 py-8 custom-scrollbar relative flex flex-col gap-6">
+    <>
+      {/* 移动端背景遮罩 (Scrim Backdrop) */}
+      {isMobile && node && (
+        <div 
+          className="fixed inset-0 bg-black/40 z-[45] backdrop-blur-sm transition-opacity duration-300 animate-fadeIn"
+          onClick={onClose}
+        />
+      )}
+
+      <aside
+        className={`detail-panel-container detail-panel-paper overflow-hidden flex flex-col 
+          ${isMobile 
+            ? 'fixed bottom-0 left-0 right-0 h-[85dvh] rounded-t-3xl detail-panel-slide-up' 
+            : 'fixed right-8 top-8 bottom-8 w-[420px] max-w-[calc(100vw-2rem)] rounded-2xl border-2 border-white detail-panel-slide-in'
+          }`}
+        style={{ zIndex: 'var(--z-detail-card)' }}
+        onMouseDown={stopBubble}
+        onClick={stopBubble}
+      >
+        {/* 移动端拖拽把手 (Pull Handle) */}
+        {isMobile && (
+          <div 
+            className="flex justify-center pt-3 pb-1 cursor-pointer"
+            onClick={onClose}
+          >
+            <div className="w-12 h-1.5 rounded-full bg-[#d3ccbf]/60" />
+          </div>
+        )}
+
+        <div className="flex-1 overflow-y-auto px-8 py-8 custom-scrollbar relative flex flex-col gap-6">
         {/* Close Button */}
         <button
           type="button"
@@ -181,7 +210,8 @@ function DetailPanel({ node, onClose, onTakeOffice }) {
           接旨赴任
         </button>
       </div>
-    </aside>
+      </aside>
+    </>
   );
 }
 

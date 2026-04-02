@@ -29,8 +29,12 @@ function SimulationDashboard({ onNavigateToWorkshop, initialParams, onClearParam
     const [isMatching, setIsMatching] = useState(false);
     const [showMerchCTA, setShowMerchCTA] = useState(false);
     const [isSaving, setIsSaving] = useState(false);
+    const [viewportHeight, setViewportHeight] = useState(window.innerHeight);
+    const [isMobile, setIsMobile] = useState(false);
+    
     const posterRef = useRef(null);
     const merchTimerRef = useRef(null);
+    const containerRef = useRef(null);
 
     // 初始化/获取 UUID
     useEffect(() => {
@@ -38,7 +42,28 @@ function SimulationDashboard({ onNavigateToWorkshop, initialParams, onClearParam
     }, []);
 
     useEffect(() => {
+        const checkMobile = () => setIsMobile(window.innerWidth < 768);
+        checkMobile();
+        window.addEventListener('resize', checkMobile);
+
+        // Visual Viewport API for mobile keyboard handling
+        const handleViewportChange = () => {
+            if (window.visualViewport) {
+                setViewportHeight(window.visualViewport.height);
+            }
+        };
+
+        if (window.visualViewport) {
+            window.visualViewport.addEventListener('resize', handleViewportChange);
+            window.visualViewport.addEventListener('scroll', handleViewportChange);
+        }
+
         return () => {
+            window.removeEventListener('resize', checkMobile);
+            if (window.visualViewport) {
+                window.visualViewport.removeEventListener('resize', handleViewportChange);
+                window.visualViewport.removeEventListener('scroll', handleViewportChange);
+            }
             if (merchTimerRef.current) clearTimeout(merchTimerRef.current);
         };
     }, []);
@@ -130,11 +155,20 @@ function SimulationDashboard({ onNavigateToWorkshop, initialParams, onClearParam
         if (!posterRef.current || isSaving) return;
         setIsSaving(true);
         try {
+            // Task 204: Wait for fonts to be ready for clean text rendering
+            if (document.fonts) {
+                await document.fonts.ready;
+            }
+
             const canvas = await html2canvas(posterRef.current, {
-                scale: 2,
+                scale: isMobile ? 3 : 2, // High resolution for mobile retina screens
                 useCORS: true,
                 backgroundColor: '#f5f0e3',
+                logging: false,
+                width: 540,  // Force internal dimensions
+                height: 800, // Force internal dimensions
             });
+            
             const link = document.createElement('a');
             link.download = `青云志_委任状_${matchResult?.title}.png`;
             link.href = canvas.toDataURL('image/png');
@@ -145,7 +179,7 @@ function SimulationDashboard({ onNavigateToWorkshop, initialParams, onClearParam
         } finally {
             setIsSaving(false);
         }
-    }, [matchResult, isSaving]);
+    }, [matchResult, isSaving, isMobile]);
 
     const handleReset = () => {
         setInputValue('');
@@ -157,12 +191,15 @@ function SimulationDashboard({ onNavigateToWorkshop, initialParams, onClearParam
     };
 
     return (
-        <div className="w-full h-full overflow-y-auto relative bg-rushi-bg bg-cover bg-center bg-no-repeat bg-fixed">
-            <div className="max-w-4xl mx-auto px-6 py-16 flex flex-col min-h-full">
+        <div ref={containerRef} className="w-full h-full overflow-y-auto relative bg-rushi-bg bg-cover bg-center bg-no-repeat bg-fixed custom-scrollbar">
+            <div className="max-w-4xl mx-auto px-4 md:px-6 py-6 md:py-10 flex flex-col min-h-full" style={{ 
+                height: isMobile ? `${viewportHeight}px` : 'auto',
+                transition: 'height 0.3s cubic-bezier(0.2, 0.8, 0.2, 1)'
+            }}>
                 
                 {/* 1 & 2. 极简入场态：无界悬浮 (Task 120) */}
                 {!matchResult && (
-                    <div className={`w-full max-w-lg mx-auto pt-14 relative transition-all duration-700 mt-16 ${isMatching ? 'opacity-40 scale-95 pointer-events-none' : 'opacity-100 animate-in fade-in slide-in-from-bottom-4 duration-1000'}`}>
+                    <div className={`w-full max-w-lg mx-auto relative transition-all duration-700 flex flex-col justify-center flex-1 ${isMatching ? 'opacity-40 scale-95 pointer-events-none' : 'opacity-100 animate-in fade-in slide-in-from-bottom-4 duration-1000'}`}>
                         {/* 移除了生硬包裹的卡片，完全融入宣纸画布 */}
                         
                         <div className="text-center mb-12 relative z-10">
@@ -209,18 +246,29 @@ function SimulationDashboard({ onNavigateToWorkshop, initialParams, onClearParam
 
                 {/* 3. 结果与海报区域 (Task 121) */}
                 {matchResult && (
-                    <div className="animate-in fade-in zoom-in-95 duration-1000">
-                        <div className="flex justify-center mb-10">
-                            <AppointmentPoster
-                                ref={posterRef}
-                                title={matchResult.title}
-                                rank={matchResult.rank}
-                                desc={matchResult.desc}
-                                modernJob={modernJob}
-                                visible={showPoster}
-                                salary={matchResult.salary}
-                                grace={matchResult.grace}
-                            />
+                    <div className="animate-in fade-in zoom-in-95 duration-1000 flex flex-col flex-1 items-center justify-center py-4">
+                        <div className="relative flex items-center justify-center w-full mb-8" style={{ 
+                            height: isMobile ? 'calc(100vh - 280px)' : 'auto',
+                            minHeight: isMobile ? '400px' : '820px'
+                        }}>
+                             <div style={{
+                                transform: isMobile ? `scale(${Math.min(0.65, (viewportHeight - 320) / 800)})` : 'scale(1)',
+                                transformOrigin: 'center center',
+                                width: '540px',
+                                height: '800px',
+                                flexShrink: 0
+                            }}>
+                                <AppointmentPoster
+                                    ref={posterRef}
+                                    title={matchResult.title}
+                                    rank={matchResult.rank}
+                                    desc={matchResult.desc}
+                                    modernJob={modernJob}
+                                    visible={showPoster}
+                                    salary={matchResult.salary}
+                                    grace={matchResult.grace}
+                                />
+                            </div>
                         </div>
 
                         <div className={`flex flex-col items-center gap-6 transition-all duration-1000 delay-500 ${showPoster ? 'opacity-100' : 'opacity-0'}`}>

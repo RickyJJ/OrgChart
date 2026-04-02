@@ -1,33 +1,76 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import './index.css';
 import { fetchAllDynastiesData } from './api/localData';
 import { getOrCreateUUID } from './utils/tracker';
 import Sidebar from './components/Sidebar';
+import MobileNav from './components/MobileNav';
+import { useMobile } from './hooks/useMobile';
+import { useBodyScrollLock } from './hooks/useBodyScrollLock';
 import HierarchyTree from './components/HierarchyTree';
 import DetailPanel from './components/DetailPanel';
 import SimulationDashboard from './components/SimulationDashboard';
 import ImperialWorkshop from './components/ImperialWorkshop';
 import GlobalSearch from './components/GlobalSearch';
 import ErrorBoundary, { MaintenanceUI } from './components/ErrorBoundary';
+import Breadcrumbs from './components/Breadcrumbs';
+import { getPath } from './utils/treeUtils';
 import { Loader2 } from 'lucide-react';
 
 function App() {
+  const treeRef = useRef(null);
+  
   // 阶段一：全局初始化匿名 UUID 追踪
   useEffect(() => {
     const uuid = getOrCreateUUID();
     console.log('[青云志] 匿名追踪 UUID:', uuid);
   }, []);
+
   const [activeTab, setActiveTab] = useState('hierarchy');
   const [dynastyData, setDynastyData] = useState([]);
+  const [breadcrumbPath, setBreadcrumbPath] = useState([]);
+  const isMobile = useMobile();
+  const [isBreadcrumbExpanded, setIsBreadcrumbExpanded] = useState(!isMobile);
+  
   const [isDataLoading, setIsDataLoading] = useState(true);
   const [activeDynastyId, setActiveDynastyId] = useState(null);
   const [selectedNode, setSelectedNode] = useState(null);
+  const [focusedNodeId, setFocusedNodeId] = useState(null);
   const [pendingSearchTarget, setPendingSearchTarget] = useState(null);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [simulationParams, setSimulationParams] = useState(null);
   const [fetchError, setFetchError] = useState(null);
-  
+
+  // Sync breadcrumb state with mobile changes
+  useEffect(() => {
+    setIsBreadcrumbExpanded(!isMobile);
+  }, [isMobile]);
+
+  // Removed overlay body scroll lock as simulation and workshop are now full page tabs.
+
   const activeDynasty = dynastyData.length > 0 ? (dynastyData.find(d => d.id === activeDynastyId) || dynastyData[0]) : null;
+
+  // Track path updates when either selection or expansion focus changes
+  useEffect(() => {
+    if (activeDynasty && (selectedNode || focusedNodeId)) {
+      const targetId = selectedNode?.id || focusedNodeId;
+      const path = getPath(activeDynasty.structure, targetId);
+      if (path) {
+        setBreadcrumbPath(path);
+        // Auto-expand breadcrumb when it changes to show context
+        if (selectedNode) {
+          setIsBreadcrumbExpanded(true);
+        }
+      }
+    }
+  }, [selectedNode, focusedNodeId, activeDynasty]);
+
+  // Reset breadcrumb to root ONLY when dynasty changes
+  useEffect(() => {
+    if (activeDynasty) {
+       setBreadcrumbPath([activeDynasty.structure]);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeDynastyId]);
 
   // 从 Directus API 拉取最新数据
   useEffect(() => {
@@ -42,7 +85,6 @@ function App() {
             setDynastyData(tangData);
             setActiveDynastyId(tangData[0].id);
           } else {
-            // 如果没搜到特定的ID，尝试拿第一个(兜底)
             setDynastyData([data[0]]);
             setActiveDynastyId(data[0].id);
           }
@@ -60,6 +102,7 @@ function App() {
 
   const handleReadMore = (node) => {
     setSelectedNode(prev => (prev?.id === node.id ? null : node));
+    setFocusedNodeId(node.id);
   };
 
   const closeDetail = () => {
@@ -83,7 +126,6 @@ function App() {
   const handleSearchSelect = ({ dynastyId, node }) => {
     setActiveTab('hierarchy');
 
-    // If we only have an ID (from LoreCenter), we need to find the full node reference
     let targetNode = node;
     if (!node.title) {
       const dynasty = dynastyData.find(d => d.id === dynastyId);
@@ -107,68 +149,92 @@ function App() {
     }
 
     setSelectedNode(targetNode);
+    setFocusedNodeId(targetNode.id);
+    
+    // Ensure the tree expands to show this node
+    if (treeRef.current && targetNode) {
+      const path = getPath(activeDynasty.structure, targetNode.id);
+      if (path) {
+        treeRef.current.setExpandedPath(path.map(n => n.id));
+      }
+      treeRef.current.panToNode(targetNode.id, true);
+    }
   };
 
-  React.useEffect(() => {
+  useEffect(() => {
     const handleClickOutside = (event) => {
-      // If no node is selected, no need to check
       if (!selectedNode) return;
-
-      // Check if click is on a card or the detail panel
       const isCardClick = event.target.closest('[data-card="true"]');
-      const isPanelClick = event.target.closest('.detail-panel-container'); // Need to ensure DetailPanel has this class or similar
-
+      const isPanelClick = event.target.closest('.detail-panel-container');
       if (!isCardClick && !isPanelClick) {
         closeDetail();
       }
     };
-
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, [selectedNode]);
 
-  React.useEffect(() => {
+  useEffect(() => {
     setSelectedNode(null);
+    setFocusedNodeId(null);
   }, [activeDynastyId]);
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (!pendingSearchTarget) return;
     if (pendingSearchTarget.dynastyId !== activeDynastyId) return;
-
     setSelectedNode(pendingSearchTarget.node);
+    
+    // Auto-expand path for search result
+    if (treeRef.current && pendingSearchTarget.node) {
+       const path = getPath(activeDynasty.structure, pendingSearchTarget.node.id);
+       if (path) {
+         treeRef.current.setExpandedPath(path.map(n => n.id));
+       }
+       treeRef.current.panToNode(pendingSearchTarget.node.id, true);
+    }
+    
     setPendingSearchTarget(null);
-  }, [activeDynastyId, pendingSearchTarget]);
+  }, [activeDynastyId, pendingSearchTarget, activeDynasty]);
 
-  React.useEffect(() => {
+  useEffect(() => {
     const handleEsc = (event) => {
       if (event.key === 'Escape') {
         setIsSearchOpen(false);
       }
     };
-
     document.addEventListener('keydown', handleEsc);
     return () => document.removeEventListener('keydown', handleEsc);
   }, []);
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (!isSearchOpen) return;
-
     const handleSearchBlurClose = (event) => {
       const isDrawerClick = event.target.closest('[data-search-drawer="true"]');
       const isToggleClick = event.target.closest('[data-search-toggle="true"]');
-
       if (isDrawerClick || isToggleClick) return;
       setIsSearchOpen(false);
     };
-
     document.addEventListener('mousedown', handleSearchBlurClose);
     return () => document.removeEventListener('mousedown', handleSearchBlurClose);
   }, [isSearchOpen]);
 
-  // Removed full-screen error interceptor to ensure Sidebar is always visible according to user feedback
+  const handleBreadcrumbNavigate = (node) => {
+    // Navigate via breadcrumb updates focus trail
+    setFocusedNodeId(node.id);
+    if (treeRef.current) {
+        const path = getPath(activeDynasty.structure, node.id);
+        if (path) {
+            setBreadcrumbPath(path);
+            treeRef.current.setExpandedPath(path.map(n => n.id));
+        }
+        treeRef.current.panToNode(node.id, true);
+    }
+  };
+
+  const dynastyPrefix = activeDynasty?.name?.replace('朝', '') || '';
 
   return (
-    <div className="flex min-h-screen w-full relative" style={{ zIndex: 'var(--z-base-canvas)' }}>
+    <div className="flex bg-main-bg min-h-[100dvh] w-full relative pb-16 md:pb-0" style={{ zIndex: 'var(--z-base-canvas)' }}>
       <Sidebar
         activeTab={activeTab}
         onNavigate={handleNavigate}
@@ -176,10 +242,17 @@ function App() {
         onToggleSearch={() => setIsSearchOpen(prev => !prev)}
       />
 
+      <MobileNav
+        activeTab={activeTab}
+        onNavigate={handleNavigate}
+        onToggleSearch={() => setIsSearchOpen(prev => !prev)}
+      />
+
       <main
-        className={`flex-1 flex flex-col relative bg-transparent shadow-inner border-l border-[#d3ccbf] ${activeTab === 'simulation' ? 'p-0 bg-[#f5f5dc]' : 'p-10'}`}
-        style={{ 
+        className={`flex-1 flex flex-col relative bg-transparent shadow-inner md:border-l border-[#d3ccbf] ${activeTab === 'simulation' ? 'p-0 bg-[#f5f5dc]' : 'p-2 md:p-10'}`}
+        style={{
           marginLeft: 'var(--sidebar-width)',
+          minHeight: '0', // Allow flex-1 to govern height correctly without forcing overflow behind nav bar
           ...(activeTab === 'simulation' ? {
             backgroundImage: "url('https://www.transparenttextures.com/patterns/handmade-paper.png')",
             backgroundBlendMode: 'multiply'
@@ -187,15 +260,21 @@ function App() {
         }}
       >
         <ErrorBoundary>
-          {/* 如果是点击进入某个 Tab 但数据载入失败，则只加载局部报错页面（侧边栏保留） */}
           {fetchError && dynastyData.length === 0 ? (
             <MaintenanceUI isFullScreen={false} />
           ) : (
             <>
               {activeTab === 'hierarchy' && (
-                <div className="bg-board scroll-unroll-anim flex-1 relative shadow-[0_4px_20px_rgba(0,0,0,0.03)] flex flex-col overflow-hidden rounded-xl">
+                <div
+                  className={`bg-board-soft scroll-unroll-anim relative transition-all duration-500 overflow-visible flex-1 shadow-[0_4px_20px_rgba(0,0,0,0.03)] flex flex-col min-h-0 outline-none ring-0
+                    ${isMobile && selectedNode ? 'blur-[2px] brightness-90 scale-[0.98] pointer-events-none' : ''}
+                  `}
+                >
+                  {/* High-Fidelity Board Frame Overlay (Nine-Patch) */}
+                  <div className="premium-board-frame" />
+
                   {isDataLoading && (
-                    <div className="absolute inset-0 z-50 flex flex-col items-center justify-center bg-board/90 backdrop-blur-sm">
+                    <div className="absolute inset-0 z-50 flex flex-col items-center justify-center bg-board-soft">
                       <Loader2 className="w-10 h-10 animate-spin text-[#8b6b4e] mb-4" />
                       <span className="font-xingkai text-2xl text-[#5c4b3c] tracking-widest">正在展开史卷...</span>
                     </div>
@@ -203,38 +282,68 @@ function App() {
 
                   {activeDynasty && (
                     <>
-                      <div className="absolute top-12 left-12 flex flex-col items-start gap-4 z-30 pointer-events-none">
-                        <div className="font-ancient font-bold text-[3rem] text-[#1A2530] tracking-widest drop-shadow-sm leading-[1.2] pointer-events-auto select-none">
-                          {activeDynasty.name}官制架构图
+                      {/* Integrated Header: Title + Breadcrumbs */}
+                      <div className="absolute top-4 left-4 md:top-12 md:left-12 flex flex-col items-start gap-1 z-30 pointer-events-none">
+                        <div className="flex items-center gap-3">
+                          <img src="/assets/ui/qyz_logo.png" className="w-[80px] h-auto object-contain md:hidden pointer-events-auto" alt="青云志" />
+                          <div className="font-ancient font-bold text-2xl md:text-[3rem] text-[#1A2530] tracking-widest drop-shadow-sm md:leading-[1.2] pointer-events-auto select-none">
+                            {activeDynasty.name}官制架构图
+                          </div>
+                        </div>
+                        
+                        {/* Restored Dynasty Switcher Buttons - Only Ink Ring Material */}
+                        <div className="mt-2 flex gap-4 pointer-events-auto">
+                          {dynastyData.map((dynasty) => {
+                            const isSelected = activeDynastyId === dynasty.id;
+                            return (
+                              <button
+                                key={dynasty.id}
+                                onClick={() => setActiveDynastyId(dynasty.id)}
+                                className={`relative group flex items-center justify-center w-[68px] h-[68px] transition-all duration-500
+                                  ${isSelected ? 'scale-110' : 'hover:scale-105 opacity-60 hover:opacity-100'}
+                                `}
+                              >
+                                {isSelected && (
+                                  <img
+                                    src="/assets/ui/switch-bg-1.png"
+                                    className="absolute inset-0 w-full h-full object-contain ink-draw-anim pointer-events-none"
+                                    alt="selected ring"
+                                  />
+                                )}
+                                <span className={`font-ancient text-[24px] z-10 transition-colors duration-300 ${isSelected ? 'text-[#af292e] font-bold' : 'text-[#8b6b4e]'}`}>
+                                  {dynasty.name.replace('朝', '')}
+                                </span>
+                              </button>
+                            );
+                          })}
                         </div>
                       </div>
 
-                      {/* Clipping container for the tree */}
-                      <div className="absolute inset-[13px] overflow-hidden pointer-events-none sticky-container flex flex-col transition-all duration-300 mix-blend-multiply" style={{ zIndex: 'var(--z-tree)' }}>
+                      <div className="absolute inset-[16px] md:inset-[32px] overflow-hidden pointer-events-none sticky-container flex flex-col transition-all duration-300 mix-blend-multiply" style={{ zIndex: 'var(--z-tree)' }}>
                         <div className="w-full h-full pointer-events-auto flex flex-col">
                           <HierarchyTree
+                            ref={treeRef}
                             activeDynasty={activeDynasty}
                             onReadMore={handleReadMore}
+                            onFocusNode={setFocusedNodeId}
                             selectedNodeId={selectedNode?.id}
+                            searchTargetTrigger={pendingSearchTarget}
+                          />
+                        </div>
+                      </div>
+
+                      {/* Breadcrumb Navigation - Precisely offset for border clearance */}
+                      <div className={`absolute bottom-[12px] left-[12px] md:bottom-[20px] md:left-[20px] z-[100] transition-all duration-500 ${isMobile && activeTab !== 'hierarchy' ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}>
+                        <div className="pointer-events-auto">
+                          <Breadcrumbs 
+                            path={breadcrumbPath}
+                            isExpanded={isBreadcrumbExpanded}
+                            onToggle={() => setIsBreadcrumbExpanded(!isBreadcrumbExpanded)}
+                            onNavigate={handleBreadcrumbNavigate}
                           />
                         </div>
                       </div>
                     </>
-                  )}
-
-                  {/* Partial Fetch Error inside Hierarchy area if some data exists but update failed */}
-                  {!isDataLoading && fetchError && (
-                    <div className="absolute inset-x-8 bottom-8 z-40">
-                      <div className="bg-[#af292e]/10 border border-[#af292e]/20 p-4 rounded-lg flex items-center justify-between backdrop-blur-md">
-                        <span className="text-[#af292e] font-serif">通讯有碍，史卷未能更新 (Network Error)</span>
-                        <button 
-                          onClick={() => window.location.reload()}
-                          className="text-xs px-4 py-1.5 bg-[#af292e] text-white rounded-md hover:bg-[#912226] transition-colors"
-                        >
-                          重新同步
-                        </button>
-                      </div>
-                    </div>
                   )}
                 </div>
               )}
@@ -250,7 +359,7 @@ function App() {
               )}
 
               {activeTab === 'workshop' && (
-                <div className="flex-1 w-full h-full">
+                <div className="flex-1 w-full h-full overflow-hidden rounded-lg bg-[#0B111A]">
                   <ImperialWorkshop />
                 </div>
               )}
@@ -264,7 +373,7 @@ function App() {
           )}
         </ErrorBoundary>
 
-        <footer className="text-center text-xs text-text-muted mt-4 tracking-widest">
+        <footer className="hidden md:block text-center text-xs text-text-muted mt-4 tracking-widest">
           青云志 | 弘扬中华古代文化 | Web PM 精心呈现
         </footer>
       </main>

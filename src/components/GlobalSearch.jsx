@@ -77,7 +77,7 @@ function GlobalSearch({ dynasties, onSelectResult, isOpen, onClose }) {
           className="w-full rounded-md border border-[#c8bca8] bg-[#fffaf1] px-3 py-2 text-sm text-[#2a2624] outline-none transition focus:border-[#8a2d2f]"
         />
 
-        <div className="mt-3 max-h-[calc(100vh-110px)] overflow-y-auto pr-1">
+        <div className="mt-3 max-h-[calc(100dvh-110px)] overflow-y-auto pr-1">
           {!normalized && (
             <div className="px-1 py-2 text-xs text-[#8f8577]">输入关键词后显示结果</div>
           )}

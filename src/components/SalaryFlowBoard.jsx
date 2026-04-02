@@ -193,12 +193,40 @@ const SalaryFlowBoard = ({ salaries, dynastyId }) => {
 
   if (!salaries || Object.keys(salaries).length === 0) return null;
 
+  // 205: Detect touch context
+  const [isTouch, setIsTouch] = useState(false);
+  
+  React.useEffect(() => {
+    setIsTouch(window.matchMedia('(hover: none)').matches || 'ontouchstart' in window);
+  }, []);
+
   const handleMouseEnter = (e, desc) => {
+    if (isTouch) return; // Ignore hover on touch devices
     const r = e.currentTarget.getBoundingClientRect();
+    showTooltip(r, desc);
+  };
+
+  const handleMouseLeave = () => {
+    if (isTouch) return;
+    hideTooltip();
+  };
+
+  const handleClick = (e, desc) => {
+    if (!isTouch) return;
+    e.stopPropagation();
+    
+    if (tooltip.visible && tooltip.text === desc) {
+      hideTooltip();
+    } else {
+      const r = e.currentTarget.getBoundingClientRect();
+      showTooltip(r, desc);
+    }
+  };
+
+  const showTooltip = (r, desc) => {
     setTooltip({
       text: desc,
       visible: true,
-      // 序列化为纯数字对象，确保 useLayoutEffect 的依赖比较可靠
       anchor: {
         top: r.top,
         bottom: r.bottom,
@@ -209,9 +237,18 @@ const SalaryFlowBoard = ({ salaries, dynastyId }) => {
     });
   };
 
-  const handleMouseLeave = () => {
+  const hideTooltip = () => {
     setTooltip(prev => ({ ...prev, visible: false }));
   };
+
+  // Close on outside click for mobile
+  React.useEffect(() => {
+    if (!isTouch || !tooltip.visible) return;
+
+    const handleOutside = () => hideTooltip();
+    document.addEventListener('click', handleOutside);
+    return () => document.removeEventListener('click', handleOutside);
+  }, [isTouch, tooltip.visible]);
 
   return (
     <div className="w-full" ref={containerRef}>
@@ -228,6 +265,7 @@ const SalaryFlowBoard = ({ salaries, dynastyId }) => {
               key={key}
               onMouseEnter={(e) => handleMouseEnter(e, description)}
               onMouseLeave={handleMouseLeave}
+              onClick={(e) => handleClick(e, description)}
               className="group relative flex items-center transition-all duration-300 cursor-help hover:translate-y-[-1px]"
             >
               {config.seal ? (

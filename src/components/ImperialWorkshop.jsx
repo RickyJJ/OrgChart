@@ -182,7 +182,7 @@ function ImperialWorkshop() {
                 )}
             </div>
 
-            <div className="max-w-6xl mx-auto px-8 py-12">
+            <div className="max-w-6xl mx-auto px-4 md:px-8 py-8 md:py-12">
 
                 {/* ═══ 画廊标题区 ═══ */}
                 <div className="text-center mb-16">

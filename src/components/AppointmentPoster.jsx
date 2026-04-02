@@ -82,6 +82,14 @@ const AppointmentPoster = forwardRef(function AppointmentPoster(
 ) {
     const [isAnimating, setIsAnimating] = useState(false);
     const [sealBg, setSealBg] = useState("url('/assets/ui/yinzhang.png')");
+    const [isMobile, setIsMobile] = useState(false);
+
+    useEffect(() => {
+        const checkMobile = () => setIsMobile(window.innerWidth < 768);
+        checkMobile();
+        window.addEventListener('resize', checkMobile);
+        return () => window.removeEventListener('resize', checkMobile);
+    }, []);
 
     // 利用公共工具对印章背景进行无感像素扣除，完美输出物理透明层，避免 html2canvas 忽略 blend-mode
     useEffect(() => {
@@ -301,20 +309,20 @@ const AppointmentPoster = forwardRef(function AppointmentPoster(
                 </div>
             </div>
 
-            {/* ───── 二维码安全区 (绝对左下角) ───── */}
-            <div className="absolute bottom-6 left-8 z-20 pointer-events-none">
+            {/* ───── 二维码安全区 (绝对左下角) (Task 204: Mobile Safe Zone) ───── */}
+            <div className={`absolute ${isMobile ? 'bottom-12 left-10' : 'bottom-6 left-8'} z-20 pointer-events-none transition-all`}>
                 <div className="flex flex-col items-center gap-2 pointer-events-auto">
                     <div className="p-1" style={{ mixBlendMode: 'multiply' }}>
                         <QRCodeSVG
                             value={shareUrl}
-                            size={72}
+                            size={isMobile ? 100 : 72}
                             fgColor="#2a1f14"
                             bgColor="transparent"
                             level="H"
                             style={{ mixBlendMode: 'multiply' }}
                         />
                     </div>
-                    <p className="text-[10px] text-[#8a5a5a] tracking-widest opacity-80 mb-3" style={{ fontFamily: "'STSong', 'SimSun', serif" }}>
+                    <p className={`${isMobile ? 'text-[12px]' : 'text-[10px]'} text-[#8a5a5a] tracking-widest opacity-80 mb-3`} style={{ fontFamily: "'STSong', 'SimSun', serif" }}>
                         扫码入仕大唐
                     </p>
                 </div>

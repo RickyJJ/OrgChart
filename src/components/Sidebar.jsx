@@ -4,7 +4,7 @@ import { Network, BookOpen, PenTool, User, Search, Palette } from 'lucide-react'
 function Sidebar({ activeTab, onNavigate, isSearchOpen, onToggleSearch }) {
   return (
     <aside
-      className="bg-ink-dark h-screen fixed left-0 top-0 text-sidebar-text flex flex-col shadow-lg"
+      className="hidden md:flex bg-ink-dark h-[100dvh] fixed left-0 top-0 text-sidebar-text flex-col shadow-lg"
       style={{ width: 'var(--sidebar-width)', zIndex: 'var(--z-sidebar)' }}
     >
       <div className="py-6 text-center border-b border-white/10 flex justify-center items-center">

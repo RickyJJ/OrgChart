@@ -3,7 +3,7 @@ import React from 'react';
 export const MaintenanceUI = ({ onReload, isFullScreen = false }) => (
   <div className={
     isFullScreen
-      ? "flex flex-col items-center justify-center relative overflow-hidden bg-[#f5f5dc] selection:bg-[#af292e]/20 min-h-screen w-full z-50"
+      ? "flex flex-col items-center justify-center relative overflow-hidden bg-[#f5f5dc] selection:bg-[#af292e]/20 min-h-[100dvh] w-full z-50"
       : "flex-1 flex flex-col items-center justify-center relative overflow-hidden bg-[#f5f5dc] selection:bg-[#af292e]/20 rounded-xl h-full w-full shadow-[0_4px_20px_rgba(0,0,0,0.03)]"
   }>
     {/* Paper Texture Overlay */}

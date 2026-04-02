@@ -151,9 +151,16 @@
 | 151 | Feature | 移除官阶巡礼 Mock 数据兜底，网络失败直接展示错误页面 | Done | 3.1 |
 | 152 | Feature | 官阶巡礼重构：渐进式渲染与 DOM 物理裁剪 (Progessive Rendering)，初次仅展示一层级，动态销毁折叠节点，增加底部[辖 N 司]提示 (Ref: docs/tasks/task_152_hierarchy_tree_refactor.md) | Done | 2.2 |
 | 153 | Feature | 官阶巡礼重构：视界平滑跟随交互 (Pan & Zoom Focus)，点击展开自动平滑居中父节点，锁定缩放并防误触 (Ref: docs/tasks/task_152_hierarchy_tree_refactor.md) | Done | 2.2 |
-| 154 | Feature | 官阶巡礼重构：“云迹”面包屑导航 (Breadcrumb) 左上角悬浮，支持点击祖先反向寻路与平移折叠 (Ref: docs/tasks/task_152_hierarchy_tree_refactor.md) | Done | 2.2 |
+| 154 | Feature | 官阶巡礼重构：“云迹”面包屑导航 (Breadcrumb) 结构修正：抽离组件并与全局标题集成，优化移动端折叠与逆向寻路逻辑 | Done | 2.2 |
 | 155 | Feature | 架构树与检索联动：全局搜索目标后向上反查连线链路并强制展开DOM渲染，排他性自动折叠旁支，精准平滑定位与高亮 (Ref: docs/tasks/task_152_hierarchy_tree_refactor.md) | Done | 2.5 |
 | 156 | UI/UX | 典故连珠：优化详情面板中的内容展开/收起逻辑，支持多行检测并更名为“收起/更多” | Done | 2.4 |
 | 157 | UI/UX | 详情面板：为风流人物区域增加带有 Users 图标的标题，对齐全局页面设计规范 | Done | 2.4 |
 | 200 | Arch | 全面静态化：砍掉 Directus/Meilisearch/PostgreSQL 后端依赖，将全量官制数据(唐代)、商品数据硬编码为前端 JSON，搜索改为客户端模糊匹配，埋点降级为 console.log，点赞改为 localStorage (注：明代由于权限原因暂缺) (Ref: docs/tasks/task_200_static_data_extraction.md) | Done | 3.1 |
 | 158 | Feature | 更新地址栏图标 (Favicon) 为 `qyz_icon.png` | Done | 1.2 / 2.9 |
+| 201 | UI/UX | 移动端基础适配：引入全局响应式断点，将侧边导航栏重构为移动端底部导航栏或折叠菜单 (Ref: docs/tasks/mobile/task_201_layout_navigation.md) | Done | 1.2 |
+| 202 | UI/UX | 官阶树触控升级：重构画布交互引擎，支持移动端双指缩放 (Pinch-to-Zoom)、平滑拖拽防出界机制 (Ref: docs/tasks/mobile/task_202_tree_touch_interactions.md) | Done | 1.2 / 2.2 |
+| 203 | UI/UX | 详情面板与造办处移动端重构：将侧边展开改为底部抽屉上滑 (Bottom Sheet)，并优化长内容滚动防穿透 (Ref: docs/tasks/mobile/task_203_detail_panel_bottom_sheet.md) | Done | 2.3 / 2.7 |
+| 204 | UI/UX | 命运卷轴移动端体感：调整表单输入框防手机键盘遮挡、海报比例自适应屏显，优化二维码长按识别区域 (Ref: docs/tasks/mobile/task_204_simulator_poster.md) | Done | 2.6 |
+| 205 | Feature | 触屏交互降级策略：全局移除纯 Hover 依赖，为俸禄 Tooltip 引入点击唤起与外侧关闭，处理跑马灯等移动端逻辑 (Ref: docs/tasks/mobile/task_205_tooltip_fallback.md) | Done | 2.4 |
+| 206 | Bug | 修复全局搜索后无法自动平移动画的问题：修复 property access 错误，并在 App.jsx 中显式调用 panToNode 消除竞态 | Done | 2.5 |
+| 207 | Bug | 修复 Git 误提交：从最近一次未 push 的 commit 中移除 `.claude/` 目录及其下的本地配置文件，并更新 `.gitignore` | Done | 3.1 |
