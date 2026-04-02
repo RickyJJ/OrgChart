@@ -22,7 +22,7 @@ dist-ssr
 .njsproj
 *.sln
 *.sw?
-.claude/
+.claude
 
 # AI Agent 自动生成的缓存
 .agent/**/__pycache__/
