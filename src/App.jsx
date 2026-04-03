@@ -12,8 +12,9 @@ import SimulationDashboard from './components/SimulationDashboard';
 import ImperialWorkshop from './components/ImperialWorkshop';
 import GlobalSearch from './components/GlobalSearch';
 import ErrorBoundary, { MaintenanceUI } from './components/ErrorBoundary';
-import Breadcrumbs from './components/Breadcrumbs';
 import { getPath } from './utils/treeUtils';
+import Breadcrumbs from './components/Breadcrumbs';
+import { processAlphaMask } from './utils/imageProcessor';
 import { Loader2 } from 'lucide-react';
 
 function App() {
@@ -44,6 +45,14 @@ function App() {
   useEffect(() => {
     setIsBreadcrumbExpanded(!isMobile);
   }, [isMobile]);
+
+  // 图像公关处理：程序化抠除移动端 Logo 的背景色，使其完美融合宣纸
+  const [processedLogo, setProcessedLogo] = useState(null);
+  useEffect(() => {
+    processAlphaMask('/assets/ui/qyz_logo_mobile.png')
+      .then(setProcessedLogo)
+      .catch(() => setProcessedLogo('/assets/ui/qyz_logo_mobile.png'));
+  }, []);
 
   // Removed overlay body scroll lock as simulation and workshop are now full page tabs.
 
@@ -285,7 +294,11 @@ function App() {
                       {/* Integrated Header: Title + Breadcrumbs */}
                       <div className="absolute top-4 left-4 md:top-12 md:left-12 flex flex-col items-start gap-1 z-30 pointer-events-none">
                         <div className="flex items-center gap-3">
-                          <img src="/assets/ui/qyz_logo.png" className="w-[80px] h-auto object-contain md:hidden pointer-events-auto" alt="青云志" />
+                          <img 
+                            src={processedLogo || '/assets/ui/qyz_logo_mobile.png'} 
+                            className="w-[80px] h-auto object-contain md:hidden pointer-events-auto mix-blend-multiply opacity-90 contrast-[1.1]" 
+                            alt="青云志" 
+                          />
                           <div className="font-ancient font-bold text-2xl md:text-[3rem] text-[#1A2530] tracking-widest drop-shadow-sm md:leading-[1.2] pointer-events-auto select-none">
                             {activeDynasty.name}官制架构图
                           </div>
