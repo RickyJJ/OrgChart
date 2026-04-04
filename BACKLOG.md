@@ -167,3 +167,5 @@
 | 208 | UI/UX | 更新移动端 Logo：替换原 `qyz_logo.png` 为专属移动端高保真 Logo `qyz_logo_mobile.png` | Done | 1.2 |
 | 209 | UI/UX | 给移动端Logo增加processAlphaMask方法，消除白色背景，让其与背景更加融合 | Done | 1.2 |
 | 210 | UI/UX | 给面包屑导航栏增加半透明与毛玻璃效果 | Done | 1.2 |
+| 211 | Bug | 修复移动端入仕模拟海报不居中以及布局导致菜单栏超出视口的问题 | Done | 2.6 |
+| 212 | Bug | 修复移动端官阶页面装饰边框在边角处由于 slice 值过小导致的对齐错位问题 | Done | 1.2 |

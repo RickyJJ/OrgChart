@@ -24,7 +24,7 @@
         @apply bg-main-bg bg-repeat text-text-main font-sans min-h-screen overflow-x-hidden leading-relaxed;
         -webkit-tap-highlight-color: transparent;
     }
-    
+
     /* Global focus ring removal for cleaner mobile experience */
     *:focus {
         outline: none !important;
@@ -48,27 +48,32 @@
     .premium-board-frame {
         @apply absolute inset-0 z-20 pointer-events-none mix-blend-multiply;
         border: 32px solid transparent;
+        border-width: 32px;
         border-image-source: url('/assets/ui/bg-border.png');
-        border-image-slice: 70;
-        /* Highly stable slice value */
-        border-image-repeat: stretch;
+        border-image-slice: 100;
+        /* Balanced slice to capture full corner motifs from 479x345 source */
+        border-image-repeat: round;
+        /* 'round' ensures segments tile perfectly without stretching-induced gaps */
         border-image-outset: 0px;
         /* Reset outset to ensure visibility within parent bounds */
-        opacity: 0.95; /* Soften the border slightly */
+        opacity: 0.95;
+        /* Soften the border slightly */
     }
 
     /* Soft paper board style for premium readability */
     .bg-board-soft {
-        background-color: rgba(236, 232, 222, 0.92); /* #ece8de with 0.92 alpha */
+        background-color: rgba(236, 232, 222, 0.92);
+        /* #ece8de with 0.92 alpha */
         backdrop-filter: blur(12px);
         -webkit-backdrop-filter: blur(12px);
     }
 
     @media (max-width: 768px) {
         .premium-board-frame {
-            border-width: 16px;
+            border-width: 32px;
             /* Consistent scaling for mobile */
-            border-image-slice: 70;
+            border-image-slice: 100;
+            border-image-repeat: round;
         }
     }
 
@@ -402,7 +407,8 @@
         -webkit-mask-image: conic-gradient(from 180deg, transparent var(--draw-angle), black 0deg);
         mask-image: conic-gradient(from 180deg, transparent var(--draw-angle), black 0deg);
         animation: ink-draw-ccw 0.7s cubic-bezier(0.1, 0.8, 0.2, 1) forwards;
-        animation-delay: 0.5s; /* Sync with board unroll */
+        animation-delay: 0.5s;
+        /* Sync with board unroll */
     }
 
     @keyframes ink-fade-out {

@@ -226,8 +226,8 @@ const AppointmentPoster = forwardRef(function AppointmentPoster(
                 style={{
                     display: 'flex',
                     flexDirection: 'column',
-                    alignItems: 'flex-start', /* 顶部基准线严格平齐 */
-                    justifyContent: 'center', /* 水平居中 */
+                    alignItems: 'center', /* 水平居中 (Horizontal Center) */
+                    justifyContent: 'center', /* 垂直居中 (Vertical Center) */
                     writingMode: 'vertical-rl',
                     height: '460px', /* 强制硬边界 */
                     gap: '60px', 

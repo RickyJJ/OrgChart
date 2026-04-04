@@ -193,7 +193,8 @@ function SimulationDashboard({ onNavigateToWorkshop, initialParams, onClearParam
     return (
         <div ref={containerRef} className="w-full h-full overflow-y-auto relative bg-rushi-bg bg-cover bg-center bg-no-repeat bg-fixed custom-scrollbar">
             <div className="max-w-4xl mx-auto px-4 md:px-6 py-6 md:py-10 flex flex-col min-h-full" style={{ 
-                height: isMobile ? `${viewportHeight}px` : 'auto',
+                height: isMobile ? 'auto' : 'auto', // Disabling fixed viewportHeight to prevent pushing content under nav
+                minHeight: isMobile ? `calc(${viewportHeight}px - 4rem)` : 'auto', // 4rem for MobileNav
                 transition: 'height 0.3s cubic-bezier(0.2, 0.8, 0.2, 1)'
             }}>
                 
@@ -247,12 +248,19 @@ function SimulationDashboard({ onNavigateToWorkshop, initialParams, onClearParam
                 {/* 3. 结果与海报区域 (Task 121) */}
                 {matchResult && (
                     <div className="animate-in fade-in zoom-in-95 duration-1000 flex flex-col flex-1 items-center justify-center py-4">
-                        <div className="relative flex items-center justify-center w-full mb-8" style={{ 
-                            height: isMobile ? 'calc(100vh - 280px)' : 'auto',
-                            minHeight: isMobile ? '400px' : '820px'
+                        <div className="relative w-full mb-8 flex items-center justify-center overflow-visible" style={{ 
+                            height: isMobile ? 'calc(100vh - 360px)' : 'auto', 
+                            minHeight: isMobile ? '380px' : '820px'
                         }}>
-                             <div style={{
-                                transform: isMobile ? `scale(${Math.min(0.65, (viewportHeight - 320) / 800)})` : 'scale(1)',
+                             <div className="absolute left-1/2 top-1/2" style={{
+                                transform: isMobile 
+                                    ? (() => {
+                                        const scaleH = (viewportHeight - 360) / 800;
+                                        const scaleW = (window.innerWidth - 48) / 540;
+                                        const scale = Math.min(0.65, scaleH, scaleW);
+                                        return `translate(-50%, -50%) scale(${scale})`;
+                                      })()
+                                    : 'translate(-50%, -50%) scale(1)',
                                 transformOrigin: 'center center',
                                 width: '540px',
                                 height: '800px',
