@@ -258,14 +258,10 @@ function App() {
       />
 
       <main
-        className={`flex-1 flex flex-col relative bg-transparent shadow-inner md:border-l border-[#d3ccbf] ${activeTab === 'simulation' ? 'p-0 bg-[#f5f5dc]' : 'p-2 md:p-10'}`}
+        className={`flex-1 flex flex-col relative bg-transparent md:border-l border-[#d3ccbf] ${activeTab === 'simulation' ? 'p-0 bg-rushi-bg bg-cover bg-center bg-no-repeat bg-fixed' : 'p-2 md:p-10 shadow-inner'}`}
         style={{
           marginLeft: 'var(--sidebar-width)',
           minHeight: '0', // Allow flex-1 to govern height correctly without forcing overflow behind nav bar
-          ...(activeTab === 'simulation' ? {
-            backgroundImage: "url('https://www.transparenttextures.com/patterns/handmade-paper.png')",
-            backgroundBlendMode: 'multiply'
-          } : {})
         }}
       >
         <ErrorBoundary>
