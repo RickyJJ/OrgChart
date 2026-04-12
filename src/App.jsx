@@ -382,8 +382,16 @@ function App() {
           )}
         </ErrorBoundary>
 
-        <footer className="hidden md:block text-center text-xs text-text-muted mt-4 tracking-widest">
-          青云志 | 弘扬中华古代文化 | Web PM 精心呈现
+        <footer className="w-full shrink-0 flex flex-col md:flex-row items-center justify-center gap-1 md:gap-4 text-center text-[10px] md:text-sm text-text-muted mt-2 md:mt-4 tracking-widest pb-1 z-10 relative">
+          <span>青云志 | 弘扬中华古代文化 | Web PM 精心呈现</span>
+          <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-1 mt-1 md:mt-0">
+            <a href="https://beian.miit.gov.cn/" target="_blank" rel="noopener noreferrer" className="hover:text-[#af292e] transition-colors">
+              蜀ICP备2026015654号-1
+            </a>
+            <a href="http://www.beian.gov.cn/portal/registerSystemInfo?recordcode=51011502001131" target="_blank" rel="noopener noreferrer" className="hover:text-[#af292e] transition-colors">
+              川公网安备51011502001131号
+            </a>
+          </div>
         </footer>
       </main>
 
