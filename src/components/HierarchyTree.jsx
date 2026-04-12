@@ -12,6 +12,11 @@ const HierarchyTree = forwardRef(({
     const viewportRef = useRef(null);
     const canvasRef = useRef(null);
     const transformRef = useRef({ x: 0, y: 0, scale: 1 });
+    const isTrackingRef = useRef(false);
+
+    const cancelTracking = useCallback(() => {
+        isTrackingRef.current = false;
+    }, []);
 
     const [expandedIds, setExpandedIds] = useState(new Set());
 
@@ -27,16 +32,19 @@ const HierarchyTree = forwardRef(({
     const applyTransform = useCallback((animate = false, callback = null) => {
         if (canvasRef.current) {
             const { x, y, scale } = transformRef.current;
-            if (animate) {
-                canvasRef.current.style.transition = 'transform 0.5s cubic-bezier(0.16, 1, 0.3, 1)';
-            }
+            
+            // Set transition explicitly before applying transform
+            canvasRef.current.style.transition = animate 
+                ? 'transform 0.8s cubic-bezier(0.16, 1, 0.3, 1)' 
+                : 'none';
+
             canvasRef.current.style.transform = `translate(${x}px, ${y}px) scale(${scale})`;
             
             if (animate) {
                 setTimeout(() => {
                     if (canvasRef.current) canvasRef.current.style.transition = 'none';
                     if (callback) callback();
-                }, 550);
+                }, 850);
             } else {
                 if (callback) callback();
             }
@@ -44,39 +52,35 @@ const HierarchyTree = forwardRef(({
     }, []);
 
     const panToCenterNode = useCallback((nodeId, animate = true) => {
-        // requestAnimationFrame yields UI rendering
-        requestAnimationFrame(() => {
-            setTimeout(() => {
-                const viewport = viewportRef.current;
-                const canvas = canvasRef.current;
-                if (!viewport || !canvas) return;
+        // Immediate calculation for better focus response
+        const viewport = viewportRef.current;
+        const canvas = canvasRef.current;
+        if (!viewport || !canvas) return;
 
-                const nodeEl = canvas.querySelector(`[data-node-id="${nodeId}"] > div > div[data-card="true"]`);
-                if (!nodeEl) {
-                    console.warn(`[HierarchyTree] Node not found for centering: ${nodeId}`);
-                    return;
-                }
+        const nodeEl = canvas.querySelector(`[data-node-id="${nodeId}"] div[data-card="true"]`);
+        if (!nodeEl) {
+            console.warn(`[HierarchyTree] Node not found for centering: ${nodeId}`);
+            return;
+        }
 
-                const cRect = canvas.getBoundingClientRect();
-                const nRect = nodeEl.getBoundingClientRect();
-                const vRect = viewport.getBoundingClientRect();
-                const currentScale = transformRef.current.scale;
+        const cRect = canvas.getBoundingClientRect();
+        const nRect = nodeEl.getBoundingClientRect();
+        const vRect = viewport.getBoundingClientRect();
+        const currentScale = transformRef.current.scale;
 
-                const localX = (nRect.left - cRect.left) / currentScale + (nRect.width / currentScale) / 2;
-                const localY = (nRect.top - cRect.top) / currentScale + (nRect.height / currentScale) / 2;
+        const localX = (nRect.left - cRect.left) / currentScale + (nRect.width / currentScale) / 2;
+        const localY = (nRect.top - cRect.top) / currentScale + (nRect.height / currentScale) / 2;
 
-                // SPEC: Lock scale roughly to 1.0 (anti-shrink for Noto Serif readability)
-                let targetScale = currentScale;
-                if (targetScale < 1.0) targetScale = 1.0;
-                if (targetScale > 2.0) targetScale = 2.0;
+        // SPEC: Lock scale roughly to 1.0 (anti-shrink for Noto Serif readability)
+        let targetScale = currentScale;
+        if (targetScale < 1.0) targetScale = 1.0;
+        if (targetScale > 2.0) targetScale = 2.0;
 
-                const targetX = vRect.width / 2 - localX * targetScale;
-                const targetY = vRect.height / 2 - localY * targetScale;
+        const targetX = vRect.width / 2 - localX * targetScale;
+        const targetY = vRect.height / 2 - localY * targetScale;
 
-                transformRef.current = { x: targetX, y: targetY, scale: targetScale };
-                applyTransform(animate);
-            }, 60); // give time for transition unhide
-        });
+        transformRef.current = { x: targetX, y: targetY, scale: targetScale };
+        applyTransform(animate);
     }, [applyTransform]);
 
     // Expose methods to parent
@@ -148,6 +152,7 @@ const HierarchyTree = forwardRef(({
         let dragStart = { x: 0, y: 0 };
 
         const onWheel = (e) => {
+            cancelTracking();
             e.preventDefault();
             const { x, y, scale } = transformRef.current;
             const zoomSensitivity = 0.0015;
@@ -172,6 +177,7 @@ const HierarchyTree = forwardRef(({
 
         const onMouseDown = (e) => {
             if (e.target.closest('[data-card="true"]')) return;
+            cancelTracking();
             isDragging = true;
             viewport.style.cursor = 'grabbing';
             const { x, y } = transformRef.current;
@@ -202,6 +208,7 @@ const HierarchyTree = forwardRef(({
             // ONLY stop if we are on a button (like the read more button)
             // dragging starting on a card should still drag the canvas
             if (e.target.closest('button')) return;
+            cancelTracking();
             
             if (e.touches.length === 1) {
                 const touch = e.touches[0];
@@ -303,20 +310,44 @@ const HierarchyTree = forwardRef(({
     if (!activeDynasty) return null;
 
     const handleNodeToggle = (nodeId) => {
-        setExpandedIds(prev => {
-            const next = new Set(prev);
-            if (next.has(nodeId)) {
-                next.delete(nodeId);
-            } else {
-                next.add(nodeId);
-            }
-            return next;
-        });
-        
-        // Spec: clicks expand parent also pan to center it
+        // 1. Immediate Pan lead-in (Focus first)
         panToCenterNode(nodeId, true);
-        // Sync focal point to breadcrumb trace
         if (onFocusNode) onFocusNode(nodeId);
+        
+        // 2. Sequential structural Change after a short lead-time (150ms)
+        setTimeout(() => {
+            cancelTracking(); // Cancel any existing track before starting a new one
+            
+            setExpandedIds(prev => {
+                const next = new Set(prev);
+                if (next.has(nodeId)) {
+                    next.delete(nodeId);
+                } else {
+                    next.add(nodeId);
+                }
+                return next;
+            });
+
+            // 3. Continuous Camera Tracking during layout transition
+            // Effectively cancels out the node's layout shift by moving the canvas inversely
+            isTrackingRef.current = true;
+            const startStr = performance.now();
+            
+            const track = (time) => {
+                if (!isTrackingRef.current) return; // Terminate if user touched/interrupted
+                
+                if (time - startStr < 850) {
+                    // Update with ZERO delay (transition: none) matching exact layout coord
+                    panToCenterNode(nodeId, false); 
+                    requestAnimationFrame(track);
+                } else {
+                    isTrackingRef.current = false;
+                    panToCenterNode(nodeId, true); // Final stabilization
+                }
+            };
+            requestAnimationFrame(track);
+            
+        }, 150);
     };
 
     return (

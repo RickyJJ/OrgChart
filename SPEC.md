@@ -164,6 +164,12 @@
   * ~~Search: Meilisearch~~ → **已砍掉。** 改为纯前端客户端模糊搜索 (src/api/localData.js: searchNodes())。
   * **恢复路径:** 原 Directus API 客户端 (src/api/directus.js) 保留未删除，恢复数据库模式只需将各组件 import 从 localData 切回 directus 即可。
 
+* **核心渲染与动效引擎规范 (Interaction & Animation Engine):**
+  * **零延迟热更机制 (Zero-Latency SVG DOM Pathing)**: 针对树状结构的 SVG 网状连线重绘，绕过 React 的 `setState` 批处理延迟，采用底层 `requestAnimationFrame` 配合 `MutationObserver`，在监听到子树展开时，直接执行高频 DOM 原生提权操作 (`setAttribute('d')`)，将 1 帧刷新差导致的“连线拉伸回弹（Rubber-Banding）”现象从物理根源上彻底抹除，提供紧密咬合的主机级 UI 帧同步感。
+  * **物理遮罩与动态测距 (Dynamic Layout Width & Mask Constraint)**: 废弃 CSS 中 `maxWidth: 5000px` 等粗暴动画设置。动画展开时必须通过底层的 `scrollWidth` 或者 `ulReact` 进行真实物理包围盒读取，以真实计算出的节点尺寸作为 CSS `transition` 插值的目标以保证 800ms 过渡匀速跑完。同时利用这些边界值强制约束 SVG 最远连线断点，实现连线像卷轴一样“不跨越面纱外层”的物理剥离感。
+  * **抗布局偏移追踪 (View Camera Pan-Lock)**: 任何子节点的横向撑开动画必须被父级的视角相机通过反向运算实时抵消，使得被操作（点击）的节点在屏幕视觉中纹丝不动，其他兄弟节点呈现完美的排斥退让位移。
+  * **交错脱钩入场 (Decoupled Staggered Drop)**: 容器的生长动画需与内部卡片的展示脱钩，容器先行平滑生长，内部卡片利用 `transitionDelay` (例如 `index * 60ms`) 并在入场前强制 `translateY(-20px) scale(0.95)` 实现错位下落。其产生的卡片顶部锚点物理位移亦可同步拖动底部 SVG 连线同步下落。
+
 * **Infrastructure (基础设施):** 强依赖 CDN (内容分发网络) 。所有高保真背景图、印泥动效图、水墨遮罩等静态资源必须全量上 CDN，确保即便裂变拉新导致高并发，主站依然能丝滑加载 。
 
 * **用户追踪与埋点 (Tracking Analytics):**

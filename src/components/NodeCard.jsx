@@ -1,6 +1,6 @@
 import React from 'react';
 
-function NodeCard({ node, onReadMore, selectedNodeId, isRoot, index = 0, expandedIds, onToggleNode }) {
+function NodeCard({ node, onReadMore, selectedNodeId, isRoot, index = 0, expandedIds, onToggleNode, isVisibleToParent = true }) {
     const isSelected = selectedNodeId === node.id;
     const hasLore = (node.allusions && node.allusions.length > 0) || (node.poetry && node.poetry.length > 0);
     const childrenVisible = expandedIds ? expandedIds.has(node.id) : true;
@@ -13,6 +13,50 @@ function NodeCard({ node, onReadMore, selectedNodeId, isRoot, index = 0, expande
         e.stopPropagation();
         if (onToggleNode) onToggleNode(node.id);
     };
+
+    // 2MD Agile: Multi-Stage animation state machine to handle 'display: none' vs transitions
+    // Stages: 'hidden' (display: none), 'render' (display: block, size 0), 'visible' (display: block, size full)
+    const [aniStage, setAniStage] = React.useState(childrenVisible ? 'visible' : 'hidden');
+    const [targetMaxWidth, setTargetMaxWidth] = React.useState(5000);
+    const ulRef = React.useRef(null);
+
+    React.useEffect(() => {
+        if (childrenVisible) {
+            setAniStage('render'); 
+            // Frame sync logic to capture true intrinsic width for a perfect, 100%-duration CSS transition
+            requestAnimationFrame(() => {
+                let realWidth = 5000;
+                if (ulRef.current) {
+                    const oldMax = ulRef.current.style.maxWidth;
+                    ulRef.current.style.maxWidth = 'none';
+                    realWidth = ulRef.current.scrollWidth;
+                    ulRef.current.style.maxWidth = oldMax;
+                    // Force a recalculation buffer flush
+                    void ulRef.current.offsetWidth;
+                }
+                setTargetMaxWidth(realWidth + 10);
+
+                setTimeout(() => {
+                    setAniStage('visible');
+                    // Unlock bounds after animation so sub-tree expanding doesn't get clipped
+                    setTimeout(() => setTargetMaxWidth(5000), 850);
+                }, 50);
+            });
+        } else {
+            // Force hardware flush of exact current layout size before CSS shrinking transition begins
+            if (ulRef.current && targetMaxWidth === 5000) {
+                ulRef.current.style.maxWidth = `${ulRef.current.scrollWidth}px`;
+                void ulRef.current.offsetWidth;
+            }
+            setAniStage('render'); 
+            const timer = setTimeout(() => setAniStage('hidden'), 850); 
+            return () => clearTimeout(timer);
+        }
+    }, [childrenVisible]);
+
+    const isInternalVisible = childrenVisible && aniStage === 'visible';
+
+    const cardWidth = isRoot ? 128 : (node.bgImage ? 96 : 60);
 
     const isLongTitle = !isRoot && !node.bgImage && node.title.length > 4;
 
@@ -34,7 +78,7 @@ function NodeCard({ node, onReadMore, selectedNodeId, isRoot, index = 0, expande
         ? { width: '128px', height: '128px' } // w-32 h-32
         : node.bgImage
             ? { width: '96px', height: '128px' } // w-24 h-32
-            : { width: '60px', height: '167px' }; // slip card
+            : { width: '60px', height: '210px' }; // slip card (task 065: 210px)
 
     const fanAngle = 3;
     const activeFanAngle = showFan ? fanAngle : 0;
@@ -47,11 +91,18 @@ function NodeCard({ node, onReadMore, selectedNodeId, isRoot, index = 0, expande
             data-children-visible={childrenVisible}
             style={{
                 '--fan-angle': `${activeFanAngle}deg`,
-                '--marquee-duration': marqueeDuration,
-                transitionDelay: childrenVisible ? `${index * 40}ms` : '0ms'
+                '--marquee-duration': marqueeDuration
             }}
         >
-            <div className="flex justify-center items-start w-full relative z-10 mix-blend-multiply" style={{ height: '220px' }}>
+            <div 
+                className={`flex justify-center items-start w-full relative z-10 mix-blend-multiply transition-all duration-[700ms] ease-[cubic-bezier(0.16,1,0.3,1)]`} 
+                style={{ 
+                    height: '260px',
+                    opacity: isVisibleToParent ? 1 : 0,
+                    transform: isVisibleToParent ? 'translateY(0) scale(1)' : 'translateY(-20px) scale(0.95)',
+                    transitionDelay: isVisibleToParent ? `${index * 60}ms` : '0ms'
+                }}
+            >
                 <div
                     className="relative"
                     data-card="true"
@@ -107,7 +158,7 @@ function NodeCard({ node, onReadMore, selectedNodeId, isRoot, index = 0, expande
                                 </svg>
                             </div>
                         )}
-                        {showFan && !isRoot && (
+                        {!isRoot && hasChildren && (
                             <>
                                 <div className="fan-card fan-left">
                                     <div className="card-insight-layer" />
@@ -122,9 +173,8 @@ function NodeCard({ node, onReadMore, selectedNodeId, isRoot, index = 0, expande
                     </div>
                 </div>
 
-                {/* Breadcrumb explicit Fold hint */}
-                {showFan && (
-                    <div className="absolute top-[195px] left-1/2 -translate-x-1/2 text-[0.75rem] text-stone-500 font-sans tracking-wide pointer-events-none whitespace-nowrap drop-shadow-sm font-semibold opacity-80">
+                {hasChildren && !childrenVisible && (
+                    <div className="absolute top-[238px] left-1/2 -translate-x-1/2 text-[0.75rem] text-stone-500 font-sans tracking-wide pointer-events-none whitespace-nowrap drop-shadow-sm font-semibold opacity-80">
                         [辖 {node.children.length} {node.title.endsWith('省') ? '部' : '司'}]
                     </div>
                 )}
@@ -133,11 +183,16 @@ function NodeCard({ node, onReadMore, selectedNodeId, isRoot, index = 0, expande
             {
                 hasChildren && (
                     <ul
-                        className={`transition-all duration-600 ease-[cubic-bezier(0.16,1,0.3,1)] overflow-hidden ${childrenVisible ? 'opacity-100' : 'opacity-0 invisible pointer-events-none'}`}
-                        style={!childrenVisible
-                            ? { maxHeight: 0, paddingTop: 0, margin: 0, display: 'none' } // DOM removal per SPEC
-                            : { maxHeight: '2000px' }
-                        }
+                        ref={ulRef}
+                        className={`transition-all duration-800 ease-[cubic-bezier(0.16,1,0.3,1)] overflow-hidden`}
+                        style={{
+                            display: aniStage === 'hidden' ? 'none' : 'block',
+                            maxHeight: aniStage === 'visible' ? '1200px' : '0px',
+                            maxWidth: aniStage === 'visible' ? `${targetMaxWidth}px` : `${cardWidth}px`,
+                            visibility: aniStage === 'visible' ? 'visible' : 'hidden',
+                            paddingTop: 0,
+                            margin: 0
+                        }}
                     >
                         {node.children.map((child, idx) => (
                             <NodeCard
@@ -149,6 +204,7 @@ function NodeCard({ node, onReadMore, selectedNodeId, isRoot, index = 0, expande
                                 index={idx}
                                 expandedIds={expandedIds}
                                 onToggleNode={onToggleNode}
+                                isVisibleToParent={isInternalVisible}
                             />
                         ))}
                     </ul>

@@ -84,7 +84,7 @@
 
     .tree ul {
         @apply pt-1 relative;
-        transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+        transition: all 0.8s cubic-bezier(0.16, 1, 0.3, 1);
         text-align: center;
         white-space: nowrap;
         padding-left: 0;
@@ -103,7 +103,7 @@
         font-size: 1rem;
         line-height: 1.5;
         /* Quartic Out easing for more "premium" feel: fast start, very smooth end */
-        transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.5s ease;
+        transition: all 0.8s cubic-bezier(0.16, 1, 0.3, 1);
     }
 
     .tree li:only-child {
@@ -112,7 +112,7 @@
 
     /* SVG Tree Connections */
     .tree-connections {
-        transition: opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+        transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1);
     }
 
     /* Node Card Ink Splash Effect */
@@ -373,7 +373,7 @@
     }
 
     /* Active state for fan cards (when parent is collapsed) */
-    [data-children-visible="false"]>div>.fan-card {
+    [data-children-visible="false"] .fan-card {
         opacity: 1;
         scale: 1;
     }
