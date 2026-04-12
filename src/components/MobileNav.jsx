@@ -24,16 +24,6 @@ function MobileNav({ activeTab, onNavigate, onToggleSearch }) {
         <span className="text-[0.65rem] mt-1 font-serif tracking-widest">入仕</span>
       </button>
 
-      <button
-        onClick={() => onNavigate('workshop')}
-        className={`flex flex-col items-center justify-center w-full h-full transition-colors ${
-          activeTab === 'workshop' ? 'text-white' : 'text-gray-400 hover:text-gray-300'
-        }`}
-      >
-        <Palette size={20} className={activeTab === 'workshop' ? 'text-vermilion' : ''} />
-        <span className="text-[0.65rem] mt-1 font-serif tracking-widest">造办处</span>
-      </button>
-
       {/* Global Search Button */}
       <button
         onClick={onToggleSearch}

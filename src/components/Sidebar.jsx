@@ -38,16 +38,7 @@ function Sidebar({ activeTab, onNavigate, isSearchOpen, onToggleSearch }) {
           </div>
         </button>
 
-        <button
-          onClick={() => onNavigate('workshop')}
-          className={`w-full text-left flex items-center px-6 py-4 transition-all duration-300 relative group cursor-pointer ${activeTab === 'workshop' ? 'bg-white/10 text-white border-l-4 border-vermilion' : 'text-gray-300 hover:bg-white/10 hover:text-white border-l-4 border-transparent'}`}
-        >
-          <div className="mr-4 flex-shrink-0"><Palette size={20} /></div>
-          <div className="flex flex-col">
-            <span className="font-serif text-[1.1rem] tracking-[1px]">造办处</span>
-            <span className="font-sans text-[0.75rem] opacity-60 mt-0.5">Imperial Workshop</span>
-          </div>
-        </button>
+
 
 
       </nav>

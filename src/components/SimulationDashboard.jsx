@@ -21,13 +21,12 @@ const POPULAR_JOBS = [
     '会计', 'CEO', '记者', '学生', '军人', '公务员',
 ];
 
-function SimulationDashboard({ onNavigateToWorkshop, initialParams, onClearParams }) {
+function SimulationDashboard({ initialParams, onClearParams }) {
     const [inputValue, setInputValue] = useState('');
     const [matchResult, setMatchResult] = useState(null);
     const [modernJob, setModernJob] = useState('');
     const [showPoster, setShowPoster] = useState(false);
     const [isMatching, setIsMatching] = useState(false);
-    const [showMerchCTA, setShowMerchCTA] = useState(false);
     const [isSaving, setIsSaving] = useState(false);
     const [viewportHeight, setViewportHeight] = useState(window.innerHeight);
     const [isMobile, setIsMobile] = useState(false);
@@ -85,10 +84,6 @@ function SimulationDashboard({ onNavigateToWorkshop, initialParams, onClearParam
             
             const posterTimer = setTimeout(() => {
                 setShowPoster(true);
-                if (merchTimerRef.current) clearTimeout(merchTimerRef.current);
-                merchTimerRef.current = setTimeout(() => {
-                    setShowMerchCTA(true);
-                }, 1800);
             }, 300);
 
             trackEvent('direct_take_office', {
@@ -141,12 +136,6 @@ function SimulationDashboard({ onNavigateToWorkshop, initialParams, onClearParam
                     modernJob: value.trim(),
                     ancientTitle: result?.title,
                 });
-
-                // 800ms + 900ms(仪式) 引流延迟 (Task 121)
-                if (merchTimerRef.current) clearTimeout(merchTimerRef.current);
-                merchTimerRef.current = setTimeout(() => {
-                    setShowMerchCTA(true);
-                }, 1800);
             }, 300);
         }, 800);
     }, [inputValue]);
@@ -186,7 +175,6 @@ function SimulationDashboard({ onNavigateToWorkshop, initialParams, onClearParam
         setMatchResult(null);
         setModernJob('');
         setShowPoster(false);
-        setShowMerchCTA(false);
         if (onClearParams) onClearParams();
     };
 
@@ -289,21 +277,7 @@ function SimulationDashboard({ onNavigateToWorkshop, initialParams, onClearParam
                                 </button>
                             </div>
 
-                            {/* 造办处引导 (Task 121: 800ms 延迟) */}
-                            {showMerchCTA && (
-                                <div className="w-full max-w-sm p-5 rounded-2xl bg-[#fdfaf2] border border-[#c19b6c]/30 flex items-center justify-between cursor-pointer group hover:border-[#c19b6c]/70 hover:shadow-md transition-all animate-in fade-in slide-in-from-bottom-2 duration-700" onClick={onNavigateToWorkshop}>
-                                    <div className="flex items-center gap-4">
-                                        <div className="w-12 h-12 rounded-xl bg-[#c19b6c]/10 flex items-center justify-center">
-                                            <BookOpen size={24} className="text-[#c19b6c]" />
-                                        </div>
-                                        <div>
-                                            <p className="text-[#2a1f14] text-sm font-medium">履新此职，配得起这一把好扇</p>
-                                            <p className="text-[#8b7355] text-xs mt-1">前往造办处赏玩同款水墨折扇 →</p>
-                                        </div>
-                                    </div>
-                                    <ChevronRight size={18} className="text-[#c19b6c] group-hover:translate-x-1 transition-transform" />
-                                </div>
-                            )}
+                            </div>
                         </div>
                     </div>
                 )}

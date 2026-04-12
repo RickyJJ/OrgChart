@@ -9,7 +9,6 @@ import { useBodyScrollLock } from './hooks/useBodyScrollLock';
 import HierarchyTree from './components/HierarchyTree';
 import DetailPanel from './components/DetailPanel';
 import SimulationDashboard from './components/SimulationDashboard';
-import ImperialWorkshop from './components/ImperialWorkshop';
 import GlobalSearch from './components/GlobalSearch';
 import ErrorBoundary, { MaintenanceUI } from './components/ErrorBoundary';
 import { getPath } from './utils/treeUtils';
@@ -261,7 +260,7 @@ function App() {
         className={`flex-1 flex flex-col relative bg-transparent md:border-l border-[#d3ccbf] ${activeTab === 'simulation' ? 'p-0 bg-rushi-bg bg-cover bg-center bg-no-repeat bg-fixed' : 'p-2 md:p-10 shadow-inner'}`}
         style={{
           marginLeft: 'var(--sidebar-width)',
-          minHeight: '0', // Allow flex-1 to govern height correctly without forcing overflow behind nav bar
+          minHeight: '0', 
         }}
       >
         <ErrorBoundary>
@@ -360,16 +359,9 @@ function App() {
               {activeTab === 'simulation' && (
                 <div className="flex-1 w-full h-full">
                   <SimulationDashboard
-                    onNavigateToWorkshop={() => handleNavigate('workshop')}
                     initialParams={simulationParams}
                     onClearParams={() => setSimulationParams(null)}
                   />
-                </div>
-              )}
-
-              {activeTab === 'workshop' && (
-                <div className="flex-1 w-full h-full overflow-hidden rounded-lg bg-[#0B111A]">
-                  <ImperialWorkshop />
                 </div>
               )}
 
