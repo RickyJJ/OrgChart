@@ -276,8 +276,6 @@ function SimulationDashboard({ initialParams, onClearParams }) {
                                     <Download size={16} /> {isSaving ? '正在录入...' : '落笔成旨'}
                                 </button>
                             </div>
-
-                            </div>
                         </div>
                     </div>
                 )}
