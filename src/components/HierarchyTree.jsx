@@ -253,6 +253,13 @@ const HierarchyTree = forwardRef(({
                     y: (touch1.clientY + touch2.clientY) / 2
                 };
 
+                // Defend against division by zero
+                if (touchStateRef.current.lastDistance === 0) {
+                    touchStateRef.current.lastDistance = distance;
+                    touchStateRef.current.lastCenter = center;
+                    return;
+                }
+
                 const { x, y, scale } = transformRef.current;
                 const rect = viewport.getBoundingClientRect();
                 

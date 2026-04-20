@@ -4,11 +4,12 @@ import { getUUID } from '../utils/tracker';
 import { processAlphaMask } from '../utils/imageProcessor';
 
 // 神级音效发生器：纯前端模拟重击与回声（砰——咚）
-const playStampSound = () => {
+export const playStampSound = (ctx) => {
     try {
-        const AudioContext = window.AudioContext || window.webkitAudioContext;
-        if (!AudioContext) return;
-        const ctx = new AudioContext();
+        if (!ctx) return;
+        if (ctx.state === 'suspended') {
+            ctx.resume();
+        }
 
         // 1. 沉重的 "砰" (Low frequency thud impact)
         const punchOsc = ctx.createOscillator();
@@ -83,12 +84,16 @@ const AppointmentPoster = forwardRef(function AppointmentPoster(
     const [isAnimating, setIsAnimating] = useState(false);
     const [sealBg, setSealBg] = useState("url('/assets/ui/yinzhang.png')");
     const [isMobile, setIsMobile] = useState(false);
+    const [scale, setScale] = useState(1);
 
     useEffect(() => {
-        const checkMobile = () => setIsMobile(window.innerWidth < 768);
-        checkMobile();
-        window.addEventListener('resize', checkMobile);
-        return () => window.removeEventListener('resize', checkMobile);
+        const handleResize = () => {
+            setIsMobile(window.innerWidth < 768);
+            setScale(window.innerWidth < 540 ? (window.innerWidth - 40) / 540 : 1);
+        };
+        handleResize(); // Initial check
+        window.addEventListener('resize', handleResize);
+        return () => window.removeEventListener('resize', handleResize);
     }, []);
 
     // 利用公共工具对印章背景进行无感像素扣除，完美输出物理透明层，避免 html2canvas 忽略 blend-mode
@@ -99,27 +104,17 @@ const AppointmentPoster = forwardRef(function AppointmentPoster(
     }, []);
 
     useEffect(() => {
-        let soundTimer;
         let animTimer;
         if (visible) {
             setIsAnimating(false);
             // 简单延迟以重启 CSS 动画
             animTimer = setTimeout(() => {
                 setIsAnimating(true);
-                
-                // 动画总时长 0.35s, 设定的砸击点在 58%~60%
-                // 延迟： CSS animation-delay: 200ms + (350ms * 58%) ≈ 403ms 
-                soundTimer = setTimeout(() => {
-                    playStampSound();
-                }, 403);
             }, 50);
         } else {
             setIsAnimating(false);
         }
-        return () => {
-            clearTimeout(animTimer);
-            clearTimeout(soundTimer);
-        };
+        return () => clearTimeout(animTimer);
     }, [visible, title]);
 
     // 组装裂变追踪 URL (Task 123)
@@ -193,6 +188,8 @@ const AppointmentPoster = forwardRef(function AppointmentPoster(
                 outline: '1px solid rgba(60, 45, 35, 0.2)',
                 outlineOffset: '-8px',
                 fontFamily: "'Noto Serif SC', 'STZhongsong', 'SimSun', serif",
+                transform: `scale(${scale})`,
+                transformOrigin: 'top center',
             }}
         >
             {/* ───── 水墨背景叠加 ───── */}
