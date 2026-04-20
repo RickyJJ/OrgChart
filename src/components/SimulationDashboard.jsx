@@ -4,7 +4,7 @@ import { Scroll, Sparkles, Download, RotateCcw, ChevronRight, BookOpen } from 'l
 import { matchJob, jobDictionary, fallbackJob } from '../data/jobMapping';
 import { trackEvent, searchNodes } from '../api/localData';
 import { getOrCreateUUID } from '../utils/tracker';
-import AppointmentPoster from './AppointmentPoster';
+import AppointmentPoster, { playStampSound } from './AppointmentPoster';
 
 /**
  * SimulationDashboard - 命运卷轴 (Destiny Scroll)
@@ -31,6 +31,7 @@ function SimulationDashboard({ initialParams, onClearParams }) {
     const [viewportHeight, setViewportHeight] = useState(window.innerHeight);
     const [isMobile, setIsMobile] = useState(false);
     
+    const audioCtxRef = useRef(null);
     const posterRef = useRef(null);
     const merchTimerRef = useRef(null);
     const containerRef = useRef(null);
@@ -97,6 +98,19 @@ function SimulationDashboard({ initialParams, onClearParams }) {
 
     // ─── 核心匹配引擎 (Task 122) ──────────────────────────────
     const handleMatch = useCallback(async (jobInput) => {
+        // ---【修复 Autoplay 策略拦截】---
+        // 第一次点击/交互时，立刻显式初始化并获取 AudioContext
+        if (!audioCtxRef.current) {
+            const AudioContext = window.AudioContext || window.webkitAudioContext;
+            if (AudioContext) {
+                audioCtxRef.current = new AudioContext();
+            }
+        }
+        if (audioCtxRef.current && audioCtxRef.current.state === 'suspended') {
+            audioCtxRef.current.resume();
+        }
+        // ------------------------------------
+
         const value = jobInput || inputValue;
         if (!value.trim()) return;
 
@@ -132,6 +146,17 @@ function SimulationDashboard({ initialParams, onClearParams }) {
 
             setTimeout(() => {
                 setShowPoster(true);
+
+                // ---【印章音效播放逻辑迁移】---
+                // 将原本在 AppointmentPoster 内容挂载阶段使用的延时播放逻辑移至交互事件的上下文中执行
+                // 等待 UI 渲染准备 (50ms) + 动画至砸击点延迟 (403ms) = 共计 453ms
+                if (audioCtxRef.current) {
+                    setTimeout(() => {
+                        playStampSound(audioCtxRef.current);
+                    }, 453);
+                }
+                // --------------------------------
+
                 trackEvent('generate_poster', {
                     modernJob: value.trim(),
                     ancientTitle: result?.title,

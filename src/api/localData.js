@@ -7,12 +7,40 @@
  * 恢复数据库模式时，只需将各组件的 import 路径切回 './directus' 即可。
  */
 
-import { dynastyData } from '../data/dynastyData';
+import { dynastyData as rawDynastyData } from '../data/dynastyData';
 import { staticProducts } from '../data/products';
+
+// 初始化时执行递归风流人物的向上汇聚 (Roll-up)
+// 保证在具体职务上的风流人物能自动在机构长辈上显示
+const processedDynastyData = JSON.parse(JSON.stringify(rawDynastyData));
+
+const rollUpFigures = (node) => {
+    const figuresSet = new Set(Array.isArray(node.figures) ? node.figures : []);
+
+    if (Array.isArray(node.children)) {
+        for (const child of node.children) {
+            const childFigures = rollUpFigures(child);
+            for (const f of childFigures) {
+                figuresSet.add(f);
+            }
+        }
+    }
+
+    const mergedFigures = Array.from(figuresSet);
+    if (mergedFigures.length > 0) {
+        node.figures = mergedFigures;
+    }
+    
+    return mergedFigures;
+};
+
+for (const dynasty of processedDynastyData) {
+    rollUpFigures(dynasty.structure);
+}
 
 // ─── 拉取全量朝代数据（同步，但包裹为 Promise 以保持 API 兼容）───
 export async function fetchAllDynastiesData() {
-    return dynastyData;
+    return processedDynastyData;
 }
 
 // ─── 拉取商品列表 ────────────────────────────────────────
@@ -68,7 +96,7 @@ export async function searchNodes(query) {
         }
     };
 
-    for (const dynasty of dynastyData) {
+    for (const dynasty of processedDynastyData) {
         walk(dynasty.structure);
     }
 

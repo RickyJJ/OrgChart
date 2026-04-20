@@ -18,13 +18,14 @@ function DetailPanel({ node, onClose, onTakeOffice }) {
   useBodyScrollLock(!!node && isMobile);
 
   const loreText = useMemo(() => {
+    let texts = [];
     if (hasPoetry) {
-      return node.poetry.map(item => `${item.author}《${item.poem}》`).join('\n\n');
+      texts.push(node.poetry.map(item => `${item.author}《${item.poem}》`).join('\n\n'));
     }
     if (hasAllusions) {
-      return node.allusions.map(item => `${item.title}：${item.text}`).join('\n\n');
+      texts.push(node.allusions.map(item => `${item.title}：${item.text}`).join('\n\n'));
     }
-    return '';
+    return texts.join('\n\n');
   }, [hasPoetry, hasAllusions, node?.poetry, node?.allusions]);
 
   const shouldShowLoreExpand = useMemo(() => {

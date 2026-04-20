@@ -50,11 +50,11 @@
 | 046 | UI/UX | 移除卡片上显得突兀的英文文本以维持水墨文化沉浸感，保留中文，并将英文挪至右侧详情面板头部 | Done | 1.2 |
 | 047 | Bug | 修复唐朝和明朝“兵部”节点被插图完全替代的问题，将 `bgImage` 字段修正为 `panelImage`，使图片仅在详情面板内展示，恢复正确的官职卡片渲染 | Done | 1.2 |
 | 048 | UI/UX | 调整所有官职卡片的固定宽高为 w-[115px] h-[200px]，使其长宽比（~0.575）完美匹配生成的源牌匾图片的像素比例（286x498），做到亚字形边框零拉伸 | Done | 1.2 |
-| 049 | Bug | 修复官职卡中背景色/材质覆盖并越过矢量边框（border-image）导致重叠难看的问题，通过移除 slice fill 并应用 `background-clip: padding-box` 裁切背景 | Done | 1.2 |
+| 049 | Bug | 修复官职卡中背景色/材质覆盖并越过矢量边框（border-image）导致重叠难看的问题，通过移除 slice fillhyphen 并应用 `background-clip: padding-box` 裁切背景 | Done | 1.2 |
 | 050 | UI/UX | 修复边框图片自带纯白背景遮挡卡片纸张纹理的问题：重构 CSS 将 `border-image` 移至绝对定位层并叠加 `mix-blend-mode: multiply` | Done | 1.2 |
 | 051 | UI/UX | 彻底消灭原卡片底色超出矢量折角并残留白色矩形背景块的问题：移除多余层和卡片自带背景底色/阴影，实现真正的“零底色纯矢量线稿”外观 | Done | 1.2 |
 | 052 | UI/UX | 全局字体古风化：引入 Ma Shan Zheng (马善政) 和 Zhi Mang Xing (志莽行书)，配置并应用至主标题及官职卡片标题 | Done | 1.2 |
-| 053 | UI/UX | 根据用户反馈，将主标题和竹简卡片标题的字体从毛笔书法体调整为**思源宋体 (Noto Serif SC)**，以获得更端庄、清晰的阅读体验 | Done | 1.0 |
+| 053 | UI/UX | 根据用户反馈，将主标题 and 竹简卡片标题的字体从毛笔书法体调整为**思源宋体 (Noto Serif SC)**，以获得更端庄、清晰的阅读体验 | Done | 1.0 |
 | 054 | UI/UX | 彻底清理官职卡片残留的 CSS `box-shadow` 和 Tailwind 阴影类 (`shadow-sm`, `shadow-md`, `drop-shadow`)，确保纯净矢量线稿视觉 | Done | 1.2 |
 | 055 | UI/UX | 修复鼠标悬浮 (Hover) 时卡片内文字发虚、模糊的问题：优化 `transition-all` 为 `transition-transform` 并应用 `will-change-transform` | Done | 1.2 |
 | 056 | UI/UX | 根据 UI/UX 规范重新排版朝代切换按钮，使其垂直排列在标题下方，并放大按钮尺寸以提升操作体感 | Done | 1.2 |
@@ -155,8 +155,8 @@
 | 155 | Feature | 架构树与检索联动：全局搜索目标后向上反查连线链路并强制展开DOM渲染，排他性自动折叠旁支，精准平滑定位与高亮 (Ref: docs/tasks/task_152_hierarchy_tree_refactor.md) | Done | 2.5 |
 | 156 | UI/UX | 典故连珠：优化详情面板中的内容展开/收起逻辑，支持多行检测并更名为“收起/更多” | Done | 2.4 |
 | 157 | UI/UX | 详情面板：为风流人物区域增加带有 Users 图标的标题，对齐全局页面设计规范 | Done | 2.4 |
-| 200 | Arch | 全面静态化：砍掉 Directus/Meilisearch/PostgreSQL 后端依赖，将全量官制数据(唐代)、商品数据硬编码为前端 JSON，搜索改为客户端模糊匹配，埋点降级为 console.log，点赞改为 localStorage (注：明代由于权限原因暂缺) (Ref: docs/tasks/task_200_static_data_extraction.md) | Done | 3.1 |
 | 158 | Feature | 更新地址栏图标 (Favicon) 为 `qyz_icon.png` | Done | 1.2 / 2.9 |
+| 200 | Arch | 全面静态化：砍掉 Directus/Meilisearch/PostgreSQL 后端依赖，将全量官制数据(唐代)、商品数据硬编码为前端 JSON，搜索改为客户端模糊匹配，埋点降级为 console.log，点赞改为 localStorage (注：明代由于权限原因暂缺) (Ref: docs/tasks/task_200_static_data_extraction.md) | Done | 3.1 |
 | 201 | UI/UX | 移动端基础适配：引入全局响应式断点，将侧边导航栏重构为移动端底部导航栏或折叠菜单 (Ref: docs/tasks/mobile/task_201_layout_navigation.md) | Done | 1.2 |
 | 202 | UI/UX | 官阶树触控升级：重构画布交互引擎，支持移动端双指缩放 (Pinch-to-Zoom)、平滑拖拽防出界机制 (Ref: docs/tasks/mobile/task_202_tree_touch_interactions.md) | Done | 1.2 / 2.2 |
 | 203 | UI/UX | 详情面板与造办处移动端重构：将侧边展开改为底部抽屉上滑 (Bottom Sheet)，并优化长内容滚动防穿透 (Ref: docs/tasks/mobile/task_203_detail_panel_bottom_sheet.md) | Done | 2.3 / 2.7 |
@@ -179,3 +179,14 @@
 | 220 | Feature | 合规备案号展示：在全局底部加入公安备案和ICP备案号，实现桌面端单行展示，移动端自适应折行并悬浮在安全内边距之上以避免遮挡 | Done | 1.2 |
 | 221 | Arch | 分支管理：基于当前状态创建 `qyz_main` (完整版) 与 `qyz_no_promotion` (去除商业化入口版) | Done | 3.1 |
 | 222 | Feature | 合规化改造：在 `qyz_no_promotion` 分支中移除“造办处”文创导航入口及关联引流逻辑，并合并回 `main` | Done | 1.2 |
+| 223 | Arch | 环境切换：将本地工作分支切换至 `qyz_main` | Done | 3.1 |
+| 224 | Feature | 核心数据改造：实现“风流人物”属性的向上卷（Roll-up）继承机制，保证名人在具体底层官职及其各级所属机构上均能闭环显示 | Done | 3.2 |
+| 225 | Feature | (Architecture) 确立文化类数据（`allusions`, `poetry`，如“典故连珠”）的归属边界准则：**语义就近原则**。此类数据不参与 Roll-up，而是紧接着其最初发生或形容的层级挂载。若是总结全机构风貌（如台阁生风）则放高层；若是单独官职（如江州司马）则放底层。 | Done | 3.2 |
+| 226 | Bug | 修复垂直排版下 Flexbox 项目由于长文本导致的物理宽度膨胀问题：为主卡片严格施加 `minWidth` 与 `maxWidth` 极值锁，防止卡片“发胖”导致相邻节点重叠 | Done | 1.2 / 2.2 |
+| 227 | Bug | 修复移动端设备下海报组件因固定尺寸导致的视口溢出问题：引入视口宽度监听动态计算缩放比例，并应用到包裹容器的 `transform: scale` 中 | Done | 2.6 |
+| 228 | Bug | 修复 Web Audio API (印章音效) 被浏览器 Autoplay 策略拦截问题：挂载 AudioContext 至用户点击事件上下文并平移计时器触发逻辑 | Done | 1.2 |
+| 229 | Content | 将 backend/temp/education.json 中补充的唐代中央与教育核心节点数据(尚书仆射、国子监)合并至 src/data/dynastyData.js | Done | 3.2 |
+| 230 | Content | 将 backend/temp/cilvi.json 中补充的唐代监察与基层终端节点数据(监察御史、县令)合并至 src/data/dynastyData.js | Done | 3.2 |
+| 231 | Content | 将 backend/temp/freak.json 中补充的晚唐太监军权政治怪胎节点(神策军中尉)合并至 src/data/dynastyData.js | Done | 3.2 |
+| 232 | Content | 将 backend/temp/new_data1.jsion 中补充的唐代大理寺卿、御史大夫的具体文化数据(人物、典故、诗词)合并至 src/data/dynastyData.js | Done | 3.2 |
+| 233 | Bug | 修复详情面板中因逻辑互斥导致典故被隐藏的问题：调整 `loreText` 拼接逻辑，确保诗词与典故能在详情页完整展现 | Done | 2.4 |

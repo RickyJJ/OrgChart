@@ -75,10 +75,10 @@ function NodeCard({ node, onReadMore, selectedNodeId, isRoot, index = 0, expande
     const isSlipCard = !isRoot && !node.bgImage;
 
     const containerStyle = isRoot
-        ? { width: '128px', height: '128px' } // w-32 h-32
+        ? { width: '128px', height: '128px', minWidth: '128px', maxWidth: '128px' } // w-32 h-32
         : node.bgImage
-            ? { width: '96px', height: '128px' } // w-24 h-32
-            : { width: '60px', height: '210px' }; // slip card (task 065: 210px)
+            ? { width: '96px', height: '128px', minWidth: '96px', maxWidth: '96px' } // w-24 h-32
+            : { width: '60px', height: '210px', minWidth: '60px', maxWidth: '60px' }; // slip card (task 065: 210px)
 
     const fanAngle = 3;
     const activeFanAngle = showFan ? fanAngle : 0;
@@ -187,7 +187,7 @@ function NodeCard({ node, onReadMore, selectedNodeId, isRoot, index = 0, expande
                         className={`transition-all duration-800 ease-[cubic-bezier(0.16,1,0.3,1)] overflow-hidden`}
                         style={{
                             display: aniStage === 'hidden' ? 'none' : 'block',
-                            maxHeight: aniStage === 'visible' ? '1200px' : '0px',
+                            maxHeight: aniStage === 'visible' ? '8000px' : '0px',
                             maxWidth: aniStage === 'visible' ? `${targetMaxWidth}px` : `${cardWidth}px`,
                             visibility: aniStage === 'visible' ? 'visible' : 'hidden',
                             paddingTop: 0,
