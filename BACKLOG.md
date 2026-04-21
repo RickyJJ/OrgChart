@@ -1,7 +1,7 @@
 # Project Backlog & Todo
 
 | 任务 ID | 类型 (Feature/Bug) | 描述 | 状态 (Pending/Ongoing/Done) | 对应规范章节 |
-|---------|--------------------|------|-----------------------------|--------------|
+| --------- | -------------------- | ------ | ----------------------------- | -------------- |
 | 001 | Feature | Initialize project structure | Done | 3.1 |
 | 002 | Feature | Explain PLANNING mode flow | Done | N/A |
 | 003 | Feature | Refine visual style to "Ink & Wash" cultural theme | Done | 1.2 |
@@ -65,7 +65,7 @@
 | 061 | UI/UX | 替换全局官职卡片边框背景：从 `vertical_plaque_outline` 修改为您提供的白底 `card-bg-1.jpg` | Done | 1.2 |
 | 062 | Bug | 修复 JPG 背景带来的多余白色四角问题：运用 `mix-blend-mode: multiply` 与移除卡片阴影的方式物理使四角透明化 | Done | 1.2 |
 | 063 | UI/UX | 取消 `clip-path` 裁剪并调整卡片尺寸，以恢复被误裁的顶部装饰（钉子/挂绳）并保持原有线框布局完美缩放 | Done | 1.2 |
-| 064 | UI/UX | 增加用于调试官职卡片宽度、高度和字体大小的临时悬浮面板 | Done | 1.2 | 
+| 064 | UI/UX | 增加用于调试官职卡片宽度、高度和字体大小的临时悬浮面板 | Done | 1.2 |
 | 065 | UI/UX | 将卡片尺寸硬编码为宽 60px、高 210px，字号 2.5rem，并移除调试面板 | Done | 1.2 |
 | 066 | UI/UX | 为超过 3 个字的冗长官位名称添加鼠标悬停留白的隐性走马灯特效（Marquee Effect），以展示完整文本 | Done | 1.2 |
 | 067 | UI/UX | 替换朝代切换按钮背景图：由 switcher-bg-1 替换为 switch-bg-1 | Done | 1.2 |
