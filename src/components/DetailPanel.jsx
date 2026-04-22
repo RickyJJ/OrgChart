@@ -196,21 +196,32 @@ function DetailPanel({ node, onClose, onTakeOffice }) {
               </div>
             </section>
           )}
+
+          {/* AI 免责声明 (AI Disclaimer) - Task #132 */}
+          <div className="mt-8 mb-4 flex flex-col items-center justify-center opacity-70">
+            <div className="w-12 h-[1px] bg-[#d3ccbf]/60 mb-3"></div> {/* 极简分割线 */}
+            <p className="text-[11px] text-[#8a8376] font-serif text-center leading-relaxed px-4">
+              <span className="inline-block mr-1">✨</span>
+              注：卷轴所载之白话与典故，部分由 AI 寻章摘句而成。<br />若有错漏，望客官海涵。
+            </p>
+          </div>
         </div>
 
         {/* Section 6: CTA Button (加高底部内边距以避开移动端底部导航栏遮挡) */}
-        <div className={`px-8 pt-2 ${isMobile ? 'pb-[5rem]' : 'pb-8'}`}>
-          <button
-            type="button"
-            onClick={(e) => {
-              stopBubble(e);
-              if (onTakeOffice) onTakeOffice(node);
-            }}
-            className="w-full h-12 rounded-lg bg-[#af292e] text-[#fff] font-bold tracking-[0.2em] transition-all hover:bg-[#8a2d2f] active:scale-95 shadow-md"
-          >
-            接旨赴任
-          </button>
-        </div>
+        {node && node.level && !node.level.includes('机构') && !node.level.includes('最高统治者') && (
+          <div className={`px-8 pt-2 ${isMobile ? 'pb-[5rem]' : 'pb-8'}`}>
+            <button
+              type="button"
+              onClick={(e) => {
+                stopBubble(e);
+                if (onTakeOffice) onTakeOffice(node);
+              }}
+              className="w-full h-12 rounded-lg bg-[#af292e] text-[#fff] font-bold tracking-[0.2em] transition-all hover:bg-[#8a2d2f] active:scale-95 shadow-md"
+            >
+              接旨赴任
+            </button>
+          </div>
+        )}
       </aside>
     </>
   );

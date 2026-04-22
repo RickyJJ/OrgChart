@@ -65,7 +65,7 @@
 | 061 | UI/UX | 替换全局官职卡片边框背景：从 `vertical_plaque_outline` 修改为您提供的白底 `card-bg-1.jpg` | Done | 1.2 |
 | 062 | Bug | 修复 JPG 背景带来的多余白色四角问题：运用 `mix-blend-mode: multiply` 与移除卡片阴影的方式物理使四角透明化 | Done | 1.2 |
 | 063 | UI/UX | 取消 `clip-path` 裁剪并调整卡片尺寸，以恢复被误裁的顶部装饰（钉子/挂绳）并保持原有线框布局完美缩放 | Done | 1.2 |
-| 064 | UI/UX | 增加用于调试官职卡片宽度、高度和字体大小的临时悬浮面板 | Done | 1.2 |
+| 064 | UI/UX | 增加用于调试官职卡片宽度、高度和字体bg-[#af292e]/20大小的临时悬浮面板 | Done | 1.2 |
 | 065 | UI/UX | 将卡片尺寸硬编码为宽 60px、高 210px，字号 2.5rem，并移除调试面板 | Done | 1.2 |
 | 066 | UI/UX | 为超过 3 个字的冗长官位名称添加鼠标悬停留白的隐性走马灯特效（Marquee Effect），以展示完整文本 | Done | 1.2 |
 | 067 | UI/UX | 替换朝代切换按钮背景图：由 switcher-bg-1 替换为 switch-bg-1 | Done | 1.2 |
@@ -185,8 +185,13 @@
 | 226 | Bug | 修复垂直排版下 Flexbox 项目由于长文本导致的物理宽度膨胀问题：为主卡片严格施加 `minWidth` 与 `maxWidth` 极值锁，防止卡片“发胖”导致相邻节点重叠 | Done | 1.2 / 2.2 |
 | 227 | Bug | 修复移动端设备下海报组件因固定尺寸导致的视口溢出问题：引入视口宽度监听动态计算缩放比例，并应用到包裹容器的 `transform: scale` 中 | Done | 2.6 |
 | 228 | Bug | 修复 Web Audio API (印章音效) 被浏览器 Autoplay 策略拦截问题：挂载 AudioContext 至用户点击事件上下文并平移计时器触发逻辑 | Done | 1.2 |
+| 234 | UI/UX | 在详情面板底部添加古风 AI 免责声明，采用新中式极简排版与降格视觉设计 (Ref: Task #132) | Done | 1.2 / 2.4 |
 | 229 | Content | 将 backend/temp/education.json 中补充的唐代中央与教育核心节点数据(尚书仆射、国子监)合并至 src/data/dynastyData.js | Done | 3.2 |
 | 230 | Content | 将 backend/temp/cilvi.json 中补充的唐代监察与基层终端节点数据(监察御史、县令)合并至 src/data/dynastyData.js | Done | 3.2 |
 | 231 | Content | 将 backend/temp/freak.json 中补充的晚唐太监军权政治怪胎节点(神策军中尉)合并至 src/data/dynastyData.js | Done | 3.2 |
 | 232 | Content | 将 backend/temp/new_data1.jsion 中补充的唐代大理寺卿、御史大夫的具体文化数据(人物、典故、诗词)合并至 src/data/dynastyData.js | Done | 3.2 |
 | 233 | Bug | 修复详情面板中因逻辑互斥导致典故被隐藏的问题：调整 `loreText` 拼接逻辑，确保诗词与典故能在详情页完整展现 | Done | 2.4 |
+| 235 | Feature | 详情面板：机构类节点与最高统治者节点隐藏“接旨赴任”按钮，确保仅在具体官职节点展示，符合历史语义 | Done | 2.4 |
+| 236 | Content | 补全唐代架构树中 18 个缺失具体职事官的机构节点（如各部下辖诸司、国子监等）的核心主官（郎中/祭酒），并补充部分名人文士担任副官（员外郎）的典故与诗词（如杜牧、韦应物、张籍等） | Done | 3.2 |
+| 237 | Feature | 实现典故呼吸灯的“视觉穿透”与状态上卷 (Visual State Roll-up)：折叠时父节点展开按钮应用朱砂红呼吸动效，引导用户发现深层文化数据 | Done | 1.2 |
+| 238 | Bug | 修复 NodeCard 底部呼吸灯动画存在方形截断的视觉 Bug，改为纯柔和圆形光晕并应用 ping 动画效果 | Done | 1.2 |

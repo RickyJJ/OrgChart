@@ -22,7 +22,7 @@ function NodeCard({ node, onReadMore, selectedNodeId, isRoot, index = 0, expande
 
     React.useEffect(() => {
         if (childrenVisible) {
-            setAniStage('render'); 
+            setAniStage('render');
             // Frame sync logic to capture true intrinsic width for a perfect, 100%-duration CSS transition
             requestAnimationFrame(() => {
                 let realWidth = 5000;
@@ -48,8 +48,8 @@ function NodeCard({ node, onReadMore, selectedNodeId, isRoot, index = 0, expande
                 ulRef.current.style.maxWidth = `${ulRef.current.scrollWidth}px`;
                 void ulRef.current.offsetWidth;
             }
-            setAniStage('render'); 
-            const timer = setTimeout(() => setAniStage('hidden'), 850); 
+            setAniStage('render');
+            const timer = setTimeout(() => setAniStage('hidden'), 850);
             return () => clearTimeout(timer);
         }
     }, [childrenVisible]);
@@ -94,9 +94,9 @@ function NodeCard({ node, onReadMore, selectedNodeId, isRoot, index = 0, expande
                 '--marquee-duration': marqueeDuration
             }}
         >
-            <div 
-                className={`flex justify-center items-start w-full relative z-10 mix-blend-multiply transition-all duration-[700ms] ease-[cubic-bezier(0.16,1,0.3,1)]`} 
-                style={{ 
+            <div
+                className={`flex justify-center items-start w-full relative z-10 mix-blend-multiply transition-all duration-[700ms] ease-[cubic-bezier(0.16,1,0.3,1)]`}
+                style={{
                     height: '260px',
                     opacity: isVisibleToParent ? 1 : 0,
                     transform: isVisibleToParent ? 'translateY(0) scale(1)' : 'translateY(-20px) scale(0.95)',
@@ -146,12 +146,19 @@ function NodeCard({ node, onReadMore, selectedNodeId, isRoot, index = 0, expande
                         {hasChildren && (
                             <div
                                 onClick={toggleChildren}
-                                className="absolute bottom-0 left-1/2 -translate-x-1/2 w-6 h-6 flex items-center justify-center text-gray-300/40 hover:text-stone-500/70 transition-colors duration-500 z-20 cursor-pointer"
+                                className={`absolute -bottom-1 left-1/2 -translate-x-1/2 w-8 h-8 rounded-full flex items-center justify-center transition-all duration-500 z-20 cursor-pointer ${!childrenVisible && node.hasHiddenLore && !hasLore
+                                    ? 'text-[#af292e] drop-shadow-md'
+                                    : 'text-gray-300/40 hover:text-stone-500/70'
+                                    }`}
                                 style={{ writingMode: 'horizontal-tb' }}
                                 title={childrenVisible ? "收起" : "展开"}
                             >
+                                {(!childrenVisible && node.hasHiddenLore && !hasLore) && (
+                                    <div className="absolute inset-1 rounded-full bg-[#af292e]/100 animate-ping mix-blend-multiply blur-sm" style={{ animationDuration: '2.5s' }}></div>
+                                )}
                                 <svg
-                                    className={`w-5 h-5 transition-transform duration-500 ${childrenVisible ? 'rotate-180' : 'rotate-0'}`}
+                                    className={`relative z-10 w-5 h-5 transition-transform duration-500 ${childrenVisible ? 'rotate-180' : 'rotate-0'} ${!childrenVisible && node.hasHiddenLore && !hasLore ? 'animate-pulse' : ''}`}
+                                    style={{ animationDuration: !childrenVisible && node.hasHiddenLore && !hasLore ? '2.5s' : '500ms' }}
                                     fill="none" stroke="currentColor" viewBox="0 0 24 24"
                                 >
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 9l-7 7-7-7" />

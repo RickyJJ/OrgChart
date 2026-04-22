@@ -34,8 +34,34 @@ const rollUpFigures = (node) => {
     return mergedFigures;
 };
 
+/**
+ * 递归计算 hasHiddenLore 字段
+ * 如果子孙节点中有 allusions 或 poetry，则父节点 hasHiddenLore 为 true
+ * 返回当前节点及其所有子孙是否包含任何典故数据
+ */
+const calculateHiddenLore = (node) => {
+    let selfHasLore = (Array.isArray(node.allusions) && node.allusions.length > 0) || 
+                      (Array.isArray(node.poetry) && node.poetry.length > 0);
+    
+    let childrenHaveLore = false;
+    if (Array.isArray(node.children)) {
+        for (const child of node.children) {
+            if (calculateHiddenLore(child)) {
+                childrenHaveLore = true;
+            }
+        }
+    }
+
+    // hasHiddenLore 指的是“子孙节点中有典故”
+    node.hasHiddenLore = childrenHaveLore;
+
+    // 返回给父级：我自己有或者我子孙有
+    return selfHasLore || childrenHaveLore;
+};
+
 for (const dynasty of processedDynastyData) {
     rollUpFigures(dynasty.structure);
+    calculateHiddenLore(dynasty.structure);
 }
 
 // ─── 拉取全量朝代数据（同步，但包裹为 Promise 以保持 API 兼容）───
